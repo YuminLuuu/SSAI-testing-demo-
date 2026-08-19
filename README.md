@@ -7,6 +7,7 @@
 | 文件 | 是什么 |
 |---|---|
 | `index.html` | 可交互原型（v0.1）。台风全时间轴 + 三个个性化问题 + 求助话术模块。纯静态，无依赖，可离线打开。 |
+| `docs/prompt-spec.html` | 提需求规范卡。从 SheShapesAI 工作坊实录（Job Hunt Copilot 八步实录）提炼的 prompt 模板与规范，含套用到本项目的现成 Define prompt。 |
 | `docs/positioning.html` | 对内定位说明。气候适应 / 防灾减灾的概念坐标、我们在动哪个变量、语言纪律、衡量指标、停止条件。**不对外、不对用户使用。** |
 
 ## 原型验证的是什么

@@ -1,0 +1,390 @@
+<title>提需求的骨架</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+:root{
+  --paper:#EFEFF1; --card:#FAFAFB; --sunk:#E4E4E8;
+  --ink:#17181C; --ink-2:#4E5058; --ink-3:#84868F;
+  --rule:#D3D4DA; --rule-soft:#E2E3E8;
+  --mark:#8C2F39; --mark-bg:#F3E2E3; --mark-ink:#6E242C;
+  --mute:#9B9DA6;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#111216; --card:#191A20; --sunk:#212229;
+  --ink:#E8E9ED; --ink-2:#A6A8B2; --ink-3:#74767F;
+  --rule:#2A2C34; --rule-soft:#212229;
+  --mark:#E08D96; --mark-bg:#33191C; --mark-ink:#EFAFB6;
+  --mute:#5A5C66;
+}}
+:root[data-theme="dark"]{
+  --paper:#111216; --card:#191A20; --sunk:#212229;
+  --ink:#E8E9ED; --ink-2:#A6A8B2; --ink-3:#74767F;
+  --rule:#2A2C34; --rule-soft:#212229;
+  --mark:#E08D96; --mark-bg:#33191C; --mark-ink:#EFAFB6;
+  --mute:#5A5C66;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  font-size:15px;line-height:1.82;-webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:770px;margin:0 auto;padding:0 22px 96px}
+h1,h2,h3,h4{margin:0;text-wrap:balance}
+p{margin:0;color:var(--ink-2)}
+strong{color:var(--ink);font-weight:700}
+code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.9em;background:var(--sunk);padding:1px 5px;border-radius:4px}
+.lbl{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+header{padding:54px 0 26px;border-bottom:3px double var(--ink)}
+header .lbl{display:block;margin-bottom:13px;color:var(--mark)}
+header h1{font-size:33px;line-height:1.32;letter-spacing:-.022em;font-weight:700}
+header .sub{margin-top:13px;font-size:15px;max-width:48ch;color:var(--ink-2)}
+header .src{
+  margin-top:20px;padding:12px 15px;background:var(--sunk);border-radius:7px;
+  font-size:12.5px;color:var(--ink-3);line-height:1.7;
+}
+
+section{padding:40px 0;border-bottom:1px solid var(--rule)}
+section > .lbl{display:block;margin-bottom:9px;color:var(--mark)}
+h2{font-size:23px;line-height:1.42;letter-spacing:-.014em;margin-bottom:15px;font-weight:700}
+h3{font-size:16px;margin:30px 0 9px;font-weight:700;letter-spacing:-.006em}
+h3:first-of-type{margin-top:22px}
+section p + p{margin-top:14px}
+
+/* pipeline */
+.pipe{display:flex;flex-wrap:wrap;gap:5px;margin:20px 0 6px}
+.step{
+  font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.02em;
+  padding:6px 11px;border-radius:5px;background:var(--card);border:1px solid var(--rule-soft);color:var(--ink-3);
+}
+.step.gap{background:var(--mark-bg);border-color:transparent;color:var(--mark-ink);font-weight:600;text-decoration:line-through;text-decoration-thickness:1px}
+.step.here{background:var(--ink);border-color:var(--ink);color:var(--paper);font-weight:600}
+.pipe-key{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-size:12px;color:var(--ink-3)}
+.pipe-key span{display:flex;align-items:center;gap:6px}
+.sw{width:11px;height:11px;border-radius:3px;flex:none}
+
+/* numbered moves */
+.moves{counter-reset:m;list-style:none;padding:0;margin:20px 0 0}
+.moves > li{
+  counter-increment:m;position:relative;padding:0 0 22px 46px;margin:0;
+}
+.moves > li::before{
+  content:counter(m,decimal-leading-zero);position:absolute;left:0;top:2px;
+  font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--mark);
+  letter-spacing:.05em;font-weight:600;
+}
+.moves h4{font-size:15.5px;margin-bottom:6px;font-weight:700}
+.moves p{font-size:14.5px}
+
+/* prompt block */
+.tpl{margin:20px 0 0;border:1px solid var(--rule);border-radius:9px;overflow:hidden;background:var(--card)}
+.tpl-bar{
+  display:flex;justify-content:space-between;align-items:center;gap:14px;
+  padding:9px 15px;background:var(--sunk);border-bottom:1px solid var(--rule);
+}
+.tpl-bar .lbl{color:var(--ink-3)}
+.tpl-bar .tag{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--mark);letter-spacing:.08em}
+.tpl pre{
+  margin:0;padding:16px 17px;overflow-x:auto;
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;line-height:1.92;
+  color:var(--ink-2);white-space:pre-wrap;word-break:break-word;
+}
+.tpl pre b{color:var(--ink);font-weight:600}
+.tpl pre .slot{color:var(--mute);font-style:italic}
+.tpl pre .hot{background:var(--mark-bg);color:var(--mark-ink);padding:0 3px;border-radius:3px;font-weight:600}
+
+.why{margin:0;padding:14px 17px 16px;border-top:1px dashed var(--rule);background:transparent}
+.why dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:7px 15px;align-items:baseline}
+.why dt{
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.06em;
+  color:var(--mark);white-space:nowrap;text-align:right;font-weight:600;
+}
+.why dd{margin:0;font-size:13.5px;line-height:1.72;color:var(--ink-2)}
+@media(max-width:540px){
+  .why dl{grid-template-columns:1fr;gap:2px 0}
+  .why dt{text-align:left;margin-top:9px}
+}
+
+/* quote */
+blockquote{
+  margin:16px 0 0;padding:13px 16px;border-left:2px solid var(--mark);
+  background:var(--card);border-radius:0 7px 7px 0;
+  font-size:14px;line-height:1.78;color:var(--ink-2);
+}
+blockquote .lbl{display:block;margin-bottom:6px;color:var(--ink-3)}
+blockquote b{color:var(--ink)}
+
+/* compare */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0 0}
+@media(max-width:600px){.cmp{grid-template-columns:1fr}}
+.cmp > div{padding:15px 16px;border-radius:8px;background:var(--card);border:1px solid var(--rule-soft)}
+.cmp .lbl{display:block;margin-bottom:8px}
+.cmp .bad{color:var(--ink-3)}
+.cmp .bad .lbl{color:var(--ink-3)}
+.cmp .bad p{color:var(--mute)}
+.cmp .good{border-color:var(--mark);background:var(--card)}
+.cmp .good .lbl{color:var(--mark)}
+.cmp p{font-size:13.5px;line-height:1.74}
+
+/* table */
+.tbl{overflow-x:auto;margin:20px 0 0}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:460px}
+th,td{text-align:left;padding:11px 16px 11px 0;border-bottom:1px solid var(--rule-soft);vertical-align:top;line-height:1.68}
+th{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);font-weight:400;border-bottom-color:var(--rule)}
+td{color:var(--ink-2)}
+td:first-child{color:var(--ink);font-weight:500;padding-right:22px;white-space:nowrap}
+td.x{color:var(--mark)}
+
+ul.plain{margin:16px 0 0;padding-left:19px;color:var(--ink-2)}
+ul.plain li{margin-bottom:9px;line-height:1.78;font-size:14.5px}
+ul.plain li::marker{color:var(--mark)}
+ul.plain li strong{color:var(--ink)}
+
+.gap-box{
+  margin:20px 0 0;padding:17px 19px;border-radius:9px;background:var(--mark-bg);color:var(--mark-ink);
+  font-size:14px;line-height:1.78;
+}
+.gap-box .lbl{display:block;margin-bottom:8px;color:var(--mark-ink);opacity:.75}
+.gap-box b{color:var(--mark-ink)}
+
+footer{padding:32px 0 0;font-size:12.5px;color:var(--ink-3);line-height:1.8}
+footer p + p{margin-top:9px}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="lbl">规范提炼 · 供本项目复用</span>
+  <h1>提需求的骨架</h1>
+  <p class="sub">从一份完整的八步实录里，把「怎么跟 AI 提需求」这件事拆成可以照着填的模板。重点不是流程图，是那四段格式完全相同的模块 prompt。</p>
+  <div class="src">来源：SheShapesAI 工作坊实录（44 页），项目 Job Hunt Copilot，专家「海参」，12:30 → 21:00 一天走完八步。下面的引文均出自该材料。</div>
+</header>
+
+<section>
+  <span class="lbl">坐标</span>
+  <h2>八步，以及我们跳过了哪两步</h2>
+  <div class="pipe">
+    <span class="step">Problem/Idea</span>
+    <span class="step gap">Define</span>
+    <span class="step gap">Co-create</span>
+    <span class="step here">Prototype</span>
+    <span class="step">Evaluate</span>
+    <span class="step">Iterate</span>
+    <span class="step">Test</span>
+    <span class="step">Reflect</span>
+  </div>
+  <div class="pipe-key">
+    <span><i class="sw" style="background:var(--ink)"></i>我们现在在这</span>
+    <span><i class="sw" style="background:var(--mark-bg)"></i>我们跳过了</span>
+  </div>
+  <p style="margin-top:20px">这是对照下来最该说的一件事：<strong>我们从 Problem/Idea 直接跳到了 Prototype。</strong>原型本身有用（它是用来验证信息架构的一次性道具），但按这套规范，Define 应该先写成文件、固化成项目的事实依据，之后每一次提需求都回指它。我们现在没有那份文件，所以每次对话都要重新交代一遍上下文——这正是这套规范要消灭的浪费。</p>
+  <blockquote>
+    <span class="lbl">材料原文 · 项目初始化</span>
+    「Claude Code 里写 CLAUDE.md，<b>把 Define 固化为项目事实依据</b>。」后面每一个模块 prompt 的第一句都是「基于 CLAUDE.md 里的 Define 和已上线的 X 表结构……」
+  </blockquote>
+</section>
+
+<section>
+  <span class="lbl">思考方式</span>
+  <h2>专家在做的三个动作</h2>
+  <p>这三个动作在材料里反复出现，而且顺序固定。它们发生在写任何 prompt 之前。</p>
+
+  <ol class="moves">
+    <li>
+      <h4>收到模糊需求，先拆解并逐块标风险，然后主动收窄</h4>
+      <p>面对一段一口气说完的痛点，没有直接给方案，而是拆成四块并分级：<code>完全可行</code> / <code>可行，但这是红线活</code> / <code>中等风险</code> / <code>风险最高</code>。然后给出收窄建议——关键是<strong>说清被砍掉的部分去了哪里</strong>，不是丢弃，是「作为 Reflect 阶段的下一步迭代方向，不在初始阶段实现」。</p>
+    </li>
+    <li>
+      <h4>把用户的产品语言，逐条翻译成技术约束</h4>
+      <p>材料里管这叫「<strong>把藏着的技术要求拆出来</strong>」。格式统一是 <code>用户的原话 → 技术含义</code>，每条都能回指到用户说过的某句话。翻译完再收束成一句本质判断：「这个项目的本质是：一个需要关系型数据管理 + 文件存储 + 外部信息接入 + 受约束文本生成 + 未来多用户扩展能力的小型全栈产品。」</p>
+    </li>
+    <li>
+      <h4>约束必须固化成机制，不能停在口头约定</h4>
+      <p>这是整份材料的价值观核心。「不能编造经历」这条红线，处理方式不是每次 prompt 里叮嘱一遍，而是做成自定义 Skill：「<strong>一次性 prompt 容易漏描述、每次结果不稳定；固化成规则组件才能保证每次生成都按同一套红线走</strong>。」最后验收时的原话是——红线约束「在代码和数据库层面都有实际机制守着，<strong>不只是口头约定</strong>」。</p>
+    </li>
+  </ol>
+</section>
+
+<section>
+  <span class="lbl">模板 T0</span>
+  <h2>还没想清楚时，怎么开口</h2>
+  <p>这是全篇第一个 prompt，用在「我知道我想要什么，但不知道能不能做」的阶段。</p>
+  <div class="tpl">
+    <div class="tpl-bar"><span class="lbl">原文</span><span class="tag">Problem / Idea</span></div>
+<pre>我现在有一个痛点是：<span class="slot">「……原样贴上你的痛点，不要加工……」</span>
+
+<b>我个人初步的感受是</b>想做出来的东西都不是很复杂和困难，
+<span class="hot">但我不确定现有 AI 的捕捉能力是否可以实现我想解决的关键点</span>
+<span class="hot">以及实现我想要的自动化程度。</span>
+
+请你充分思考我的需求并结合现有 AI 平台的能力，
+<b>给我一个更具体可行的初步方案。</b></pre>
+    <div class="why"><dl>
+      <dt>原样贴</dt><dd>痛点不要自己先整理成条目。原始的、啰嗦的描述里包含你没意识到的信息，整理会把它们洗掉。</dd>
+      <dt>交代不确定</dt><dd>主动说出「我不确定的是 AI 的能力边界」。这一句把对方的任务从「照做」改成了「判断可行性」，是这个模板的全部价值所在。</dd>
+      <dt>要方案不要成品</dt><dd>请求的是「更具体可行的初步方案」，不是「帮我做出来」。这一步要的是收窄，不是交付。</dd>
+    </dl></div>
+  </div>
+</section>
+
+<section>
+  <span class="lbl">模板 T1</span>
+  <h2>Define：五件套，验收标准要可判定</h2>
+  <p>确认收窄范围之后，下一句是：「请你基于该开发目标，帮我<strong>再次定义更清晰完整的问题描述</strong>。」产出固定包含五块——</p>
+  <div class="tbl"><table>
+    <thead><tr><th>块</th><th>要求</th></tr></thead>
+    <tbody>
+      <tr><td>目标用户</td><td>一句话，具体到人。材料里就是「一位同时海投多个海内外岗位的求职者（我）」。</td></tr>
+      <tr><td>核心模块</td><td>编号列出，每条说清存什么/做什么。</td></tr>
+      <tr><td>User story</td><td>「作为 X，我想 Y，这样 Z」。Z 是收益，不能省。</td></tr>
+      <tr><td>验收标准</td><td><strong>逐条对应核心模块，且必须写成可判定的句子。</strong>这是五块里最关键的一块。</td></tr>
+      <tr><td>产出形式</td><td>形态 + 使用范围 + 未来扩展预期。</td></tr>
+    </tbody>
+  </table></div>
+  <blockquote>
+    <span class="lbl">一条验收标准的完整写法</span>
+    「草稿里的<b>每一处经历描述都能在个人信息库里找到对应事实来源</b>（<b>不能凭空生成信息库里没有的内容</b>），生成结果是<b>草稿，不自动发送，需要人工确认</b>。」
+  </blockquote>
+  <p style="margin-top:16px">一句话里塞了四样东西：正向要求、括号里的负向禁止、交付物的性质（草稿而非成品）、流程约束（人工确认）。<strong>负向禁止和流程约束是大多数人会漏掉的两样</strong>，而它们恰恰是后面能守住红线的原因。</p>
+</section>
+
+<section>
+  <span class="lbl">模板 T2 · 核心</span>
+  <h2>模块开发骨架</h2>
+  <p>这个结构在材料里<strong>原封不动重复了四次</strong>（四个模块各一次）。重复四次意味着它不是即兴发挥，是一个模板。这是整份材料里最值得直接抄走的东西。</p>
+  <div class="tpl">
+    <div class="tpl-bar"><span class="lbl">骨架</span><span class="tag">Co-create · ×4</span></div>
+<pre>现在开发模块 <span class="slot">N</span>：<span class="slot">模块名</span>。
+<b>基于 CLAUDE.md 里的 Define 和已上线的 <span class="slot">具体表名</span> 表结构</b>，
+<span class="hot">设计实现方案（先出方案，不要动手写代码）：</span>
+
+功能范围：
+1. <span class="slot">做什么 + 边界 + 为什么</span>
+2. <span class="slot">……</span>
+3. <span class="hot">核心难点，请重点设计：</span><span class="slot">……</span>
+4. <span class="slot">不提供 X，只提供 Y（对应之前 Z 的设计决定）</span>
+
+<b>请给出：</b>页面/路由结构、需要的组件、<span class="slot">本模块难点</span>具体怎么实现、
+<b>以及这些改动会新增/修改哪些文件。</b></pre>
+    <div class="why"><dl>
+      <dt>基于……</dt><dd>锚定既有事实，不让对方重新发明上下文。点名到具体的表、具体的文件，而不是泛泛说「按之前说的」。</dd>
+      <dt>先出方案</dt><dd><strong>强制把「想」和「做」切开</strong>，给自己留一道 review 关口。材料里每个模块都是 Plan → 人工 review → 才执行。</dd>
+      <dt>编号功能</dt><dd>编号是为了后面能逐条勾验收，不是为了好看。</dd>
+      <dt>影响面</dt><dd>「会新增/修改哪些文件」是这个模板里最容易被漏掉、但决定 review 质量的一句。<strong>不知道动了哪些文件，你就 review 不动。</strong></dd>
+    </dl></div>
+  </div>
+</section>
+
+<section>
+  <span class="lbl">技巧</span>
+  <h2>功能条目里的三种高阶写法</h2>
+  <p>把四段模块 prompt 横向比一遍，能看出三个反复出现、而且很难自己想到的动作。</p>
+
+  <h3>一 · 标出核心难点，并明令禁止敷衍</h3>
+  <blockquote>「5. 请明确设计一个校验机制：如果 AI 生成的某段描述在结构化输出里没有对应的 citation，该怎么处理——<b>是拒绝这段内容，还是标记为"未核实"提示用户重点检查？</b>这是最需要守住的红线，<b>请给出具体方案，不要笼统带过。</b>」</blockquote>
+  <p style="margin-top:14px">三个动作叠在一起：标记优先级（「最需要守住的红线」）、<strong>给出候选让对方在里面选</strong>（而不是开放式提问）、明确禁止笼统。中间那条尤其值得学——把开放题变成选择题，回答质量会稳定得多。</p>
+
+  <h3>二 · 写清楚「不要什么」，并回指到之前的决定</h3>
+  <div class="cmp">
+    <div class="bad"><span class="lbl">一般写法</span><p>「不要提供删除功能。」</p></div>
+    <div class="good"><span class="lbl">材料里的写法</span><p>「不提供删除功能，只提供"归档"（把 status 改成 archived），<strong>对应之前 on delete restrict 的设计决定</strong>。」</p></div>
+  </div>
+  <p style="margin-top:14px">差别在于后半句。它把这条禁令和之前某个决定绑在了一起，对方就知道这不是随口一说，改动时也会连带考虑那个决定。</p>
+
+  <h3>三 · 主动阻止对方复用上一次的结论</h3>
+  <blockquote>「8. 请给出你建议用哪个模型做这个生成任务，并说明理由（这个任务对输出质量、指令遵循要求比模块 1 的 JD 解析要高，<b>模型选择需要重新权衡，不要直接照搬模块 1 的 Haiku 选择</b>）。」</blockquote>
+  <p style="margin-top:14px">这条最见功力。<strong>她预判到了对方会有惯性，于是提前把惯性点出来并禁止。</strong>凡是「上一个模块这么做过、但这个模块条件变了」的地方，都值得补这么一句。</p>
+</section>
+
+<section>
+  <span class="lbl">模板 T3</span>
+  <h2>架构设计：把未来的约束写进现在的要求</h2>
+  <div class="tpl">
+    <div class="tpl-bar"><span class="lbl">原文节选</span><span class="tag">Plan Mode</span></div>
+<pre>请基于 CLAUDE.md 里的 Define 章节，设计数据库表结构方案，覆盖四个模块：……
+
+要求：
+1. <b>只出设计方案，不要执行/不要建表，我需要先 review。</b>
+2. 说明每张表的字段、类型、主键外键关系。
+3. 说明表之间怎么关联（比如投递进展记录怎么关联到具体的岗位记录）。
+4. 说明每张表需要的 RLS 策略，<span class="hot">即使现在只有我一个用户，</span>
+   <span class="hot">也要按"未来可能开放给多用户"的方式设计。</span>
+5. 素材库涉及文件存储，说明用哪种方式组织。</pre>
+    <div class="why"><dl>
+      <dt>第 4 条</dt><dd>这是整段的精髓。<strong>现在不需要的能力，但未来一定会需要，就要在今天的设计里留出位置。</strong>理由在选型表里写得很直白：「现在改数据结构成本最低，等真的要开放时不用推倒重做，只是把权限开关打开。」</dd>
+    </dl></div>
+  </div>
+</section>
+
+<section>
+  <span class="lbl">模板 T4 / T5</span>
+  <h2>反馈和迭代，同样有格式</h2>
+  <h3>Evaluate：现象 → 判断 → 期望</h3>
+  <p>四条评估结论的结构完全一致，而且每条都先承认能跑通的部分，再说问题，最后落到一句根因：</p>
+  <blockquote>「<b>确实可以</b>根据具体的岗位信息来生成新的 CV 和 Cover letter，<b>但是</b>生成的文件有诸多问题，<b>首先是</b>两者都应该是全英文、英式英语……<b>其次</b>应该要按照我素材库中的模版直接生成并导出相同格式的 PDF 或 word，现在生成的内容都是全文字的，我还需要自己粘贴到模板中，<b>自动化程度太低</b>。」</blockquote>
+  <p style="margin-top:14px">最后那五个字是根因判断，不是抱怨。有了它，下一轮才知道该往哪个方向修。</p>
+
+  <h3>Iterate：按复杂度分流到不同工具</h3>
+  <p>四条迭代项分别标了 <code>简单</code> <code>中等</code> <code>中等</code> <code>复杂</code>，并且指定了各自的做法。规则很清楚：</p>
+  <ul class="plain">
+    <li><strong>简单的改文件。</strong>比如「生成内容必须为全英文、英式英语」这种，直接改 CLAUDE.md 的 Define 部分，用自然语言要求即可。</li>
+    <li><strong>中等及以上走 Plan Mode。</strong>涉及交互重做、跨模块统一、新增导出能力的，一律先出方案再动手。</li>
+    <li><strong>UI 规范这类横切要求，写进 CLAUDE.md</strong>，作为「后续所有模块改动的统一依据」——又一次「固化成机制」。</li>
+  </ul>
+</section>
+
+<section>
+  <span class="lbl">贯穿全程</span>
+  <h2>七条硬规范</h2>
+  <div class="tbl"><table>
+    <tbody>
+      <tr><td>事实依据</td><td>Define 写进 CLAUDE.md，成为项目的唯一事实来源，所有后续 prompt 回指它。</td></tr>
+      <tr><td>先想后做</td><td>Plan Mode 出方案 → 人工 review → 才执行。每个模块无一例外。</td></tr>
+      <tr><td>依赖顺序</td><td>基础链路 → 信息库 → 素材库 → 进展记录 → 生成。先打通读写，再做业务。</td></tr>
+      <tr><td>模块节奏</td><td>看 Plan → 生成 → 本地验证 → commit。固定四拍。</td></tr>
+      <tr><td>清空上下文</td><td>换模块前清空。避免上一个模块的决定污染下一个。</td></tr>
+      <tr><td>真实路径验证</td><td class="x">「验证应用本身（<strong>不是靠 CLI/SQL Editor</strong>）能真实地正常读写这 7 张表」——不用捷径验证，捷径能过不代表用户路径能过。</td></tr>
+      <tr><td>记录不做什么</td><td>Reflect 阶段明确写下本次不做的事项<strong>及理由</strong>，留给下一轮，而不是默默消失。</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <span class="lbl">落到我们项目</span>
+  <h2>我们该补的是 Define</h2>
+  <div class="gap-box">
+    <span class="lbl">诚实对照</span>
+    我们目前有：一段 Problem/Idea 的收窄（符合规范）、一个能跑的原型、一份对内定位文档。<br>
+    我们缺的是：<b>Define 五件套</b>（尤其是可判定的验收标准）、<b>CLAUDE.md</b>（把 Define 固化成事实依据）、<b>工具选型</b>（现在的单文件 HTML 是权宜之计，不是选型结论）。<br>
+    后果很具体：<b>每次对话我都要重新交代一遍上下文</b>，而且没有任何一条约束是被机制守着的——全是口头约定。
+  </div>
+
+  <h3>下一步直接可用的 prompt</h3>
+  <div class="tpl">
+    <div class="tpl-bar"><span class="lbl">按 T1 填好的</span><span class="tag">Define</span></div>
+<pre>基于我们已经收窄的开发目标——<b>面向独居、生活经验有限人群的
+极端天气行动清单（台风/暴雨单一天气，全时间轴，不接实时气象 API，
+不做账号，不做聊天框）</b>——帮我定义更清晰完整的问题描述。
+
+请产出五块：
+1. 目标用户：具体到一个人，不要写"独居脆弱人群"这种范畴词。
+2. 核心模块：编号列出，每条说清呈现什么、数据从哪来。
+3. User story：作为 X 我想 Y 这样 Z，Z 必须是收益不是动作。
+4. <span class="hot">验收标准：逐条对应核心模块，每条都要可判定。</span>
+   <span class="hot">其中必须包含负向禁止和流程约束，例如内容与官方预警冲突时</span>
+   <span class="hot">如何处理、未经核对的条目能否展示。</span>
+5. 产出形式：形态、使用范围、未来是否要扩展到多天气/多城市。
+
+<b>只出定义，不要写代码，也不要建议技术选型</b>——那是下一步的事。</pre>
+  </div>
+  <p style="margin-top:18px">Define 定稿之后，再按 T2 的骨架逐模块推进，第一个模块应该是<strong>「求助话术」而不是「行动清单」</strong>——因为按定位文档的判断，那才是核心机制，而且它依赖最少、能最快拿去做用户测试。</p>
+</section>
+
+<footer>
+  <p>本卡片是对上述工作坊材料的方法提炼，引文均出自该材料，用于本项目内部复用。原项目（Job Hunt Copilot）的技术选型结论针对的是「需要关系型数据 + 文件存储 + 受约束生成」的全栈产品，与我们当前的静态原型不是同一类，<strong>可以照抄的是提需求的结构，不是选型结果</strong>。</p>
+</footer>
+
+</div>
