@@ -1,0 +1,277 @@
+<title>一个人的适应力</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@700&display=swap">
+<style>
+:root{
+  --ground:#EDF2F0; --surface:#FBFCFC; --surface-2:#E2EAE8;
+  --ink:#15201E; --ink-2:#4B5B58; --ink-3:#7E8D8A;
+  --line:#D0DAD7; --line-soft:#DFE7E5;
+  --accent:#186459; --accent-ink:#0E4A41; --accent-soft:#D9EAE6; --on-accent:#F4F8F7;
+  --warn:#9C7407; --warn-bg:#F5EBCF;
+  --dim:#8A9A96;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#0D1514; --surface:#151F1D; --surface-2:#1D2A27;
+  --ink:#E3ECEA; --ink-2:#A2B4B0; --ink-3:#71827E;
+  --line:#283835; --line-soft:#1F2C2A;
+  --accent:#5CC0B1; --accent-ink:#8AD6C9; --accent-soft:#173B36; --on-accent:#0D1514;
+  --warn:#D9AF48; --warn-bg:#332A12;
+  --dim:#576965;
+}}
+:root[data-theme="dark"]{
+  --ground:#0D1514; --surface:#151F1D; --surface-2:#1D2A27;
+  --ink:#E3ECEA; --ink-2:#A2B4B0; --ink-3:#71827E;
+  --line:#283835; --line-soft:#1F2C2A;
+  --accent:#5CC0B1; --accent-ink:#8AD6C9; --accent-soft:#173B36; --on-accent:#0D1514;
+  --warn:#D9AF48; --warn-bg:#332A12;
+  --dim:#576965;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:"Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  font-size:15.5px;line-height:1.86;-webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:680px;margin:0 auto;padding:0 22px 100px}
+h1,h2,h3{margin:0;text-wrap:balance;font-family:"Noto Serif SC",Georgia,serif}
+p{margin:0}
+strong{font-weight:700}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+header{padding:52px 0 30px;border-bottom:2px solid var(--ink)}
+header .eyebrow{display:block;margin-bottom:14px}
+header h1{font-size:32px;line-height:1.34;letter-spacing:-.012em}
+header .sub{margin-top:14px;color:var(--ink-2);font-size:15px;max-width:46ch}
+header .meta{margin-top:22px;font-size:12px;color:var(--ink-3);display:flex;gap:16px;flex-wrap:wrap}
+
+section{padding:38px 0;border-bottom:1px solid var(--line)}
+section > .eyebrow{display:block;margin-bottom:10px;color:var(--accent)}
+h2{font-size:22px;line-height:1.45;letter-spacing:-.006em;margin-bottom:14px}
+h3{font-family:inherit;font-size:15px;font-weight:700;margin:22px 0 7px}
+section p + p{margin-top:14px}
+p{color:var(--ink-2)}
+p.lead{color:var(--ink);font-size:16.5px;line-height:1.8}
+
+.thesis{
+  background:var(--accent-soft);color:var(--accent-ink);
+  padding:22px 24px;border-radius:12px;margin:6px 0 4px;
+  font-size:17px;line-height:1.76;font-weight:500;
+}
+.thesis .eyebrow{display:block;color:var(--accent-ink);opacity:.72;margin-bottom:9px}
+
+/* formula decomposition */
+.formula{margin:22px 0 6px;display:flex;flex-direction:column;gap:4px}
+.frow{
+  display:grid;grid-template-columns:104px 1fr;gap:16px;align-items:baseline;
+  padding:14px 16px;border-radius:10px;background:var(--surface);border:1px solid var(--line-soft);
+}
+.frow.off{background:transparent;border-color:transparent;padding:9px 16px;color:var(--dim)}
+.frow.off .fname,.frow.off .fdesc{color:var(--dim)}
+.frow.on{background:var(--accent-soft);border-color:transparent}
+.fname{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.frow.on .fname{color:var(--accent-ink);font-weight:500}
+.fdesc{font-size:14px;line-height:1.68;color:var(--ink-2)}
+.frow.on .fdesc{color:var(--accent-ink)}
+.fdesc b{font-weight:700}
+.fverdict{
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  display:block;margin-top:6px;opacity:.68;
+}
+.fop{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--dim);
+  padding-left:16px;letter-spacing:.1em;line-height:1;
+}
+
+/* tables */
+.tbl-scroll{overflow-x:auto;margin:20px 0 4px;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:440px}
+th,td{text-align:left;padding:11px 14px 11px 0;border-bottom:1px solid var(--line-soft);vertical-align:top;line-height:1.66}
+th{font-size:11px;font-family:"IBM Plex Mono",monospace;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);font-weight:400;border-bottom-color:var(--line)}
+td{color:var(--ink-2)}
+td:first-child{color:var(--ink);font-weight:500;padding-right:20px}
+td.no{color:var(--warn)}
+td.yes{color:var(--accent)}
+
+ul,ol{margin:14px 0 0;padding-left:20px;color:var(--ink-2)}
+li{margin-bottom:8px;line-height:1.78}
+li::marker{color:var(--accent)}
+li strong{color:var(--ink)}
+
+.callout{
+  margin:22px 0 4px;padding:17px 19px;border-radius:10px;
+  background:var(--warn-bg);color:var(--warn);font-size:14px;line-height:1.76;
+}
+.callout .eyebrow{display:block;color:var(--warn);opacity:.8;margin-bottom:7px}
+.callout b{color:var(--warn)}
+
+.split{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0 4px}
+@media(max-width:560px){.split{grid-template-columns:1fr}}
+.card{padding:17px 18px;border-radius:10px;background:var(--surface);border:1px solid var(--line-soft)}
+.card .eyebrow{display:block;margin-bottom:8px}
+.card p{font-size:14px;line-height:1.72}
+.card.stop .eyebrow{color:var(--warn)}
+.card.go .eyebrow{color:var(--accent)}
+
+.kill{counter-reset:k;list-style:none;padding:0;margin:18px 0 0}
+.kill li{
+  counter-increment:k;padding:14px 0 14px 40px;position:relative;
+  border-bottom:1px solid var(--line-soft);margin:0;color:var(--ink-2);font-size:14.5px;
+}
+.kill li:last-child{border-bottom:none}
+.kill li::before{
+  content:counter(k);position:absolute;left:0;top:15px;
+  font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--warn);
+  width:23px;height:23px;border-radius:50%;background:var(--warn-bg);
+  display:grid;place-items:center;
+}
+.kill li b{color:var(--ink);display:block;margin-bottom:2px}
+
+footer{padding:34px 0 0;color:var(--ink-3);font-size:12.5px;line-height:1.82}
+footer p{color:var(--ink-3)}
+footer p + p{margin-top:10px}
+a{color:var(--accent);text-underline-offset:3px}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">对内定位说明 · 不对外使用</span>
+  <h1>一个人的适应力</h1>
+  <p class="sub">这份文档是为了让我们自己在做取舍时有个准绳，也是为了在跟资助方、学术合作方讲这件事时，能用他们听得懂的话讲清楚。它不是给用户看的——用户永远不该看到这里面任何一个词。</p>
+  <div class="meta"><span class="mono">v0.1</span><span>配套原型：台风前的一个人</span><span>状态：假设，未验证</span></div>
+</header>
+
+<section>
+  <span class="eyebrow">一句话</span>
+  <div class="thesis">
+    <span class="eyebrow">定位</span>
+    通过补齐<strong>知识</strong>与<strong>社会连接</strong>这两项，提升低适应能力个体在极端天气事件中的适应能力（adaptive capacity）的工具。
+  </div>
+  <p style="margin-top:18px">这句话是能对着气候适应领域的人说的，而且经得起追问。它每一个词都有出处，下面逐一交代。</p>
+</section>
+
+<section>
+  <span class="eyebrow">坐标</span>
+  <h2>我们在哪张地图上</h2>
+  <p>应对气候变化有两条腿：<strong>减缓（mitigation）</strong>处理原因，也就是减排；<strong>适应（adaptation）</strong>处理后果，也就是调整人和系统去承接已经发生和将要发生的气候影响。我们显然在适应这一侧。</p>
+  <p>但适应本身有层次——国家和城市层面是海绵城市、防洪工程、建筑规范；社区层面是绿化降温、避暑点、脆弱人群登记；家庭和个人层面才是储备、保险、房屋改造、以及知识与关系。<strong>我们在最后一层，而且是这一层里最"软"的两项。</strong></p>
+  <p>我们同时踩在一个相邻领域上：<strong>防灾减灾（DRR, Disaster Risk Reduction）</strong>。它的经典周期是「预防 → 备灾 → 应急 → 恢复」，而原型的四段时间轴（T-72h / T-24h / 进行中 / 灾后）几乎就是这个周期的逐字翻译。</p>
+  <div class="callout">
+    <span class="eyebrow">要能答上的追问</span>
+    <b>「你处理的是长期气候趋势，还是单次极端事件？」</b>——诚实的答案是：目前是后者。我们做的是气候适应与防灾减灾重叠区里、个体层面的备灾工具。这两个领域在政策上早已融合，站在交叉点不是问题；<b>假装自己已经覆盖了长期趋势才是问题。</b>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">机制</span>
+  <h2>我们只动了一个变量</h2>
+  <p>气候风险领域有一个通用的分解方式。把它逐项对照一遍，就能非常清楚地看到这个产品的作用边界在哪——以及它有多窄。</p>
+
+  <div class="formula">
+    <div class="frow off"><span class="fname">Hazard</span><span class="fdesc"><b>致灾因子</b>——台风、暴雨、高温本身<span class="fverdict">我们不改变</span></span></div>
+    <div class="fop">×</div>
+    <div class="frow off"><span class="fname">Exposure</span><span class="fdesc"><b>暴露度</b>——你在不在受影响的地方<span class="fverdict">基本不改变，只帮用户认清</span></span></div>
+    <div class="fop">×</div>
+    <div class="frow off"><span class="fname">Sensitivity</span><span class="fdesc"><b>敏感性</b>——慢性病、行动不便、年龄<span class="fverdict">我们不改变</span></span></div>
+    <div class="fop">+</div>
+    <div class="frow on"><span class="fname">Adaptive<br>Capacity</span><span class="fdesc"><b>适应能力</b>——通常拆成经济资源、信息、技术、基础设施、制度、技能、社会资本七项。我们只动其中两项：<b>技能／知识</b>，和<b>社会资本</b>（求助渠道、报平安网络）。<span class="fverdict">这是我们唯一在动的东西</span></span></div>
+  </div>
+
+  <p style="margin-top:22px">把这件事说清楚有两个好处。对外：它让我们的表述可信，因为我们没有夸大。对内：<strong>任何一个不作用在"技能"或"社会资本"上的功能想法，都应该被放到很后面。</strong>这是一条能真正拒绝需求的判据。</p>
+</section>
+
+<section>
+  <span class="eyebrow">产品观点</span>
+  <h2>从 coping 走向 adaptation</h2>
+  <p>这个领域会区分两个常被混用的词，而这个区分正好是我们产品观点的名字：</p>
+  <div class="split">
+    <div class="card stop"><span class="eyebrow">Coping · 应对</span><p>短期的、被动的。用手头现有的东西撑过这一次。撑过去了，什么也没留下。</p></div>
+    <div class="card go"><span class="eyebrow">Adaptation · 适应</span><p>长期的、前瞻的。改变自己的结构和能力，让下一次变得更容易。</p></div>
+  </div>
+  <p style="margin-top:20px">最初的直觉是"很多人对极端天气的应对是滞后的，我们想做预防向"。那句话描述的正是<strong>从 coping 往 adaptation 移动</strong>。这是我们的立场，也直接给了我们一个比日活更合适的指标——见下。</p>
+  <p>原型里 T+ 阶段的最后一条「趁记忆还新，写下这次哪里最卡」，是整份清单里唯一一件对下一次有用的事。它在信息量上最轻，在定位上最重：<strong>它是这个产品从 coping 跨到 adaptation 的那一步。</strong></p>
+</section>
+
+<section>
+  <span class="eyebrow">人群</span>
+  <h2>为什么是独居</h2>
+  <p>选独居不是拍脑袋。独居在气候脆弱性文献里是被反复验证的风险因子。</p>
+  <p>最常被引用的是 Eric Klinenberg 对 1995 年芝加哥热浪的研究（《Heat Wave: A Social Autopsy of Disaster》）。那次热浪造成数百人死亡，他发现<strong>独居是最强的死亡风险因子之一</strong>。更关键的是：两个人口结构和贫困率高度相似的相邻街区，死亡率却相差很大，差别在于<strong>社会基础设施</strong>——街上有没有商铺、邻里认不认识、有没有人会来敲你的门。</p>
+  <p>这项研究几乎是在直接论证我们的两个核心假设：独居本身就是脆弱性变量，与收入无关；社会连接是可干预、且有效的适应能力。</p>
+  <div class="callout">
+    <span class="eyebrow">对产品的直接含义</span>
+    「报平安网络」和「该找谁 + 怎么开口」不是附加功能，<b>它们是这个产品的核心机制。</b>应对知识那一部分，市面上到处都有；社会连接这一部分，几乎没有人做。如果要砍功能，先砍知识，别砍关系。
+  </div>
+  <h3>当前的人群假设（未验证）</h3>
+  <p>一线／新一线城市、25–35 岁、独居、租房、生活经验有限、社交求助成本高。选它的理由是执行性的：她能自己表达、自己传播、自己决定要不要装。<strong>不是因为她最脆弱</strong>——最脆弱的是独居老人和行动不便者，但那两个人群的产品形态完全不同（老人端的真实用户是异地子女）。这一点要一直记着，不要自我感动。</p>
+</section>
+
+<section>
+  <span class="eyebrow">语言纪律</span>
+  <h2>什么时候说气候适应，什么时候绝对不说</h2>
+  <p>「气候适应」这个词对不同受众的价值天差地别。搞混了会同时失去两边。</p>
+  <div class="tbl-scroll"><table>
+    <thead><tr><th>受众</th><th>用不用</th><th>为什么</th></tr></thead>
+    <tbody>
+      <tr><td>产品界面、给用户的一切文案</td><td class="no">绝对不用</td><td>没有人会因为"气候适应型工具包"下载任何东西。她的语言是「台风天一个人在家好慌」「明天到底要不要去上班」。界面上出现这四个字，只会让她觉得这不是给她的。</td></tr>
+      <tr><td>资助方、公益组织、评委</td><td class="yes">要用</td><td>这是有资金、有政策议程、有国际框架（国家适应计划、仙台减灾框架）的领域。这套词汇是入场券和共同语言。</td></tr>
+      <tr><td>学术合作、数据来源方</td><td class="yes">要用</td><td>用 adaptive capacity 和 vulnerability 的框架描述，对方能立刻判断我们在做什么，也更容易开口要数据。</td></tr>
+      <tr><td>投资人</td><td>看情况</td><td>先讲人群和留存机制，气候框架只作为市场趋势的注脚。反过来讲会显得我们在做公益项目而不是产品。</td></tr>
+    </tbody>
+  </table></div>
+  <p style="margin-top:20px"><strong>一句话规则：对内用它指导设计和定义指标，对用户一个字都别提。</strong></p>
+</section>
+
+<section>
+  <span class="eyebrow">衡量</span>
+  <h2>不要看日活</h2>
+  <p>极端天气一年发生几次，日活对这个产品是一个有害的指标——它会逼我们往"每天来打开一下"的方向加功能，而那些功能一定和核心机制无关。</p>
+  <div class="tbl-scroll"><table>
+    <thead><tr><th>该看的</th><th>它在验证什么</th></tr></thead>
+    <tbody>
+      <tr><td>预警窗口内的完成率</td><td>预警发布后 72 小时内，用户勾掉了几条。这是"外部事件替我们唤起动机"这个机制是否成立的直接证据。</td></tr>
+      <tr><td>跨事件的准备度提升</td><td>同一个用户第二次台风时的准备度，是否高于第一次。<strong>这是 coping → adaptation 的唯一硬证据，也是这个产品存在的理由。</strong></td></tr>
+      <tr><td>社会连接的建立率</td><td>有多少人真的填了紧急联系人、真的发出了那条约定消息。这是最难但最有价值的一个数。</td></tr>
+      <tr><td>求助话术的使用</td><td>复制率、以及"复制之后真的打了电话吗"。如果这块数据好，产品的重心就该整体挪过去。</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <span class="eyebrow">证伪</span>
+  <h2>什么会让我们停下来</h2>
+  <p>这些不是风险清单，是<strong>预先写好的停止条件</strong>。写在前面，是为了到时候不会自己骗自己。</p>
+  <ol class="kill">
+    <li><b>访谈里没有人在事后做过任何准备动作。</b>那说明"预防"是伪需求，我们只能做事发工具，市场和价值都小很多，整个定位要推倒重来。</li>
+    <li><b>「该找谁 + 怎么开口」没有引起明显反应。</b>那说明我们对这个人群的判断错了——她们卡住的地方不是社交成本，而是别的东西。这一块是我们最独特的假设，它塌了，差异化就塌了。</li>
+    <li><b>找不到官方之外的独家数据来源。</b>没有超本地的积水点、停电范围、社区级信息，我们就只是一个套壳的内容产品，会被免费且权威的官方渠道碾过去。</li>
+    <li><b>个性化的四个问题产生的差异，用户感知不到。</b>那"因人而异"这个核心卖点不成立，产品会退化成一份精美的通用清单。</li>
+  </ol>
+</section>
+
+<section>
+  <span class="eyebrow">当前状态</span>
+  <h2>下一步不是加内容</h2>
+  <p>原型（v0.1）已经跑通了：四段时间轴、四个个性化问题、动作卡的完整字段结构、求助话术模块。它<strong>不是</strong>用来验证"信息够不够全"的，而是用来验证三件事：按时间阶段而非知识分类组织，用户是否更容易照做；个性化产生的差异，用户是否感知得到；「该找谁」这一块是不是比应对知识本身更有价值。</p>
+  <h3>接下来两周</h3>
+  <ul>
+    <li>找 <strong>8–12 个过去 12 个月真实经历过台风或暴雨的独居者</strong>，只问回顾性行为，不问"你会不会用"。重点问：那天你具体做了什么、几点做的、搜了什么、问了谁、哪个时刻最不知所措、事后有没有为下次做任何准备。</li>
+    <li>拿原型让他们边看边说：<strong>哪一条你真的会做，哪一条你看了就划过去。</strong>划过去的比勾选的更有信息量。</li>
+    <li>看小红书／微博在台风周的自然内容和评论区提问——零成本的需求探针，同时它们也是竞品。</li>
+  </ul>
+  <div class="callout">
+    <span class="eyebrow">内容安全</span>
+    原型里的具体数字与处置方法目前<b>全部是待核对的草稿</b>。在给任何真实用户使用之前，必须逐条比对应急管理部门、当地气象台、红十字会的公开指引，并标注来源。涉水深度、中暑判断、食物安全这几类写错了是会出事的。产品任何时候都不得与官方预警相矛盾，并始终提供官方渠道的出口。
+  </div>
+</section>
+
+<footer>
+  <p><strong>参考框架</strong>：IPCC 关于 adaptation 与 vulnerability 的定义体系；仙台减灾框架（Sendai Framework for Disaster Risk Reduction）的备灾—应急—恢复周期；Eric Klinenberg,《Heat Wave: A Social Autopsy of Disaster in Chicago》(2002)。</p>
+  <p>另需留意「适应不良（maladaptation）」这一概念：某些措施短期有效但长期加剧脆弱性——最典型的是高温时人人猛开空调，加重电网负荷并加剧城市热岛。内容设计时应主动避开这类建议。</p>
+  <p style="margin-top:16px">本文档为内部定位说明，包含多项尚未验证的假设。所有标注为"假设"的部分在完成用户访谈前不应作为结论对外表述。</p>
+</footer>
+
+</div>

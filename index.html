@@ -1,0 +1,863 @@
+<title>台风前的一个人</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@700&display=swap">
+<style>
+:root{
+  --ground:#EDF2F0; --surface:#FBFCFC; --surface-2:#E2EAE8; --surface-3:#D6E0DD;
+  --ink:#15201E; --ink-2:#4B5B58; --ink-3:#7E8D8A;
+  --line:#D0DAD7; --line-soft:#DFE7E5;
+  --accent:#186459; --accent-ink:#0E4A41; --accent-soft:#D9EAE6; --on-accent:#F4F8F7;
+  --sig-blue:#2F6FC4; --sig-yellow:#9C7407; --sig-orange:#BC5C24; --sig-red:#AE3524;
+  --sig-blue-bg:#DEE9F7; --sig-yellow-bg:#F5EBCF; --sig-orange-bg:#F7E1D2; --sig-red-bg:#F6DDD8;
+  --shadow:0 1px 2px rgba(21,32,30,.05), 0 8px 24px -16px rgba(21,32,30,.18);
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0D1514; --surface:#151F1D; --surface-2:#1D2A27; --surface-3:#26352F;
+    --ink:#E3ECEA; --ink-2:#A2B4B0; --ink-3:#71827E;
+    --line:#283835; --line-soft:#1F2C2A;
+    --accent:#5CC0B1; --accent-ink:#8AD6C9; --accent-soft:#173B36; --on-accent:#0D1514;
+    --sig-blue:#7FB0EE; --sig-yellow:#D9AF48; --sig-orange:#E8956A; --sig-red:#E8796A;
+    --sig-blue-bg:#16283D; --sig-yellow-bg:#332A12; --sig-orange-bg:#382318; --sig-red-bg:#3A1E1A;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0D1514; --surface:#151F1D; --surface-2:#1D2A27; --surface-3:#26352F;
+  --ink:#E3ECEA; --ink-2:#A2B4B0; --ink-3:#71827E;
+  --line:#283835; --line-soft:#1F2C2A;
+  --accent:#5CC0B1; --accent-ink:#8AD6C9; --accent-soft:#173B36; --on-accent:#0D1514;
+  --sig-blue:#7FB0EE; --sig-yellow:#D9AF48; --sig-orange:#E8956A; --sig-red:#E8796A;
+  --sig-blue-bg:#16283D; --sig-yellow-bg:#332A12; --sig-orange-bg:#382318; --sig-red-bg:#3A1E1A;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  font-size:15px; line-height:1.72; -webkit-font-smoothing:antialiased;
+  padding-bottom:88px;
+}
+.wrap{max-width:660px;margin:0 auto;padding:0 20px}
+h1,h2,h3{margin:0;text-wrap:balance}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+
+/* ---------- masthead ---------- */
+.mast{padding:34px 0 20px;border-bottom:1px solid var(--line)}
+.mast h1{font-family:"Noto Serif SC",Georgia,serif;font-size:27px;line-height:1.36;letter-spacing:-.01em}
+.mast p{margin:9px 0 0;color:var(--ink-2);font-size:14px;max-width:44ch}
+.mast .eyebrow{display:block;margin-bottom:11px}
+
+.notice{
+  margin:16px 0 0;padding:11px 13px;border-radius:var(--r);
+  background:var(--sig-yellow-bg);color:var(--sig-yellow);
+  font-size:12.5px;line-height:1.62;
+}
+.notice b{color:var(--sig-yellow)}
+
+/* ---------- profile ---------- */
+.profile{padding:20px 0;border-bottom:1px solid var(--line)}
+.q{margin-bottom:15px}
+.q:last-child{margin-bottom:0}
+.q-label{font-size:13.5px;font-weight:500;margin-bottom:8px;display:block}
+.q-label span{color:var(--ink-3);font-weight:400}
+.opts{display:flex;flex-wrap:wrap;gap:7px}
+.opt{
+  padding:6px 13px;border:1px solid var(--line);border-radius:100px;
+  font-size:13px;color:var(--ink-2);background:var(--surface);transition:.14s;
+}
+.opt:hover{border-color:var(--accent);color:var(--accent)}
+.opt[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:500}
+
+.profile-sum{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:14px 0;border-bottom:1px solid var(--line);font-size:13.5px;
+}
+.profile-sum .chips{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.chip{
+  padding:3px 10px;border-radius:100px;background:var(--accent-soft);
+  color:var(--accent-ink);font-size:12px;font-weight:500;
+}
+.linkbtn{color:var(--accent);font-size:13px;text-decoration:underline;text-underline-offset:3px}
+
+/* ---------- timeline ---------- */
+.tl{padding:24px 0 4px;position:sticky;top:0;background:var(--ground);z-index:20;border-bottom:1px solid var(--line)}
+.tl-track{display:grid;grid-template-columns:repeat(4,1fr);position:relative;margin-bottom:14px}
+.tl-track::before{
+  content:"";position:absolute;top:8px;left:12.5%;right:12.5%;height:1px;background:var(--line);
+}
+.tl-node{display:flex;flex-direction:column;align-items:center;gap:9px;position:relative;padding-top:1px}
+.tl-dot{
+  width:15px;height:15px;border-radius:50%;background:var(--ground);
+  border:1.5px solid var(--line);transition:.16s;position:relative;z-index:1;
+}
+.tl-node[aria-selected="true"] .tl-dot{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.tl-node.past .tl-dot{background:var(--ink-3);border-color:var(--ink-3)}
+.tl-name{font-size:12px;color:var(--ink-3);text-align:center;line-height:1.3;transition:.16s}
+.tl-node[aria-selected="true"] .tl-name{color:var(--ink);font-weight:700}
+.tl-time{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.04em;color:var(--ink-3);display:block;margin-top:2px}
+
+.progress{display:flex;align-items:center;gap:11px;padding-bottom:14px}
+.bar{flex:1;height:4px;background:var(--surface-2);border-radius:100px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:100px;transition:width .3s ease}
+.progress .mono{font-size:11.5px;color:var(--ink-3);letter-spacing:.02em}
+
+/* ---------- phase intro ---------- */
+.phase-head{padding:26px 0 6px}
+.phase-head h2{font-family:"Noto Serif SC",Georgia,serif;font-size:21px;letter-spacing:-.005em}
+.phase-head p{margin:7px 0 0;color:var(--ink-2);font-size:13.5px;max-width:46ch}
+
+/* ---------- next-up ---------- */
+.nextup{
+  margin:18px 0 4px;padding:15px 16px;border-radius:var(--r);
+  background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);
+}
+.nextup .eyebrow{display:block;margin-bottom:7px;color:var(--accent)}
+.nextup .t{font-weight:700;font-size:15.5px;line-height:1.5}
+.nextup .s{margin-top:7px;font-size:13.5px;color:var(--ink-2);line-height:1.7}
+.nextup .m{margin-top:9px;font-size:12.5px;color:var(--ink-3)}
+.nextup .m .linkbtn{font-size:12.5px}
+.nextup.clear{background:var(--accent-soft);border-color:transparent}
+.nextup.clear .t{color:var(--accent-ink);font-size:14.5px}
+
+/* ---------- action list ---------- */
+.list{margin-top:22px;border-top:1px solid var(--line)}
+.item{border-bottom:1px solid var(--line-soft)}
+.item-head{display:flex;gap:13px;align-items:flex-start;width:100%;text-align:left;padding:16px 2px}
+.tick{
+  flex:none;width:21px;height:21px;margin-top:2px;border:1.5px solid var(--line);
+  border-radius:6px;display:grid;place-items:center;transition:.14s;background:var(--surface);
+}
+.tick:hover{border-color:var(--accent)}
+.tick svg{width:12px;height:12px;stroke:var(--on-accent);stroke-width:2.6;fill:none;opacity:0;transition:.14s}
+.item.done .tick{background:var(--accent);border-color:var(--accent)}
+.item.done .tick svg{opacity:1}
+.item-body{flex:1;min-width:0;text-align:left;padding:0}
+.item-title{display:block;font-size:15px;font-weight:500;line-height:1.55;transition:.16s}
+.item.done .item-title{color:var(--ink-3);text-decoration:line-through;text-decoration-color:var(--line)}
+.item-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.cost{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);letter-spacing:.01em}
+.who{
+  font-size:11px;padding:2px 8px;border-radius:100px;font-weight:500;letter-spacing:.01em;
+}
+.who.self{background:var(--surface-2);color:var(--ink-2)}
+.who.property{background:var(--sig-blue-bg);color:var(--sig-blue)}
+.who.landlord{background:var(--sig-yellow-bg);color:var(--sig-yellow)}
+.who.emergency{background:var(--sig-red-bg);color:var(--sig-red)}
+.caret{flex:none;margin-top:4px;color:var(--ink-3);transition:transform .18s;font-size:11px}
+.item.open .caret{transform:rotate(90deg)}
+
+.detail{display:none;padding:0 2px 20px 36px}
+.item.open .detail{display:block}
+.d-block{margin-bottom:15px}
+.d-block:last-child{margin-bottom:0}
+.d-label{
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink-3);margin-bottom:5px;
+}
+.d-block p{margin:0;font-size:13.5px;color:var(--ink-2);line-height:1.75}
+.d-block ol{margin:0;padding-left:19px;font-size:13.5px;color:var(--ink-2);line-height:1.75}
+.d-block ol li{margin-bottom:4px}
+.d-block ol li::marker{color:var(--accent);font-family:"IBM Plex Mono",monospace;font-size:11.5px}
+.d-warn{
+  padding:11px 13px;border-radius:8px;background:var(--sig-orange-bg);
+}
+.d-warn .d-label{color:var(--sig-orange)}
+.d-warn p{color:var(--sig-orange)}
+.d-done{padding:11px 13px;border-radius:8px;background:var(--accent-soft)}
+.d-done .d-label{color:var(--accent-ink)}
+.d-done p{color:var(--accent-ink)}
+
+.empty{padding:34px 0;color:var(--ink-3);font-size:13.5px;text-align:center}
+
+/* ---------- sticky help ---------- */
+.helpbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;
+  background:linear-gradient(to top,var(--ground) 62%,transparent);
+  padding:18px 20px 20px;
+}
+.helpbar-inner{max-width:660px;margin:0 auto}
+.helpbtn{
+  width:100%;padding:13px;border-radius:var(--r);background:var(--ink);color:var(--ground);
+  font-weight:700;font-size:14.5px;letter-spacing:.02em;box-shadow:var(--shadow);transition:.14s;
+}
+.helpbtn:hover{background:var(--accent);color:var(--on-accent)}
+
+/* ---------- sheet ---------- */
+.sheet-bg{position:fixed;inset:0;background:rgba(10,18,17,.55);z-index:50;display:none}
+.sheet-bg.open{display:block}
+.sheet{
+  position:fixed;left:0;right:0;bottom:0;z-index:51;max-height:88vh;overflow-y:auto;
+  background:var(--ground);border-radius:16px 16px 0 0;display:none;
+  border-top:1px solid var(--line);
+}
+.sheet.open{display:block}
+.sheet-head{
+  position:sticky;top:0;background:var(--ground);padding:20px 20px 13px;
+  border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+}
+.sheet-head h2{font-family:"Noto Serif SC",serif;font-size:18px}
+.sheet-head p{margin:5px 0 0;font-size:12.5px;color:var(--ink-3);max-width:40ch}
+.sheet-body{padding:6px 20px 40px;max-width:660px;margin:0 auto}
+.x{font-size:22px;line-height:1;color:var(--ink-3);flex:none;padding:2px 6px}
+
+.hcase{border-bottom:1px solid var(--line-soft);padding:17px 0}
+.hcase:last-child{border-bottom:none}
+.hcase-t{font-weight:700;font-size:14.5px;margin-bottom:8px;line-height:1.5}
+.hcase-row{display:flex;gap:8px;font-size:13px;color:var(--ink-2);margin-bottom:4px;line-height:1.65}
+.hcase-row b{flex:none;color:var(--ink-3);font-weight:500;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding-top:4px;width:42px}
+.script{
+  margin-top:9px;padding:12px 13px;border-radius:8px;background:var(--surface);
+  border:1px solid var(--line);font-size:13.5px;line-height:1.75;color:var(--ink);
+}
+.script-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:9px}
+.copy{font-size:12px;color:var(--accent);font-weight:500}
+.copy.ok{color:var(--ink-3)}
+
+/* ---------- footer ---------- */
+.foot{padding:36px 0 10px;border-top:1px solid var(--line);margin-top:34px;color:var(--ink-3);font-size:12px;line-height:1.8}
+.foot p{margin:0 0 9px}
+.foot b{color:var(--ink-2)}
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <span class="eyebrow">Prototype · v0.1</span>
+    <h1>台风来之前，<br>一个人在家要做的事</h1>
+    <p>不是知识库，是一份会根据你住哪儿、租还是买、身边有没有人，而变化的行动清单。</p>
+    <div class="notice">
+      <b>这是原型，内容尚未经官方核对。</b>所有具体数字与处置方法在真正给人使用前必须逐条比对应急管理部门、当地气象台与红十字会的公开指引。任何时候以官方预警为准。
+    </div>
+  </header>
+
+  <section class="profile" id="profile"></section>
+
+  <nav class="tl" id="tl">
+    <div class="tl-track" id="tlTrack" role="tablist" aria-label="时间阶段"></div>
+    <div class="progress">
+      <div class="bar"><i id="barFill" style="width:0%"></i></div>
+      <span class="mono" id="barText">0 / 0</span>
+    </div>
+  </nav>
+
+  <div class="phase-head" id="phaseHead"></div>
+  <div id="nextup"></div>
+  <div class="list" id="list"></div>
+
+  <footer class="foot">
+    <p><b>这个原型在验证什么。</b>不是"信息够不够全"，而是三件事：按<b>时间阶段</b>而不是知识分类来组织，用户是否更容易照做；四个个性化问题产生的差异，用户是否感知得到；「该找谁 + 怎么开口」这一块，是不是比应对知识本身更有价值。</p>
+    <p><b>下一步该做的不是加内容。</b>是拿这一版去问 8–12 个真实经历过台风的独居者：哪一条你真的会做，哪一条你看了就划过去。</p>
+    <p style="margin-top:16px">内容需核对来源：应急管理部 · 中国气象局预警信号分级 · 中国红十字会应急救护指南。紧急情况请拨打 <span class="mono">120 / 119 / 110</span>。</p>
+  </footer>
+</div>
+
+<div class="helpbar"><div class="helpbar-inner">
+  <button class="helpbtn" id="helpOpen">我需要求助 —— 该找谁，怎么说</button>
+</div></div>
+
+<div class="sheet-bg" id="sheetBg"></div>
+<aside class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="sheet-head">
+    <div>
+      <h2 id="sheetTitle">该找谁，怎么开口</h2>
+      <p>卡住的往往不是不会做，是不知道这事该不该自己弄、该打给谁、开口说什么。</p>
+    </div>
+    <button class="x" id="sheetClose" aria-label="关闭">&times;</button>
+  </div>
+  <div class="sheet-body" id="helpBody"></div>
+</aside>
+
+<script>
+/* ============================================================
+   数据层
+   ============================================================ */
+
+const PHASES = [
+  {id:'t72',  name:'预报期',  time:'T-72h',
+   head:'台风生成了，路径预报出来了',
+   sub:'现在是唯一一段可以从容行动的时间。这个阶段做的事，决定了后面三个阶段有多难过。'},
+  {id:'t24',  name:'预警期',  time:'T-24h',
+   head:'预警信号已经发布',
+   sub:'从这里开始，"出门去买"这个选项会逐渐消失。今天要做的是加固和备份，不是采购。'},
+  {id:'now',  name:'影响期',  time:'T-0',
+   head:'风雨最强的时候',
+   sub:'这一段只有几条事，每条都是"不要做什么"。不需要你判断，照做就行。'},
+  {id:'after',name:'灾后',    time:'T+',
+   head:'风停了，水开始退',
+   sub:'很多伤害发生在这个阶段——因为人以为已经安全了。'}
+];
+
+const WHO = {
+  self:      {cls:'self',      label:'自己可以做'},
+  property:  {cls:'property',  label:'该找物业'},
+  landlord:  {cls:'landlord',  label:'该找房东'},
+  emergency: {cls:'emergency', label:'立刻求助'}
+};
+
+const CARDS = [
+/* ---------------- T-72h 预报期 ---------------- */
+{id:'a1', phase:'t72', pri:1, who:'self', cost:'3 分钟 · 0 元',
+ title:'先搞清楚这次到底跟你有没有关系',
+ why:'预警颜色不是"严重程度打分"，它是一条指令——每种颜色对应的是"你今天该做什么"。大多数人只接收到"台风要来了"这一个信息，但蓝色和红色要求你做的事完全不同。',
+ steps:[
+  '查你所在城市当前发布的台风预警信号颜色（当地气象台的公众号或官方 App，不要只看第三方天气软件的推送）',
+  '蓝色：可能受影响，做基础准备即可｜黄色：开始囤货和清理阳台｜橙色：尽量不外出，完成全部加固｜红色：停工停课，绝对不要出门',
+  '同时记下预计影响最强的时间段——这决定了你还剩多少小时可以准备'
+ ],
+ mistake:'只看路径图上台风中心离你多远。台风的风雨影响范围可以延伸到中心几百公里外，路径不经过你的城市，不代表你不会遇到暴雨和大风。',
+ done:'你能说清楚三件事：这次是几号台风、你的城市现在是什么颜色预警、预计什么时候最强。'},
+
+{id:'a2', phase:'t72', pri:2, who:'self', cost:'一次采购 · 100–200 元',
+ title:'把三天的水和不用开火的食物买齐',
+ why:'台风可能造成停水停电，外卖和快递会停运，超市可能关门或被抢空。三天是一个常见的建议缓冲，不是因为台风会刮三天，而是因为供应恢复需要时间。',
+ steps:[
+  '饮用水：按每人每天 3 升准备三天，一个人大约 9 升（2 升装买 5 瓶就够）',
+  '食物：选完全不需要加热、不需要冷藏的——面包、饼干、坚果、罐头、即食麦片、牛奶',
+  '如果你有猫狗，同样按三天备粮和水',
+  '尽量今天买完。等预警升级再去，货架大概率已经空了'
+ ],
+ mistake:'囤一堆需要煮的方便面。停电停气的时候它们和纸板没有区别。',
+ done:'不用开火、不用冰箱，你也能靠家里的东西吃满三天。'},
+
+{id:'a3', phase:'t72', pri:3, who:'self', cost:'20 分钟 · 0 元',
+ title:'把阳台和窗外所有会被吹走的东西收进来',
+ why:'高空坠物是台风造成人员伤亡的主要原因之一。你阳台上的一个花盆，从高处掉下去足以致命——而责任是你的。',
+ steps:[
+  '花盆、多肉、装饰品——全部搬进室内，一个都不要留',
+  '晾衣杆上的衣架取下来，可拆的晾衣杆收进屋',
+  '检查空调外机的挡雨板、遮阳棚、雨篷有没有松动',
+  '窗台外侧、防盗窗上放的东西全部清空',
+  '如果有些东西你自己够不到或搬不动，现在就联系物业，不要拖到预警发布后'
+ ],
+ mistake:'觉得"花盆很重吹不走"。强台风的阵风可以掀翻的东西远超一般人的直觉。',
+ done:'从窗户往外看，阳台和窗台上没有任何非固定的物件。'},
+
+{id:'a4', phase:'t72', pri:4, who:'self', cost:'10 分钟 · 0–100 元',
+ title:'充电宝、手电筒——以及为什么不要准备蜡烛',
+ why:'停电时最常见的次生事故是蜡烛引发的火灾，尤其是一个人在家、疲惫、睡着的情况下。这是有明确共识的一条：应急照明用电，不用火。',
+ steps:[
+  '所有充电宝充满，手机充满，笔记本充满（笔记本本身就是一个大充电宝）',
+  '准备一支手电筒或头灯，检查电池；没有就用手机手电筒，但那会耗掉你的通讯电量',
+  '不要用蜡烛作为停电照明',
+  '如果家里有电动车电池，不要在室内充电'
+ ],
+ mistake:'把充电宝留到"真停电了再充"。停电之后就来不及了。',
+ done:'现在断电，你有至少两个独立的光源，和给手机充满两次的余量。'},
+
+{id:'a5', phase:'t72', pri:5, who:'self', cost:'20 分钟 · 0 元', cond:p=>p.tenure==='rent',
+ title:'趁现在，把房子的现状拍一遍',
+ why:'租房的人在灾后最容易吃的亏，是说不清"这道渗水痕迹是台风造成的，还是本来就有"。事后争执时，没有证据的一方永远处于下风。',
+ steps:[
+  '拍窗框和窗户密封条的现状，特别是已经有老化、开裂的地方',
+  '拍天花板、墙角、窗下墙面已有的水渍或霉斑',
+  '拍阳台地漏、卫生间地漏是否通畅',
+  '照片存到云端，不要只留在手机本地（手机可能进水或没电）',
+  '如果发现明显的隐患，今天就发消息给房东报备一次，留下文字记录'
+ ],
+ mistake:'觉得"跟房东关系不错，不用这么见外"。这不是不信任，这是把双方都从事后的记忆争论里解放出来。',
+ done:'云端有一组带时间的照片，能证明台风之前房子是什么状态。'},
+
+{id:'a6', phase:'t72', pri:6, who:'self', cost:'15 分钟 · 200–500 元',
+ title:'取一点现金放家里',
+ why:'停电和基站故障时，移动支付、扫码、刷卡都可能用不了。这是年轻人几乎从不考虑、但在停电的便利店门口会立刻后悔的一件事。',
+ steps:[
+  '取 200–500 元现金，尽量是小面额',
+  '和身份证复印件、常用药放在同一个地方，你能摸黑找到的位置'
+ ],
+ mistake:'完全依赖手机支付。哪怕你有电，收银台没电也一样刷不了。',
+ done:'不开手机，你也能买到东西。'},
+
+{id:'a7', phase:'t72', pri:7, who:'self', cost:'10 分钟 · 0 元',
+ title:'常用药备够，处方拍照存好',
+ why:'停诊、封路、药店关门都可能发生。如果你在长期服药，断药的风险比台风本身更实在。',
+ steps:[
+  '长期服用的药，确认存量能撑过两周',
+  '常规备一点：退烧药、止泻药、创可贴、碘伏、口服补液盐',
+  '处方和病历拍照存云端，方便临时到别的医院或药店时说明情况'
+ ],
+ mistake:'把"我最近身体挺好"当成不用备药的理由。台风期间受伤和肠胃问题都变多，而这时候你出不了门。',
+ done:'两周内不出门，你的用药不会断。'},
+
+/* ---------------- T-24h 预警期 ---------------- */
+{id:'b1', phase:'t24', pri:1, who:'self', cost:'20 分钟 · 0–30 元',
+ title:'窗户到底怎么处理，才是真的有用的',
+ why:'"贴米字胶带"流传极广，但它的实际防护效果一直有争议——胶带不能阻止玻璃被打破，某些情况下反而可能形成更大的碎片。真正有共识、也更有效的是下面这几件事。',
+ steps:[
+  '把所有窗户彻底关严并锁死。锁住不只是防开，它让窗扇和框贴得更紧，抗风压能力明显不同',
+  '拉上窗帘或百叶——万一玻璃碎裂，窗帘能大幅减少飞溅的碎片',
+  '窗缝有渗水的，用毛巾或旧衣物塞紧，下面垫盆或铺吸水的东西',
+  '把床、书桌、贵重物品挪离窗边；今晚不要睡在窗户下面',
+  '如果某扇窗户明显松动、密封条已经脱落，现在就报物业，这不是你该自己修的'
+ ],
+ mistake:'花一小时贴完米字胶带，然后觉得万事大吉，窗户没锁、窗帘没拉、床还紧贴着窗。顺序完全反了。',
+ done:'每扇窗都锁死、窗帘拉上，你今晚睡觉的位置离所有玻璃至少两米。'},
+
+{id:'b2', phase:'t24', pri:2, who:'self', cost:'5 分钟 · 0 元',
+ title:'告诉一个人你在哪，并约好报平安的时间',
+ why:'这是一个人住的核心风险，也是这个工具存在的理由：出事时没人知道。研究反复发现，独居本身就是极端天气中的高风险因素，而它可以被一个非常轻的动作显著抵消——有人知道你在哪，并且会在你不回消息时来找你。',
+ steps:[
+  '选 1–2 个人：优先同城、能真的过来的（同事、朋友、邻居），其次才是外地的家人',
+  '给他们发一条明确的消息：我一个人住在 XX 区 XX 小区，台风期间我每天 20:00 报一次平安',
+  '说清楚"如果我超过两小时没回你，请打我电话；再打不通，请联系我小区物业"',
+  '把物业电话一起发给他们',
+  '如果你有智能手表或手机的紧急联系人功能，今天把它设好'
+ ],
+ mistake:'觉得"这么点小事麻烦别人不好意思"。你请对方做的其实只是"看一眼消息"，成本极低；而它覆盖的是最坏的那个情况。',
+ done:'至少有一个人知道你的具体地址、你独居、以及你什么时候会报平安。'},
+
+{id:'b3', phase:'t24', pri:3, who:'self', cost:'10 分钟 · 0 元',
+ title:'存一浴缸水',
+ why:'停水时最先出问题的不是喝水（你已经囤了瓶装水），是冲马桶。这件事没经历过的人几乎不会提前想到，经历过一次的人再也不会忘。',
+ steps:[
+  '浴缸放满；没有浴缸就用大桶、洗衣机内桶、几个脸盆',
+  '厨房再单独存一桶用来洗手和简单清洗',
+  '这些是生活用水，不要拿来喝'
+ ],
+ mistake:'只囤饮用水。停水两天而马桶不能冲，是一个人在家时非常难受的处境。',
+ done:'停水了，你还能正常冲三到四次马桶。'},
+
+{id:'b4', phase:'t24', pri:4, who:'self', cost:'10 分钟 · 0 元',
+ title:'明天到底去不去上班——以及怎么跟主管开口',
+ why:'这是独居上班族在台风天真正焦虑的那个问题，而它焦虑的部分往往不是安全判断，是不知道怎么跟公司说。先把判断做完，再把话准备好。',
+ steps:[
+  '判断：如果发布了橙色及以上预警，或当地已宣布停工停课——不要去，这不是个人选择题',
+  '判断：如果你的通勤要经过下穿隧道、涵洞、常年积水的路段，或者需要骑车／走一段路，把风险再提一档',
+  '如果公司没有主动通知，今晚就先发消息，不要等到明早',
+  '话术：「XX 你好，我们区已经发布台风橙色预警，官方建议非必要不外出，我通勤要经过 XX 路，这几年逢暴雨必积水。明天我在家办公，随时在线，XX 和 XX 两件事我会照常推进。如果有需要我到岗的情况请告诉我。」'
+ ],
+ mistake:'等到早上出门前才纠结，那时你已经没有决策时间，只能硬着头皮出门。',
+ done:'明天怎么办已经定了，而且你已经把话说出去了。'},
+
+{id:'b5', phase:'t24', pri:5, who:'self', cost:'20 分钟 · 0 元', cond:p=>p.floor==='low',
+ title:'你住低层：把该垫高的东西垫高',
+ why:'低楼层在暴雨内涝时面对的是完全不同的风险——进水、返水、以及积水中的用电危险。',
+ steps:[
+  '插线板、路由器、充电器从地面拿起来，放到桌面或更高',
+  '贵重物品、证件、纸质文件从地面和最下层抽屉移到高处',
+  '如果家里有沙袋或吸水条，把大门口、阳台门口挡起来；没有的话用装满水的塑料袋加毛巾临时替代',
+  '卫生间和阳台的地漏，用地漏塞或裹了塑料袋的重物压住，防止污水返涌',
+  '车不要停在地下车库或低洼路段'
+ ],
+ mistake:'先搬家具再管电器。进水时最先造成危险的是通电的东西，不是沙发。',
+ done:'地面以上 30 厘米内，没有任何通电设备和怕水的东西。'},
+
+{id:'b6', phase:'t24', pri:5, who:'self', cost:'20 分钟 · 0 元', cond:p=>p.floor==='high',
+ title:'你住高层：要多准备的三件事',
+ why:'高层不怕进水，但风压更大、供水靠水泵、上下楼靠电梯——停电会同时切掉这三样。高层在台风里的真实处境是"被困在一个没水没电、外面风声很大的盒子里"。',
+ steps:[
+  '停电就会停水（高层供水靠水泵）——今天多存一些水，浴缸也要放满',
+  '停电电梯会停运——现在就把要用的东西都拿上来，不要指望明天下楼一趟',
+  '高层风压更大、晃动和呼啸声更明显，这通常是正常的；但如果窗户出现明显变形或异响，立刻远离并报物业',
+  '不要开窗"透气"，也不要站到阳台上拍照'
+ ],
+ mistake:'把"我住得高，淹不到我"当成安全感。高层的风险不是水，是停水停电停梯的三重叠加。',
+ done:'停电停水停梯同时发生，你在家里也能撑过 48 小时。'},
+
+{id:'b7', phase:'t24', pri:6, who:'self', cost:'5 分钟 · 0 元',
+ title:'冰箱调到最低温，然后别再开门',
+ why:'关着门的冰箱本身就是一个保温箱。每开一次门，你就消耗掉一部分停电后的可用时间。',
+ steps:[
+  '今晚把冷藏和冷冻都调到最低温，让内部先降下来',
+  '把今明两天要吃的东西提前拿出来放在外面（常温能放的），减少开门次数',
+  '冷冻室有空位的话，装几瓶水冻上——它们既是冰袋也是备用饮用水',
+  '停电之后：尽量不要开门'
+ ],
+ mistake:'停电后反复开冰箱门查看东西坏没坏。查看这个动作本身就在让它变坏。',
+ done:'冰箱塞得比较满、温度已经降到最低，你知道停电后不要碰它。'},
+
+{id:'b8', phase:'t24', pri:7, who:'self', cost:'10 分钟 · 0 元',
+ title:'证件、租房合同、保单，拍照存云端',
+ why:'灾后要办的每一件事——报损、理赔、找房东、补办——都要用到这些。而它们最容易在进水和搬动中丢失。',
+ steps:[
+  '身份证正反面、租房合同、家财险／意外险保单、房东和物业的联系方式',
+  '存到云端，同时给自己发一份到常用的聊天工具',
+  '纸质原件装进密封袋，放在高处'
+ ],
+ mistake:'只存在手机相册里。手机进水或没电时，等于什么都没有。',
+ done:'手机彻底坏掉，你换一台设备登录就能拿回所有关键材料。'},
+
+/* ---------------- T-0 影响期 ---------------- */
+{id:'c1', phase:'now', pri:1, who:'self', cost:'现在 · 立刻',
+ title:'待在房子最中间的位置，离开所有窗户',
+ why:'这个阶段最主要的伤害来源是破碎的玻璃，而不是风本身。',
+ steps:[
+  '待在没有窗户或窗户最少的房间——通常是走廊、卫生间、储物间',
+  '不要站在窗前看，不要拍照，不要开窗',
+  '不要出门，不要上阳台，不要去天台'
+ ],
+ mistake:'为了看看外面情况，走到窗边。玻璃破裂是瞬间的，没有反应时间。',
+ done:'你和最近的一扇玻璃之间，隔着至少一堵墙。'},
+
+{id:'c2', phase:'now', pri:2, who:'self', cost:'知道就好',
+ title:'风突然停了——那不是结束',
+ why:'如果台风眼经过你所在的位置，风会在短时间内几乎完全停止，天甚至可能放晴。这段平静通常只有几十分钟，随后风会从相反的方向重新刮起来，而且往往更猛。这是每次台风都会有人因此受伤的一个陷阱。',
+ steps:[
+  '风停了不要出门，不要以为过去了',
+  '不要趁这个空档去阳台收东西、去楼下看车',
+  '查一下最新的预警状态，确认预警是不是真的解除了',
+  '只有官方宣布解除，才算结束'
+ ],
+ mistake:'趁风停出门查看损失，然后被回头风困在外面。',
+ done:'你知道"安静"不等于"安全"，只认官方的解除通知。'},
+
+{id:'c3', phase:'now', pri:3, who:'self', cost:'2 分钟',
+ title:'停电了：先把大功率电器的插头拔掉',
+ why:'来电的瞬间可能出现电压波动，同时启动的大功率电器容易被烧坏，也增加起火风险。',
+ steps:[
+  '拔掉空调、电暖器、微波炉、电磁炉、洗衣机的插头',
+  '冰箱不要开门',
+  '照明用手电，不要用蜡烛',
+  '如果闻到焦糊味、看到插座冒火花，立刻断掉总闸并离开该区域'
+ ],
+ mistake:'把所有电器都开着等来电，人还去睡觉了。',
+ done:'家里现在通电的只剩必要的东西。'},
+
+{id:'c4', phase:'now', pri:4, who:'self', cost:'知道就好',
+ title:'积水里的任何东西都不要碰',
+ why:'积水会导电，而你看不出哪一片水连着断落的电线。这是灾害中最容易被低估的致命风险之一。',
+ steps:[
+  '看到垂落的电线，无论它看起来有没有电，都远离并立即上报',
+  '不要涉入任何深度的积水去捡东西、去挪车',
+  '如果家里地面已经进水，先切断总电闸再处理，顺序不能反',
+  '手是湿的时候不要碰任何开关和插座'
+ ],
+ mistake:'先去捞东西，再想起来还没断电。',
+ done:'你的原则很简单：有水的地方先断电，再谈其他。'},
+
+{id:'c5', phase:'now', pri:5, who:'property', cost:'先临时处理，同时打电话',
+ title:'家里开始渗水、进水了',
+ why:'这是台风夜最常见的求助场景。你需要做的是"临时止损 + 立刻报修 + 留证据"三件事同时进行，而不是自己去修。',
+ steps:[
+  '先拍照和拍视频——这一步不要省，它是后面所有沟通的依据',
+  '用毛巾、旧衣服堵住渗水处，下面放盆接水，把附近的电器和插线板挪走',
+  '立刻打物业电话报修（话术见下方"我需要求助"）',
+  '同时把照片发给房东，说明情况，留下文字记录',
+  '如果是天花板大面积渗水、墙体开裂、窗户变形——离开这个房间，这已经超出你能处理的范围'
+ ],
+ mistake:'自己爬高去堵，或者想等天亮再说。爬高在这种时候极其危险，等待则会让损失扩大。',
+ done:'水被临时控制住，物业已经接到报修，照片已经发给房东。'},
+
+{id:'c6', phase:'now', pri:6, who:'emergency', cost:'知道就好',
+ title:'不要坐电梯；万一被困在里面',
+ why:'台风期间随时可能停电，电梯困人在这种时候救援会更慢。',
+ steps:[
+  '这段时间一律走楼梯，不坐电梯',
+  '万一被困：按轿厢内的紧急呼叫按钮，通常直连值班室',
+  '同时打物业电话，说清楚楼栋号和电梯编号（编号在轿厢内的检验标志上）',
+  '打不通就拨 119',
+  '不要试图扒门、不要爬出去、不要在轿厢内跳动——保持安静等待，节省体力和氧气'
+ ],
+ mistake:'自己扒门往外爬。电梯困人本身基本不会致命，扒门爬出去会。',
+ done:'你知道被困时的顺序：按呼叫 → 打物业 → 打 119 → 安静等。'},
+
+{id:'c7', phase:'now', pri:7, who:'self', cost:'1 分钟', cond:p=>p.network==='has',
+ title:'到点了，给约好的那个人发条消息',
+ why:'你之前约定的报平安时间到了。这条消息真正的价值不在于你说了什么，而在于——如果它没有出现，有人会知道。',
+ steps:[
+  '发一句就够：我没事，在家，一切正常',
+  '如果家里出了状况（进水、停电、身体不舒服），也一并说清楚，不要报喜不报忧',
+  '手机电量低于 20% 时，告诉对方一声，然后开省电模式'
+ ],
+ mistake:'因为"没什么大事"就懒得发。整个机制依赖的正是这条消息的准时出现。',
+ done:'今天的平安已经报了。'},
+
+/* ---------------- T+ 灾后 ---------------- */
+{id:'d1', phase:'after', pri:1, who:'self', cost:'知道就好',
+ title:'水退了，先别急着出门',
+ why:'灾后阶段的伤亡比例并不低，原因正是人们放松了警惕。退水后的路面隐藏着几个看不见的危险。',
+ steps:[
+  '井盖可能被水冲开——积水尚未完全退去时，路面是不可信的，不要蹚水走',
+  '路基可能被掏空形成暗坑，看着是路，踩下去是空的',
+  '断落的电线可能仍然带电',
+  '树木、广告牌、外墙构件在风后可能处于随时会掉的状态，不要在建筑物下方停留',
+  '确认官方已解除预警，再规划出行'
+ ],
+ mistake:'看到雨停了就出门上班或去看车。这个时间点的道路状况通常比台风期间更难判断。',
+ done:'你确认过预警已解除，并且避开了所有还有积水的路段。'},
+
+{id:'d2', phase:'after', pri:2, who:'self', cost:'15 分钟 · 0 元',
+ title:'冰箱里哪些东西必须扔掉',
+ why:'停电后的食物安全有一条广泛采用的经验界限。凭气味和外观判断并不可靠——很多致病菌不改变食物的味道和样子。',
+ steps:[
+  '一个常用的参考是：冷藏室在断电且未开门的情况下大约能维持 4 小时的安全温度；超过之后，肉、蛋、奶、剩菜、切开的水果按不安全处理',
+  '冷冻室塞得满、且一直没开门的话能撑更久；如果解冻后仍然有冰晶或摸起来还是冰的，通常还可以重新冻上',
+  '完全解冻并且已经回到常温的肉类，直接扔',
+  '不确定的一律扔。省下的那点钱，不值得换一次一个人在家的食物中毒'
+ ],
+ mistake:'闻一闻觉得没味道就继续吃。气味不是判断标准。',
+ done:'该扔的都扔了，你不会在接下来两天出现莫名其妙的肠胃问题。'},
+
+{id:'d3', phase:'after', pri:3, who:'self', cost:'5 分钟 · 0 元',
+ title:'停水恢复后，先放几分钟水再用',
+ why:'管网抢修和长时间停水后，最先流出来的水可能混有铁锈、沉积物，浊度较高。',
+ steps:[
+  '先开水龙头放几分钟，等水变清',
+  '前面放出来的水可以接着冲马桶，别浪费',
+  '如果水持续浑浊、有异味或异色，不要饮用，报物业并咨询自来水公司',
+  '恢复供水后的头一两天，饮用水尽量烧开'
+ ],
+ mistake:'来水就直接接来喝或者做饭。',
+ done:'水已经放清，你也知道浑浊持续时该找谁。'},
+
+{id:'d4', phase:'after', pri:4, who:'landlord', cost:'30 分钟 · 0 元',
+ title:'拍照、报损、找对人',
+ why:'责任划分有一条相对通行的原则：房屋结构本身的问题（窗户、外墙、天花板、管道）通常由房东或物业负责，租客个人物品的损失由租客自己或其保险承担。搞清楚这条界线，你才不会白白承担不属于你的费用。',
+ steps:[
+  '先完整拍一遍：损坏部位的全景、细节、以及能看出损坏程度的近照',
+  '和你台风前拍的那组对比照放在一起，这是最有力的材料',
+  '房屋结构、门窗、渗漏 → 找物业报修，同时通知房东',
+  '你自己的家具家电损失 → 看有没有家财险，有就联系保险公司报案',
+  '沟通全部走文字（微信／短信），电话沟通完补一条文字确认：「刚才电话里说的是……我理解对吗」',
+  '如果房东推诿，把"报备记录 + 台风前后对比照 + 报修记录"整理成一条消息发过去，通常不需要争执'
+ ],
+ mistake:'先自己掏钱修好，再去找房东要钱。顺序反了之后，你的议价能力就没有了。',
+ done:'损失有照片、有报修记录、有文字沟通，责任归属清楚。'},
+
+{id:'d5', phase:'after', pri:5, who:'self', cost:'1–2 小时 · 0–100 元',
+ title:'泡过水的地方，尽快处理掉',
+ why:'潮湿的墙面和家具在温暖环境下很快会长霉，而霉菌会带来持续的呼吸道问题。这件事拖得越久越难处理。',
+ steps:[
+  '尽快让空气流通：开窗（确认外面安全后）、开风扇、有除湿机就开除湿机',
+  '泡过水的地毯、床垫、布艺沙发很难彻底干透，如果泡得严重，通常处理不如更换',
+  '墙面和地面用清水擦洗后彻底吹干，不要只是擦干表面',
+  '已经长出霉斑的，戴口罩和手套处理，处理后继续保持通风',
+  '如果霉斑面积很大或反复出现，那是房屋防水的问题，报物业和房东，不是你该反复擦的'
+ ],
+ mistake:'表面擦干就以为完事了。真正的问题在没干透的内层。',
+ done:'摸上去干爽，屋里没有闷味，一周后没有新的霉斑。'},
+
+{id:'d6', phase:'after', pri:6, who:'self', cost:'10 分钟 · 0 元',
+ title:'趁记忆还新，写下这次哪里最卡',
+ why:'这是整个清单里唯一一件对"下一次"有用的事。真正的适应能力不是撑过一次，是让下一次变得更容易——而做到这一点的唯一方法，是在你还记得的时候把它记下来。',
+ steps:[
+  '哪一刻你最慌？当时你最想知道什么？',
+  '有什么东西是你事后才想起"早知道就买了"的？',
+  '你有没有想找人帮忙但最后没开口？为什么？',
+  '哪一条准备事后证明是多余的？（这条同样重要，下次可以省掉）',
+  '把答案存下来，下一次预警发布时先看它一眼'
+ ],
+ mistake:'过去了就过去了，什么都不记。于是下一次你会从头再慌一遍。',
+ done:'你有了一份属于自己的、比任何通用清单都准的下次准备提示。'}
+];
+
+const HELP = [
+{t:'窗户渗水、天花板漏水', who:'物业（先打物业，同时通知房东）',
+ when:'一发现就打，不要等天亮。渗水扩大的速度往往超出预期。',
+ script:'你好，我是 XX 小区 X 栋 X 单元 XXX 室的租户。台风天客厅窗户在往里渗水，地上已经积了一片，我先用毛巾堵住了。麻烦安排师傅来看一下。我一个人在家，全天都在，随时可以开门。'},
+{t:'停电、跳闸', who:'先物业确认是不是整栋停电；确实是外部停电再打供电服务热线 95598',
+ when:'先看邻居家和楼道灯有没有电——这决定你该找谁。',
+ script:'你好，我是 X 栋 X 单元 XXX 室。我家现在全屋停电，楼道灯也是灭的，想确认一下是整栋停电还是只有我家的问题？如果是外部停电，大概什么时候能恢复？我一个人住，想知道要不要做别的准备。'},
+{t:'停水、水变浑浊', who:'先物业（可能是水泵或水箱问题），外部管网问题再打自来水客服',
+ when:'停水超过半天，或来水后持续浑浊、有异味。',
+ script:'你好，我是 X 栋 X 单元 XXX 室。我家从今天上午开始停水，想问一下是小区水泵的问题还是外面管网抢修？预计什么时候恢复？如果时间比较久，小区会不会安排临时供水点？'},
+{t:'被困在电梯里', who:'轿厢内紧急呼叫按钮 → 物业 → 119',
+ when:'立刻。同时保持冷静，不要扒门、不要试图爬出去。',
+ script:'你好，我被困在 XX 小区 X 栋的电梯里，电梯编号是 XXX（在轿厢内的检验标志上）。电梯停在大概几层不清楚，里面有我一个人，我没有受伤。麻烦尽快安排救援，我保持电话畅通。'},
+{t:'树倒了、招牌在晃、有东西要掉下来', who:'物业（小区内）／ 12345 政务服务热线（小区外的公共区域）',
+ when:'看到就报，不要自己去处理，也不要从下面走过去。',
+ script:'你好，我要反映一个安全隐患。XX 路 XX 号门口有一块广告牌被风吹松了，正在晃动，下面就是人行道。我现在在安全位置拍了照片，需要的话可以发给你们。麻烦尽快安排处理。'},
+{t:'有人受伤、触电、昏迷，或严重中暑', who:'120（急救）／ 119（火灾、被困、危险作业）／ 110（治安）',
+ when:'不要犹豫，也不要先在网上搜。出现意识不清、抽搐、呼吸困难、大出血——直接打 120。',
+ script:'（打通后先说最关键的三件事）地址：XX 区 XX 小区 X 栋 X 单元 XXX 室。情况：一名成年人意识不清、呼唤没有反应。我是独居，现场只有我一个人，我会一直保持通话，请告诉我现在该做什么。（不要先挂电话——接线员会指导你）'},
+{t:'房子坏了，修缮费用该谁出', who:'房东（结构性问题）／ 物业（公共部位）',
+ when:'拍完照、报完修之后，正式沟通之前。先摆事实，不要先争论。',
+ script:'X 哥 / X 姐你好，台风这两天房子出了点情况，我先跟你同步一下。台风前我拍过一组照片（附上），这是现在的情况（附上）。窗户密封条老化导致渗水，我已经报了物业，师傅明天上门。按合同房屋本身的维修是房东这边负责，麻烦你确认一下。我这边被泡坏的是我自己的东西，我不找你。'}
+];
+
+/* ============================================================
+   状态
+   ============================================================ */
+const KEY_P='wx.profile.v1', KEY_D='wx.done.v1';
+let profile = load(KEY_P, {floor:null, tenure:null, network:null});
+let done    = new Set(load(KEY_D, []));
+let phase   = 't72';
+let open    = null;
+
+function load(k,f){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f; }catch(e){ return f; } }
+function save(){ try{ localStorage.setItem(KEY_P,JSON.stringify(profile)); localStorage.setItem(KEY_D,JSON.stringify([...done])); }catch(e){} }
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+const profileDone = () => profile.floor && profile.tenure && profile.network;
+
+/* ============================================================
+   渲染
+   ============================================================ */
+const QUESTIONS = [
+  {k:'floor',   q:'你住几楼？',        note:'低层怕进水，高层怕停水停电停梯',
+   opts:[['low','1–3 楼'],['mid','4–10 楼'],['high','11 楼以上']]},
+  {k:'tenure',  q:'房子是租的还是自己的？', note:'决定了出问题该找谁、谁出钱',
+   opts:[['rent','租的'],['own','自己的']]},
+  {k:'network', q:'同城有没有能过来帮你的人？', note:'决定"报平安"这条线怎么设',
+   opts:[['has','有'],['none','没有']]}
+];
+const LABELS = {low:'1–3 楼',mid:'4–10 楼',high:'11 楼以上',rent:'租房',own:'自有',has:'同城有人可求助',none:'同城无人可求助'};
+
+function renderProfile(){
+  const el = document.getElementById('profile');
+  if(profileDone() && !profile._editing){
+    el.className = 'profile-sum';
+    el.innerHTML = '<div class="chips">'
+      + [profile.floor,profile.tenure,profile.network].map(v=>`<span class="chip">${esc(LABELS[v])}</span>`).join('')
+      + '</div><button class="linkbtn" id="editP">修改</button>';
+    document.getElementById('editP').onclick = ()=>{ profile._editing=true; renderProfile(); };
+    return;
+  }
+  el.className = 'profile';
+  el.innerHTML = '<span class="eyebrow" style="display:block;margin-bottom:14px">三个问题，下面的清单会跟着变</span>'
+    + QUESTIONS.map(q=>`
+      <div class="q">
+        <span class="q-label">${esc(q.q)} <span>· ${esc(q.note)}</span></span>
+        <div class="opts">${q.opts.map(([v,l])=>
+          `<button class="opt" data-k="${q.k}" data-v="${v}" aria-pressed="${profile[q.k]===v}">${esc(l)}</button>`
+        ).join('')}</div>
+      </div>`).join('');
+  el.querySelectorAll('.opt').forEach(b=>{
+    b.onclick = ()=>{
+      profile[b.dataset.k] = b.dataset.v;
+      if(profileDone()) profile._editing = false;
+      save(); renderAll();
+    };
+  });
+}
+
+const visible = ph => CARDS.filter(c=>c.phase===ph && (!c.cond || (profileDone() && c.cond(profile))))
+                           .sort((a,b)=>a.pri-b.pri);
+
+function renderTimeline(){
+  document.getElementById('tlTrack').innerHTML = PHASES.map((p,i)=>{
+    const cur = PHASES.findIndex(x=>x.id===phase);
+    return `<button class="tl-node ${i<cur?'past':''}" role="tab" aria-selected="${p.id===phase}" data-p="${p.id}">
+      <span class="tl-dot"></span>
+      <span class="tl-name">${esc(p.name)}<span class="tl-time">${esc(p.time)}</span></span>
+    </button>`;
+  }).join('');
+  document.querySelectorAll('.tl-node').forEach(n=>{
+    n.onclick = ()=>{ phase = n.dataset.p; open = null; renderAll(); };
+  });
+
+  const list = visible(phase);
+  const n = list.filter(c=>done.has(c.id)).length;
+  document.getElementById('barFill').style.width = list.length ? (n/list.length*100)+'%' : '0%';
+  document.getElementById('barText').textContent = `${n} / ${list.length}`;
+}
+
+function renderPhaseHead(){
+  const p = PHASES.find(x=>x.id===phase);
+  document.getElementById('phaseHead').innerHTML =
+    `<h2>${esc(p.head)}</h2><p>${esc(p.sub)}</p>`;
+}
+
+function renderNextUp(){
+  const el = document.getElementById('nextup');
+  if(!profileDone()){
+    el.innerHTML = `<div class="nextup"><span class="eyebrow">先回答上面三个问题</span>
+      <div class="t">回答完，这里会告诉你此刻最该做的那一件事</div>
+      <div class="m">清单也会按你的居住情况增减条目。</div></div>`;
+    return;
+  }
+  const next = visible(phase).find(c=>!done.has(c.id));
+  if(!next){
+    el.innerHTML = `<div class="nextup clear"><span class="eyebrow" style="color:inherit">这一阶段已完成</span>
+      <div class="t">这个阶段该做的都做完了。往后切一段，看看下一步。</div></div>`;
+    return;
+  }
+  el.innerHTML = `<div class="nextup"><span class="eyebrow">现在最该做的一件事</span>
+    <div class="t">${esc(next.title)}</div>
+    <div class="s">第一步：${esc(next.steps[0])}</div>
+    <div class="m">${esc(next.cost)} · ${esc(WHO[next.who].label)} · <button class="linkbtn" id="jumpNext">展开全部步骤</button></div></div>`;
+  document.getElementById('jumpNext').onclick = ()=>{
+    open = next.id; renderList();
+    document.querySelector('.item.open').scrollIntoView({behavior:'smooth',block:'center'});
+  };
+}
+
+function renderList(){
+  const el = document.getElementById('list');
+  const list = visible(phase);
+  if(!list.length){ el.innerHTML = '<div class="empty">这个阶段没有适用于你的条目。</div>'; return; }
+  el.innerHTML = list.map(c=>{
+    const w = WHO[c.who];
+    return `<article class="item ${done.has(c.id)?'done':''} ${open===c.id?'open':''}" data-id="${c.id}">
+      <div class="item-head">
+        <button class="tick" data-tick="${c.id}" aria-label="标记完成" aria-pressed="${done.has(c.id)}">
+          <svg viewBox="0 0 16 16"><path d="M3 8.5l3.2 3.2L13 5"/></svg>
+        </button>
+        <button class="item-body" data-open="${c.id}" aria-expanded="${open===c.id}">
+          <span class="item-title">${esc(c.title)}</span>
+          <span class="item-meta">
+            <span class="who ${w.cls}">${esc(w.label)}</span>
+            <span class="cost">${esc(c.cost)}</span>
+          </span>
+        </button>
+        <span class="caret">&#9654;</span>
+      </div>
+      <div class="detail">
+        <div class="d-block"><div class="d-label">为什么</div><p>${esc(c.why)}</p></div>
+        <div class="d-block"><div class="d-label">怎么做</div><ol>${c.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol></div>
+        <div class="d-block d-warn"><div class="d-label">最常见的错</div><p>${esc(c.mistake)}</p></div>
+        <div class="d-block d-done"><div class="d-label">做完怎么算对</div><p>${esc(c.done)}</p></div>
+      </div>
+    </article>`;
+  }).join('');
+
+  el.querySelectorAll('[data-tick]').forEach(b=>b.onclick=e=>{
+    e.stopPropagation();
+    const id=b.dataset.tick;
+    done.has(id)?done.delete(id):done.add(id);
+    save(); renderAll();
+  });
+  el.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{
+    open = open===b.dataset.open ? null : b.dataset.open;
+    renderList();
+  });
+  el.querySelectorAll('.caret').forEach(c=>c.onclick=()=>{
+    const id=c.closest('.item').dataset.id;
+    open = open===id ? null : id;
+    renderList();
+  });
+}
+
+function renderHelp(){
+  document.getElementById('helpBody').innerHTML = HELP.map((h,i)=>`
+    <div class="hcase">
+      <div class="hcase-t">${esc(h.t)}</div>
+      <div class="hcase-row"><b>找谁</b><span>${esc(h.who)}</span></div>
+      <div class="hcase-row"><b>何时</b><span>${esc(h.when)}</span></div>
+      <div class="script" id="sc${i}">${esc(h.script)}</div>
+      <div class="script-foot"><span></span><button class="copy" data-copy="${i}">复制这段话</button></div>
+    </div>`).join('');
+  document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=async()=>{
+    try{ await navigator.clipboard.writeText(HELP[+b.dataset.copy].script);
+         b.textContent='已复制'; b.classList.add('ok');
+         setTimeout(()=>{b.textContent='复制这段话';b.classList.remove('ok');},1600);
+    }catch(e){
+      const r=document.createRange(); r.selectNode(document.getElementById('sc'+b.dataset.copy));
+      getSelection().removeAllRanges(); getSelection().addRange(r);
+      b.textContent='已选中，按 Ctrl/Cmd+C'; b.classList.add('ok');
+    }
+  });
+}
+
+function renderAll(){ renderProfile(); renderTimeline(); renderPhaseHead(); renderNextUp(); renderList(); }
+
+/* sheet */
+const sheet=document.getElementById('sheet'), bg=document.getElementById('sheetBg');
+function toggleSheet(on){
+  sheet.classList.toggle('open',on); bg.classList.toggle('open',on);
+  document.body.style.overflow = on?'hidden':'';
+  if(on) document.getElementById('sheetClose').focus();
+}
+document.getElementById('helpOpen').onclick=()=>toggleSheet(true);
+document.getElementById('sheetClose').onclick=()=>toggleSheet(false);
+bg.onclick=()=>toggleSheet(false);
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') toggleSheet(false); });
+
+renderAll(); renderHelp();
+</script>
