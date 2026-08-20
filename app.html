@@ -1,0 +1,1382 @@
+<title>今天我该怎么办 · 完整原型</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@700&display=swap">
+<style>
+:root{
+  --ground:#EDF2F0; --surface:#FBFCFC; --surface-2:#E2EAE8; --surface-3:#D6E0DD;
+  --ink:#15201E; --ink-2:#4B5B58; --ink-3:#7E8D8A;
+  --line:#D0DAD7; --line-soft:#DFE7E5;
+  --accent:#186459; --accent-ink:#0E4A41; --accent-soft:#D9EAE6; --on-accent:#F4F8F7;
+  --sig-blue:#2F6FC4; --sig-yellow:#9C7407; --sig-orange:#BC5C24; --sig-red:#AE3524;
+  --sig-blue-bg:#DEE9F7; --sig-yellow-bg:#F5EBCF; --sig-orange-bg:#F7E1D2; --sig-red-bg:#F6DDD8;
+  --shadow:0 1px 2px rgba(21,32,30,.05), 0 8px 24px -16px rgba(21,32,30,.18);
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0D1514; --surface:#151F1D; --surface-2:#1D2A27; --surface-3:#26352F;
+    --ink:#E3ECEA; --ink-2:#A2B4B0; --ink-3:#71827E;
+    --line:#283835; --line-soft:#1F2C2A;
+    --accent:#5CC0B1; --accent-ink:#8AD6C9; --accent-soft:#173B36; --on-accent:#0D1514;
+    --sig-blue:#7FB0EE; --sig-yellow:#D9AF48; --sig-orange:#E8956A; --sig-red:#E8796A;
+    --sig-blue-bg:#16283D; --sig-yellow-bg:#332A12; --sig-orange-bg:#382318; --sig-red-bg:#3A1E1A;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0D1514; --surface:#151F1D; --surface-2:#1D2A27; --surface-3:#26352F;
+  --ink:#E3ECEA; --ink-2:#A2B4B0; --ink-3:#71827E;
+  --line:#283835; --line-soft:#1F2C2A;
+  --accent:#5CC0B1; --accent-ink:#8AD6C9; --accent-soft:#173B36; --on-accent:#0D1514;
+  --sig-blue:#7FB0EE; --sig-yellow:#D9AF48; --sig-orange:#E8956A; --sig-red:#E8796A;
+  --sig-blue-bg:#16283D; --sig-yellow-bg:#332A12; --sig-orange-bg:#382318; --sig-red-bg:#3A1E1A;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:"Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  font-size:15px;line-height:1.72;-webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{margin:0;text-wrap:balance}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:none;text-align:left}
+a{color:var(--accent);text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- shell ---------- */
+.app{max-width:560px;margin:0 auto;min-height:100vh;padding:0 20px 156px;position:relative}
+.topbar{
+  position:sticky;top:0;z-index:30;background:var(--ground);
+  display:flex;align-items:center;gap:12px;padding:16px 0 13px;border-bottom:1px solid var(--line);
+}
+.back{flex:none;font-size:13px;color:var(--ink-2);padding:4px 2px}
+.back:hover{color:var(--accent)}
+.topbar h1{font-family:"Noto Serif SC",Georgia,serif;font-size:18px;line-height:1.4;flex:1;min-width:0}
+.topbar .step{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);flex:none}
+
+.view{display:none;animation:fade .18s ease}
+.view.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+/* ---------- home ---------- */
+.hero{padding:28px 0 6px}
+.hero h2{font-family:"Noto Serif SC",Georgia,serif;font-size:26px;line-height:1.4;letter-spacing:-.01em}
+.hero p{margin-top:10px;color:var(--ink-2);font-size:14px;max-width:44ch}
+.notice{
+  margin:16px 0 0;padding:11px 13px;border-radius:var(--r);
+  background:var(--sig-yellow-bg);color:var(--sig-yellow);font-size:12.5px;line-height:1.62;
+}
+.paths{margin-top:24px;display:grid;gap:12px}
+.path{
+  display:block;width:100%;padding:17px 18px;border-radius:var(--r);background:var(--surface);
+  border:1px solid var(--line);box-shadow:var(--shadow);transition:.14s;
+}
+.path:hover{border-color:var(--accent);transform:translateY(-1px)}
+.path .k{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.path .k .letter{
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;
+  padding:2px 7px;border-radius:100px;background:var(--accent-soft);color:var(--accent-ink);font-weight:500;
+}
+.path .t{display:block;font-size:16.5px;font-weight:700;line-height:1.45}
+.path .s{display:block;margin-top:6px;font-size:13.5px;color:var(--ink-2);line-height:1.68}
+.path .m{display:block;margin-top:10px;font-size:12px;color:var(--ink-3)}
+.path .m b{color:var(--accent);font-weight:500}
+
+/* ---------- generic blocks ---------- */
+.sec{padding:22px 0 0}
+.sec-h{font-size:13.5px;font-weight:700;margin-bottom:11px;display:flex;align-items:center;gap:8px}
+.sec-h .n{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);font-weight:400}
+.hint{font-size:12.5px;color:var(--ink-3);line-height:1.65;margin-top:-4px;margin-bottom:11px}
+
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{
+  padding:8px 14px;border:1px solid var(--line);border-radius:100px;font-size:13.5px;
+  color:var(--ink-2);background:var(--surface);transition:.14s;min-height:38px;
+}
+.opt:hover{border-color:var(--accent);color:var(--accent)}
+.opt[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:500}
+
+.scen{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:4px}
+.scen button{
+  padding:16px 15px;border-radius:var(--r);border:1px solid var(--line);background:var(--surface);
+  transition:.14s;box-shadow:var(--shadow);
+}
+.scen button:hover{border-color:var(--accent);transform:translateY(-1px)}
+.scen button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.scen .ico{font-size:22px;line-height:1;display:block;margin-bottom:9px}
+.scen .t{font-weight:700;font-size:15px;display:block}
+.path .k{display:block}
+.scen .s{font-size:12px;color:var(--ink-3);display:block;margin-top:4px;line-height:1.5}
+
+.btn{
+  display:block;width:100%;padding:13px;border-radius:var(--r);background:var(--ink);color:var(--ground);
+  font-weight:700;font-size:14.5px;text-align:center;box-shadow:var(--shadow);transition:.14s;
+}
+.btn:hover{background:var(--accent);color:var(--on-accent)}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line);box-shadow:none}
+.btn.ghost:hover{border-color:var(--accent);color:var(--accent);background:var(--surface)}
+.btn-row{display:flex;gap:10px;margin-top:18px}
+.btn-row .btn{flex:1}
+.linkbtn{color:var(--accent);font-size:13px;text-decoration:underline;text-underline-offset:3px}
+
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:3px 10px;border-radius:100px;background:var(--accent-soft);color:var(--accent-ink);font-size:12px;font-weight:500}
+.chip.warn{background:var(--sig-orange-bg);color:var(--sig-orange)}
+
+/* ---------- reading ladder (风险→影响→先做什么) ---------- */
+.ladder{margin-top:18px;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);background:var(--surface)}
+.rung{padding:15px 16px;border-bottom:1px solid var(--line-soft)}
+.rung:last-child{border-bottom:none}
+.rung .d-label{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);margin-bottom:6px}
+.rung p{font-size:14px;line-height:1.72;color:var(--ink)}
+.rung.risk{background:var(--sig-orange-bg)}
+.rung.risk .d-label,.rung.risk p{color:var(--sig-orange)}
+.rung.me p b{color:var(--accent-ink);font-weight:700}
+
+.readbar{display:flex;gap:9px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.tool{
+  padding:7px 13px;border-radius:100px;border:1px solid var(--line);background:var(--surface);
+  font-size:12.5px;color:var(--ink-2);transition:.14s;min-height:36px;
+}
+.tool:hover{border-color:var(--accent);color:var(--accent)}
+.tool[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+
+/* ---------- action list ---------- */
+.list{margin-top:20px;border-top:1px solid var(--line)}
+.item{border-bottom:1px solid var(--line-soft)}
+.item-head{display:flex;gap:13px;align-items:flex-start;width:100%;padding:15px 2px}
+.tick{
+  flex:none;width:22px;height:22px;margin-top:2px;border:1.5px solid var(--line);
+  border-radius:6px;display:grid;place-items:center;transition:.14s;background:var(--surface);
+}
+.tick:hover{border-color:var(--accent)}
+.tick svg{width:12px;height:12px;stroke:var(--on-accent);stroke-width:2.6;fill:none;opacity:0;transition:.14s}
+.item.done .tick{background:var(--accent);border-color:var(--accent)}
+.item.done .tick svg{opacity:1}
+.item-body{flex:1;min-width:0;padding:0}
+.item-title{display:block;font-size:15px;font-weight:500;line-height:1.55}
+.item.done .item-title{color:var(--ink-3);text-decoration:line-through;text-decoration-color:var(--line)}
+.item-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.cost{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3)}
+.who{font-size:11px;padding:2px 8px;border-radius:100px;font-weight:500}
+.who.self{background:var(--surface-2);color:var(--ink-2)}
+.who.property{background:var(--sig-blue-bg);color:var(--sig-blue)}
+.who.help{background:var(--sig-yellow-bg);color:var(--sig-yellow)}
+.who.emergency{background:var(--sig-red-bg);color:var(--sig-red)}
+.star{flex:none;margin-top:2px;font-size:15px;color:var(--line);padding:0 2px;transition:.14s}
+.star:hover{color:var(--sig-yellow)}
+.star[aria-pressed="true"]{color:var(--sig-yellow)}
+.caret{flex:none;margin-top:4px;color:var(--ink-3);transition:transform .18s;font-size:11px;padding:0 2px}
+.item.open .caret{transform:rotate(90deg)}
+.detail{display:none;padding:0 2px 18px 37px}
+.item.open .detail{display:block}
+.d-block{margin-bottom:14px}
+.d-block:last-child{margin-bottom:0}
+.d-label{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);margin-bottom:5px}
+.d-block p{font-size:13.5px;color:var(--ink-2);line-height:1.75}
+.d-block ol{margin:0;padding-left:19px;font-size:13.5px;color:var(--ink-2);line-height:1.75}
+.d-block ol li{margin-bottom:4px}
+.d-block ol li::marker{color:var(--accent);font-family:"IBM Plex Mono",monospace;font-size:11.5px}
+.d-warn{padding:11px 13px;border-radius:8px;background:var(--sig-orange-bg)}
+.d-warn .d-label,.d-warn p{color:var(--sig-orange)}
+.d-done{padding:11px 13px;border-radius:8px;background:var(--accent-soft)}
+.d-done .d-label,.d-done p{color:var(--accent-ink)}
+.empty{padding:30px 0;color:var(--ink-3);font-size:13.5px;text-align:center}
+
+/* ---------- ask (mock AI) ---------- */
+.ask{margin-top:22px;padding:16px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line)}
+.ask h3{font-size:14px;font-weight:700;margin-bottom:4px}
+.ask .hint{margin:4px 0 12px}
+.qbank{display:flex;flex-direction:column;gap:8px}
+.qbank button{
+  padding:10px 13px;border-radius:8px;border:1px solid var(--line);background:var(--ground);
+  font-size:13.5px;color:var(--ink-2);transition:.14s;
+}
+.qbank button:hover{border-color:var(--accent);color:var(--accent)}
+.answer{margin-top:12px;padding:13px 14px;border-radius:8px;background:var(--accent-soft);color:var(--accent-ink);font-size:13.5px;line-height:1.75}
+.answer .src{display:block;margin-top:8px;font-size:11.5px;opacity:.8}
+
+/* ---------- resource board (path B) ---------- */
+.filters{display:flex;gap:7px;flex-wrap:wrap;padding:14px 0;border-bottom:1px solid var(--line)}
+.fchip{padding:5px 12px;border-radius:100px;border:1px solid var(--line);background:var(--surface);font-size:12.5px;color:var(--ink-2);transition:.14s}
+.fchip:hover{border-color:var(--accent);color:var(--accent)}
+.fchip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--ground);font-weight:500}
+.res{padding:15px 2px;border-bottom:1px solid var(--line-soft)}
+.res.stale{opacity:.62}
+.res-top{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:7px}
+.tag{font-size:11px;padding:2px 8px;border-radius:100px;font-weight:500;background:var(--surface-2);color:var(--ink-2)}
+.tag.road{background:var(--sig-orange-bg);color:var(--sig-orange)}
+.tag.block{background:var(--sig-red-bg);color:var(--sig-red)}
+.tag.lift{background:var(--sig-blue-bg);color:var(--sig-blue)}
+.tag.other{background:var(--surface-2);color:var(--ink-2)}
+.res-t{font-size:14.5px;font-weight:500;line-height:1.55}
+.res-p{font-size:13px;color:var(--ink-2);margin-top:5px;line-height:1.7}
+.res-f{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:9px;font-size:11.5px;color:var(--ink-3)}
+.res-f .mono{font-size:11px}
+.valid{font-size:11px;padding:2px 8px;border-radius:100px;font-weight:500}
+.valid.ok{background:var(--accent-soft);color:var(--accent-ink)}
+.valid.no{background:var(--surface-2);color:var(--ink-3)}
+.res-act{display:flex;gap:9px;margin-top:10px}
+.res-act button{font-size:12px;padding:5px 11px;border-radius:100px;border:1px solid var(--line);color:var(--ink-2);transition:.14s}
+.res-act button:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ---------- forms ---------- */
+.field{margin-bottom:15px}
+.field label{display:block;font-size:13.5px;font-weight:500;margin-bottom:7px}
+.field label span{color:var(--ink-3);font-weight:400;font-size:12.5px}
+input[type=text],textarea,select{
+  width:100%;padding:11px 13px;border-radius:8px;border:1px solid var(--line);
+  background:var(--surface);color:var(--ink);font:inherit;font-size:14px;
+}
+textarea{min-height:78px;resize:vertical;line-height:1.65}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--accent);outline-offset:0;border-color:var(--accent)}
+
+/* ---------- notebook (path C) ---------- */
+.note{padding:15px 2px;border-bottom:1px solid var(--line-soft)}
+.note-top{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.note-t{font-size:14.5px;font-weight:500;line-height:1.55}
+.note-p{font-size:13px;color:var(--ink-2);margin-top:5px;line-height:1.7}
+.note-f{margin-top:8px;font-size:11.5px;color:var(--ink-3);display:flex;gap:11px;flex-wrap:wrap;align-items:center}
+.insight{
+  margin-top:16px;padding:15px 16px;border-radius:var(--r);background:var(--surface);
+  border:1px solid var(--line);box-shadow:var(--shadow);
+}
+.insight h3{font-size:14px;font-weight:700;margin-bottom:9px}
+.insight ul{margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2);line-height:1.75}
+.insight li{margin-bottom:5px}
+.insight li::marker{color:var(--accent)}
+.remind{display:flex;gap:11px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line-soft)}
+.remind:last-child{border-bottom:none}
+.remind .when{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);flex:none;width:60px;padding-top:3px}
+.remind .what{flex:1;font-size:13.5px;line-height:1.65}
+.remind .what small{display:block;color:var(--ink-3);font-size:12px}
+
+/* ---------- emergency ---------- */
+.sos{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:78px;z-index:45;
+  width:min(520px,calc(100% - 40px));padding:14px;border-radius:var(--r);
+  background:var(--sig-red);color:#fff;font-weight:700;font-size:15px;text-align:center;
+  box-shadow:0 6px 22px -8px rgba(174,53,36,.7);letter-spacing:.02em;
+}
+.sos:hover{filter:brightness(1.07)}
+.sos small{display:block;font-weight:400;font-size:11.5px;opacity:.92;margin-top:2px;letter-spacing:0}
+
+.calls{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:4px}
+.call{
+  display:block;padding:15px;border-radius:var(--r);background:var(--sig-red-bg);color:var(--sig-red);
+  text-align:center;text-decoration:none;border:1px solid transparent;transition:.14s;
+}
+.call:hover{border-color:var(--sig-red)}
+.call .num{font-family:"IBM Plex Mono",monospace;font-size:24px;font-weight:500;display:block;line-height:1.2}
+.call .lb{font-size:12px;display:block;margin-top:3px}
+.call.soft{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.call.soft .num{font-size:15px;font-weight:700;padding-top:5px}
+.call.soft .lb{color:var(--ink-3)}
+
+.do-list{margin-top:14px;border-radius:var(--r);overflow:hidden;border:1px solid var(--line)}
+.do-row{padding:14px 15px;border-bottom:1px solid var(--line-soft);background:var(--surface)}
+.do-row:last-child{border-bottom:none}
+.do-row .d-label{margin-bottom:7px}
+.do-row ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.75;color:var(--ink-2)}
+.do-row li{margin-bottom:4px}
+.do-row.dont{background:var(--sig-red-bg)}
+.do-row.dont .d-label,.do-row.dont ul{color:var(--sig-red)}
+.do-row.dont li::marker{color:var(--sig-red)}
+.do-row.now li::marker{color:var(--accent)}
+
+.card{
+  margin-top:16px;border-radius:var(--r);border:1.5px solid var(--ink);background:var(--surface);
+  overflow:hidden;box-shadow:var(--shadow);
+}
+.card-h{padding:13px 16px;background:var(--ink);color:var(--ground);display:flex;justify-content:space-between;align-items:center;gap:12px}
+.card-h b{font-size:14.5px;letter-spacing:.02em}
+.card-h span{font-size:11px;opacity:.8;font-family:"IBM Plex Mono",monospace}
+.card-row{display:flex;gap:12px;padding:11px 16px;border-bottom:1px solid var(--line-soft);font-size:13.5px;line-height:1.6}
+.card-row:last-child{border-bottom:none}
+.card-row b{flex:none;width:82px;font-size:11px;font-weight:500;font-family:"IBM Plex Mono",monospace;letter-spacing:.06em;color:var(--ink-3);text-transform:uppercase;padding-top:4px}
+.card-row span{flex:1;min-width:0}
+.card-row span.dim{color:var(--ink-3)}
+
+/* ---------- tabbar ---------- */
+.tabbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:44;background:var(--surface);
+  border-top:1px solid var(--line);padding:6px 0 max(6px,env(safe-area-inset-bottom));
+}
+.tabbar-in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 2px;color:var(--ink-3);transition:.14s}
+.tab .ti{font-size:17px;line-height:1}
+.tab .tl{font-size:10.5px;letter-spacing:.02em}
+.tab[aria-selected="true"]{color:var(--accent);font-weight:700}
+.tab:hover{color:var(--accent)}
+
+.foot{padding:30px 0 6px;border-top:1px solid var(--line);margin-top:30px;color:var(--ink-3);font-size:12px;line-height:1.8}
+.foot p{margin:0 0 9px}
+.foot b{color:var(--ink-2)}
+.foot ol{margin:6px 0 0;padding-left:18px}
+.foot li{margin-bottom:4px}
+</style>
+
+<div class="app">
+  <header class="topbar">
+    <button class="back" id="back" hidden>&larr; 返回</button>
+    <h1 id="title">今天我该怎么办</h1>
+    <span class="step mono" id="step"></span>
+  </header>
+
+  <!-- ============ 首页 ============ -->
+  <section class="view on" id="v-home">
+    <div class="hero">
+      <h2>今天想先解决哪一件事？</h2>
+      <p>三条路径：天气来了怎么办、今天的路好不好走、我的身体最近怎么样。遇到危险，红色按钮一直在屏幕上。</p>
+      <div class="notice"><b>这是原型，内容尚未经官方核对。</b>所有具体数字与处置方法在给真实用户使用前必须逐条比对应急管理部门、当地气象台、红十字会的公开指引。任何时候以官方预警为准。</div>
+    </div>
+    <div class="paths" id="paths"></div>
+    <div class="sec">
+      <div class="sec-h">这一版想验证什么 <span class="n">FOR REVIEW</span></div>
+      <div class="foot" style="border:none;margin:0;padding:0">
+        <ol>
+          <li>三条路径放在一起，用户是否能一眼认出"哪条是给我的"，还是需要拆成三个独立入口。</li>
+          <li>路径 A 的五个补充问题（外出、身体状态、独居、行动能力、出行需求）产生的差异，用户是否感知得到。</li>
+          <li>路径 B 的信息由用户互填，冷启动阶段没人填时它还成不成立。</li>
+          <li>紧急信息卡是不是路径 C 真正的价值出口——平时记录，关键时刻一次性交出去。</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ A1 选择情境 ============ -->
+  <section class="view" id="v-a-scenario">
+    <div class="sec">
+      <div class="sec-h">现在是哪种天气 <span class="n">1 / 3</span></div>
+      <p class="hint">选一个当前正在发生、或者今明两天要来的。</p>
+      <div class="scen" id="scenGrid"></div>
+    </div>
+    <div class="btn-row"><button class="btn" id="toA2" disabled>下一步：补充我的情况</button></div>
+  </section>
+
+  <!-- ============ A2 补充个人情况 ============ -->
+  <section class="view" id="v-a-profile">
+    <div class="sec">
+      <div class="sec-h">补充你今天的情况 <span class="n">2 / 3</span></div>
+      <p class="hint">只影响建议内容，不上传、不联网，存在这台设备上。随时可以改。</p>
+      <div id="profileForm"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn ghost" id="skipA2">先跳过</button>
+      <button class="btn" id="toA3">看今日行动建议</button>
+    </div>
+  </section>
+
+  <!-- ============ A3 今日行动建议 ============ -->
+  <section class="view" id="v-a-advice">
+    <div class="sec" style="padding-top:18px">
+      <div class="chips" id="adviceChips"></div>
+      <div class="ladder" id="ladder"></div>
+      <div class="readbar">
+        <button class="tool" id="speak" aria-pressed="false">🔊 朗读这段</button>
+        <button class="tool" id="bigger" aria-pressed="false">Aa 放大字号</button>
+        <button class="tool" id="editProfile">修改我的情况</button>
+      </div>
+    </div>
+    <div class="sec">
+      <div class="sec-h">现在先做这几件事 <span class="n" id="adviceCount"></span></div>
+      <p class="hint">按优先级排好了，从第一条开始。点标题看展开说明。</p>
+    </div>
+    <div class="list" id="adviceList"></div>
+    <div class="ask">
+      <h3>还想问点别的</h3>
+      <p class="hint">原型阶段是固定回答，不接模型。真实版本这里接 AI，但答案必须锁定在已核对过的内容里。</p>
+      <div class="qbank" id="qbank"></div>
+      <div id="answer"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn ghost" id="toStarred">看我收藏的</button>
+      <button class="btn" id="toEmergencyFromA" style="background:var(--sig-red);color:#fff">遇到危险了</button>
+    </div>
+  </section>
+
+  <!-- ============ B 无障碍资源 ============ -->
+  <section class="view" id="v-b">
+    <div class="sec" style="padding-top:18px">
+      <p class="hint">这些信息由用过这条路的人填，不是官方数据。看到不对的，请顺手标一下。</p>
+    </div>
+    <div class="filters" id="bFilters"></div>
+    <div id="bList"></div>
+    <div class="btn-row"><button class="btn" id="toBNew">＋ 报一条新情况</button></div>
+  </section>
+
+  <!-- ============ B 提交 ============ -->
+  <section class="view" id="v-b-new">
+    <div class="sec">
+      <div class="sec-h">报一条新情况</div>
+      <p class="hint">写你亲眼看到的就够，不用写全。别人会来补充。</p>
+      <div id="bForm"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn ghost" id="bCancel">取消</button>
+      <button class="btn" id="bSubmit">提交</button>
+    </div>
+  </section>
+
+  <!-- ============ C 健康笔记 ============ -->
+  <section class="view" id="v-c">
+    <div class="sec" style="padding-top:18px">
+      <p class="hint">只存在这台设备上。写它不是为了记录病情，是为了下次说得清楚——对医生，对家人，对救护人员。</p>
+    </div>
+    <div class="filters" id="cFilters"></div>
+    <div id="cList"></div>
+    <div id="cInsight"></div>
+    <div class="btn-row">
+      <button class="btn ghost" id="toCard">生成紧急信息卡</button>
+      <button class="btn" id="toCNew">＋ 记一条</button>
+    </div>
+  </section>
+
+  <!-- ============ C 新增 ============ -->
+  <section class="view" id="v-c-new">
+    <div class="sec">
+      <div class="sec-h">今天记一条</div>
+      <p class="hint">四个问题，能答几个答几个。</p>
+      <div id="cForm"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn ghost" id="cCancel">取消</button>
+      <button class="btn" id="cSubmit">保存</button>
+    </div>
+  </section>
+
+  <!-- ============ 紧急 ============ -->
+  <section class="view" id="v-sos">
+    <div class="sec" style="padding-top:18px">
+      <div class="sec-h">先打电话</div>
+      <p class="hint">说不出话时，可以直接把下面的紧急信息卡给到对方看。</p>
+      <div class="calls" id="calls"></div>
+    </div>
+    <div class="sec">
+      <div class="sec-h">现在这几分钟 <span class="n" id="sosScen"></span></div>
+      <div class="do-list" id="sosDo"></div>
+    </div>
+    <div class="sec">
+      <div class="sec-h">紧急信息卡</div>
+      <p class="hint">出示给救护人员、邻居或物业。内容来自你填过的情况和健康笔记。</p>
+      <div id="cardBox"></div>
+      <div class="btn-row">
+        <button class="btn ghost" id="editCard">编辑卡片内容</button>
+        <button class="btn ghost" id="copyCard">复制成文字</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 卡片编辑 ============ -->
+  <section class="view" id="v-card-edit">
+    <div class="sec">
+      <div class="sec-h">编辑紧急信息卡</div>
+      <p class="hint">写给"完全不认识你的人"看。越具体越有用，不用写得好看。</p>
+      <div id="cardForm"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn ghost" id="cardCancel">取消</button>
+      <button class="btn" id="cardSave">保存</button>
+    </div>
+  </section>
+
+  <!-- ============ 收藏 ============ -->
+  <section class="view" id="v-starred">
+    <div class="sec" style="padding-top:18px">
+      <div class="sec-h">我收藏的行动</div>
+      <p class="hint">跨情境，收藏过的都在这儿。</p>
+    </div>
+    <div class="list" id="starList"></div>
+  </section>
+
+  <footer class="foot">
+    <p><b>原型说明。</b>纯静态单文件，无后端、无账号、无网络请求（字体除外）。所有输入存在浏览器 <span class="mono">localStorage</span>，换设备不同步——这是原型的取舍，不是产品结论。</p>
+    <p>紧急情况请拨打 <span class="mono">110 / 119 / 120</span>。内容需核对来源：应急管理部 · 中国气象局预警信号分级 · 中国红十字会应急救护指南。</p>
+  </footer>
+</div>
+
+<button class="sos" id="sosBtn">紧急求助<small>电话入口 · 现在该做什么 · 我的信息卡</small></button>
+
+<nav class="tabbar"><div class="tabbar-in" id="tabbar" role="tablist" aria-label="主导航"></div></nav>
+
+<script>
+/* ============================================================
+   数据层 —— 内容为待核对草稿，见页脚说明
+   ============================================================ */
+
+const SCEN = {
+  heat: {ico:'🔥', name:'高温 / 热浪', sub:'体感闷、夜里也不降温',
+    risk:'持续高温时，人体靠出汗散热的效率会下降，室内不通风的房间可能比室外更热。风险不是"晒"，是**体温降不下来**——从头晕、乏力到中暑，中间的时间比人以为的短。',
+    doNow:['把人挪到阴凉、通风或有空调的地方，躺下把腿垫高','解开或脱掉外层衣物，用凉水擦颈侧、腋下、大腿根','清醒且能自己吞咽时，小口补含盐分的水'],
+    doNot:['不要给意识不清的人灌水','不要用酒精擦身降温','不要"再撑一会儿看看"——出现意识模糊、不出汗、皮肤发烫，立刻打 120'],
+    call:'120。说清楚：高温环境下多久、现在意识清不清楚、有没有停止出汗。'},
+  rain: {ico:'🌧️', name:'暴雨 / 内涝', sub:'路面积水、地下空间进水',
+    risk:'暴雨真正致命的不是雨量，是**看不见的水下情况**：井盖被冲开、路面塌陷、积水带电。水深到膝盖时，流动的水已经能把成年人冲倒。',
+    doNow:['离开地下室、地下车库、下沉式广场，往高处走','断掉进水区域的电源总闸，前提是你站在干燥处','被困车内且水在上涨，立刻开门或砸侧窗离开，不要留在车里等'],
+    doNot:['不要涉水通过看不清底的路段','不要在积水中蹚水去挪车、取东西','不要靠近路灯杆、配电箱、垂落的电线'],
+    call:'119 用于被困、被水围困、需要破拆救援；110 用于道路危险、失联报警。'},
+  wind: {ico:'🌀', name:'台风 / 强风', sub:'大风、飞掷物、可能停水停电',
+    risk:'台风阶段绝大多数伤亡与"高空坠物和玻璃"有关，而不是风本身把人吹走。风向会突然反转，看似平静的台风眼过后是更强的反向风。',
+    doNow:['离开窗边，转移到房子里没有外窗的房间（卫生间、走廊）','玻璃已经破了就关上那个房间的门，不要进去清理','停电时用手电，不要点蜡烛'],
+    doNot:['不要出门"看看风多大"、不要去阳台收东西','不要在风势暂歇时外出——可能只是台风眼','不要靠近广告牌、临时搭建物、树下'],
+    call:'119 用于房屋结构受损、被困；物业 / 社区用于门窗、渗水、断电。'},
+  cold: {ico:'❄️', name:'寒潮 / 极端低温', sub:'骤降温、水管冻裂、路面结冰',
+    risk:'寒潮的风险集中在两头：**室内**取暖不当造成一氧化碳中毒和火灾，**室外**结冰路面摔倒。对慢性病人群，骤降温还会显著加重心脑血管负担。',
+    doNow:['怀疑一氧化碳中毒（头痛、恶心、多人同时不适）：立刻开窗、离开房间、到室外呼吸','失温的人先移到温暖处、换掉湿衣服、用毯子包裹躯干','摔倒后先别急着起身，确认能不能动、有没有剧痛'],
+    doNot:['不要在密闭房间里烧炭、烧煤气取暖','不要用热水直接冲冻伤部位、不要揉搓','不要给失温的人喝酒'],
+    call:'120 用于失温、疑似中毒、摔倒后无法起身；119 用于取暖设备起火。'}
+};
+
+const P = {
+  outing: {q:'今天要出门吗？', note:'决定建议里"出门"这条线怎么给',
+    opts:[['home','不出门'],['out','要出门 / 要通勤'],['unsure','还不确定']]},
+  body: {q:'现在身体状态怎么样？', note:'不舒服的时候，阈值要往前挪',
+    opts:[['well','还可以'],['tired','有点乏力 / 不太舒服'],['ill','正在生病或恢复中'],['chronic','有慢性病，长期用药']]},
+  alone: {q:'是一个人住吗？', note:'决定"报平安"和"谁来发现你"这条线',
+    opts:[['alone','独居'],['with','和人同住']]},
+  mobility: {q:'行动方面有什么需要考虑的吗？', note:'影响撤离、上下楼、路线建议',
+    opts:[['none','没有特别的'],['slow','走得慢 / 上下楼吃力'],['wheel','使用轮椅或助行器'],['sense','视力或听力受限']]},
+  needs: {q:'今天有什么非出门不可的事？', note:'可多选。有需求就不劝你别出门，而是告诉你怎么出门',
+    multi:true,
+    opts:[['med','就医 / 取药'],['food','买菜 / 买饭'],['pet','遛宠物'],['work','必须到岗'],['none','没有']]}
+};
+const PKEYS = ['outing','body','alone','mobility','needs'];
+const LB = {};
+Object.values(P).forEach(q=>q.opts.forEach(([v,l])=>LB[v]=l));
+
+const WHO = {
+  self:      {cls:'self',      label:'自己可以做'},
+  property:  {cls:'property',  label:'找物业 / 社区'},
+  help:      {cls:'help',      label:'需要找人搭把手'},
+  emergency: {cls:'emergency', label:'情况不对就求助'}
+};
+
+/* 影响段：按情境 + 个人情况拼装 */
+function impactFor(s, pf){
+  const bits = [];
+  const m = pf.mobility, b = pf.body, o = pf.outing, needs = pf.needs || [];
+  if(s==='heat'){
+    if(m==='wheel') bits.push('长时间坐姿会让散热更慢，**臀部和背部接触面**容易闷出问题，今天要比平时多起身或变换姿势。');
+    if(m==='slow'||m==='sense') bits.push('户外没有连续遮阴的路段，对你来说是**时间更长的暴露**，同一条路今天要按两倍时间估。');
+    if(b==='chronic') bits.push('部分长期服用的药物会影响出汗和体温调节，**今天不要自行停药，但要问清楚高温下的注意事项**。');
+    if(b==='tired'||b==='ill') bits.push('乏力和早期中暑的表现几乎一样，**你今天很难靠感觉分辨**，所以按更保守的标准来。');
+    if(o==='out') bits.push('要出门的话，最热的时段通常在午后，**能挪到早上或傍晚就挪**。');
+  }
+  if(s==='rain'){
+    if(m==='wheel') bits.push('积水会让轮椅打滑并卡住前轮，**盲道和路缘坡在水下看不见**，今天的常走路线可能不再可用。');
+    if(m==='slow') bits.push('湿滑路面对你的风险主要是摔倒，**摔一次的代价比淋一次雨大得多**。');
+    if(m==='sense') bits.push('雨声会盖掉车辆和警示音，视线也差，**过路口要按"对方看不见我"来准备**。');
+    if(pf.alone==='alone') bits.push('停电或被困时没有人立刻发现你，**今天要主动跟一个人约好互报平安的时间**。');
+    if(o==='out') bits.push('要出门的话，先确认目的地和沿途有没有下沉路段、地下通道。');
+  }
+  if(s==='wind'){
+    if(m==='wheel'||m==='slow') bits.push('停电会让电梯停运，**你可能在楼上下不来、在楼下上不去**，这一条要在风起来之前就解决。');
+    if(m==='sense') bits.push('预警多为声音或图文推送，**今天把接收方式换成你确定能收到的那种**（震动、亲友转告）。');
+    if(pf.alone==='alone') bits.push('一个人住时，最危险的不是台风本身，是**没人知道你现在的状态**。');
+    if(b==='chronic'||b==='ill') bits.push('停电可能影响冷藏药物和用电医疗设备，**这一条现在就要处理**。');
+  }
+  if(s==='cold'){
+    if(m==='wheel'||m==='slow') bits.push('结冰路面是你今天最主要的风险，**坡道结冰比台阶更危险**，因为它看不出来。');
+    if(b==='chronic') bits.push('骤降温会明显加重心脑血管负担，**今天不要在清晨突然到室外活动**。');
+    if(pf.alone==='alone') bits.push('独居时取暖设备故障、水管冻裂都没有人替你发现，**睡前检查一遍**。');
+    if(o==='out') bits.push('要出门的话，室内外温差会让人低估暴露时间，**按分层穿，不要靠一件厚外套**。');
+  }
+  if(needs.includes('med')) bits.push('你今天有**就医或取药**的安排：先打电话确认对方是否照常开门，再决定去不去。');
+  if(needs.includes('pet')) bits.push('遛宠物这件事可以压缩到最短时段，**动物对极端天气的耐受比人更差**。');
+  if(needs.includes('work')) bits.push('必须到岗的话，**提前跟对方说清楚你到达时间可能变化**，比迟到之后再解释省事。');
+  if(!bits.length) bits.push('按你填的情况，今天没有额外需要特别提醒的点。下面的建议按通用情况给，仍然建议逐条看一遍。');
+  return bits;
+}
+
+const CARDS = [
+/* ---------------- 高温 ---------------- */
+{id:'h1',s:'heat',pri:1,who:'self',cost:'5 分钟 · 0 元',
+ title:'先给自己定一个"今天不能超过"的线',
+ why:'高温里出事的人，很少是突然倒下的，多半是一路"再坚持一下"。事前定好一条线，比事中判断可靠。',
+ steps:['定三条：连续在户外不超过 X 分钟、感到头晕就立刻停、超过某个时间点不再出门','把线写在手机备忘录或便签上，别只放在脑子里','告诉一个人你今天的线是什么'],
+ mistake:'把"能忍"当成"没事"。中暑早期的表现就是乏力和注意力涣散，人恰好在这时最容易高估自己。',
+ done:'你能立刻说出今天三条线分别是什么。'},
+{id:'h2',s:'heat',pri:2,who:'self',cost:'10 分钟 · 0–50 元',
+ title:'把家里做出一个"最凉的房间"',
+ why:'不需要整套房子降温，只需要一个能撤退的房间。集中降温比全屋降温省电，也更容易做到。',
+ steps:['选朝北或背阴、有空调或风扇的一间','白天拉上遮光窗帘，把这间的门关上','早晚温度低时开窗对流，中午关窗','把水、药、手机充电器都挪进这间'],
+ mistake:'整天开窗"通风"。室外比室内热的时候开窗，是把热往家里灌。',
+ done:'你能指出家里哪一间是今天的撤退房间，并且必需品已经在里面。'},
+{id:'h3',s:'heat',pri:3,who:'self',cost:'全天 · 0 元',
+ title:'把喝水变成定时的事，而不是渴了才喝',
+ why:'口渴出现时身体已经缺水一段时间了，对年长者和服用某些药物的人来说，这个信号还会更迟钝。',
+ steps:['定闹钟，每小时提醒一次，每次喝一小杯','大量出汗时补充含电解质的饮品，不要只喝白水','把水杯放在你今天待得最久的位置，视线内'],
+ mistake:'靠含糖饮料或咖啡因饮料补水，两者都会让你跑更多次厕所。',
+ done:'到傍晚时你能说出今天大概喝了几次，而不是"应该喝了不少"。'},
+{id:'h4',s:'heat',pri:4,who:'help',cost:'3 分钟 · 0 元',cond:p=>p.alone==='alone',
+ title:'今天跟一个人约好互相报一次平安',
+ why:'高温里独居最大的风险不是中暑本身，是中暑之后没有人知道。一条固定时间的消息，成本几乎为零。',
+ steps:['选一个人：朋友、家人、邻居都行','约定一个具体时间点（比如晚上 8 点）互发一条消息','说清楚：如果我没回，请打电话；打不通请找物业开门'],
+ mistake:'只说"有事我叫你"。真出事的时候人往往叫不出来，所以要约的是"没消息就是有事"。',
+ done:'对方明确回复"知道了"，而不是你单方面发了一条。'},
+{id:'h5',s:'heat',pri:5,who:'self',cost:'出门前 5 分钟 · 0 元',cond:p=>p.outing==='out'||p.outing==='unsure'||(p.needs||[]).some(n=>n!=='none'),
+ title:'出门前先把这趟路拆成几段阴凉',
+ why:'高温里最危险的是"没有中途可退"的路线。把路线按可以进去吹空调的点切段，风险就从一整段变成几小段。',
+ steps:['在地图上标出沿途的便利店、地铁站、商场、公共图书馆','按"每段不超过 10–15 分钟"来切','带水、遮阳、可以坐下休息的备选点','告诉一个人你几点出门、几点应该到'],
+ mistake:'为了省时间选最短但完全没有遮阴的路。',
+ done:'你说得出这趟路中途可以躲进哪两个地方。'},
+{id:'h6',s:'heat',pri:6,who:'self',cost:'10 分钟 · 0 元',cond:p=>p.body==='chronic'||p.body==='ill',
+ title:'把药和高温的关系问清楚一次',
+ why:'部分常用药会影响排汗、体温调节或体液平衡，这在平常没影响，在热浪里有。这件事只需要问一次，之后每年都用得上。',
+ steps:['把在吃的药列个清单（拍照就行）','打给开药的医生或药师，问：这些药在高温天要注意什么','特别问：需不需要调整喝水量、有没有必须避光冷藏的','把答案记进健康笔记'],
+ mistake:'自己上网搜完就停药或减量。停药的风险常常比高温更大。',
+ done:'你有一句来自医生或药师的、针对你这份药单的明确说法。'},
+{id:'h7',s:'heat',pri:7,who:'emergency',cost:'现在就记 · 0 元',
+ title:'记住需要立刻打 120 的几个信号',
+ why:'热射病和普通中暑的处置完全不同，前者拖延几分钟就是不同结局。分界点不复杂，但必须提前知道。',
+ steps:['意识模糊、说话不清、叫不醒','皮肤发烫但停止出汗','抽搐、剧烈呕吐','出现任意一条：立刻打 120，同时开始物理降温，不要等'],
+ mistake:'先送医院再打电话。先打，让专业判断在路上就开始。',
+ done:'你不用看手机就能说出其中至少三条。'},
+
+/* ---------------- 暴雨 ---------------- */
+{id:'r1',s:'rain',pri:1,who:'self',cost:'5 分钟 · 0 元',
+ title:'先确认你所在位置的水会往哪儿走',
+ why:'内涝不是均匀发生的，它集中在下沉空间和低洼路段。知道自己在不在这些位置上，比看雨量更有用。',
+ steps:['你住的楼层、你今天要去的地方，有没有地下室、地下车库、下沉广场','以前下大雨时哪几条路先积水，这些是今天的禁行路段','确认家里是否有需要挪到高处的东西（配电箱位置、贵重物品）'],
+ mistake:'只看降雨量数字。同样的雨量，在不同地形上后果差得很远。',
+ done:'你能说出今天不走的两条路，和家里要挪高的东西。'},
+{id:'r2',s:'rain',pri:2,who:'self',cost:'现在就记 · 0 元',
+ title:'把"多深的水不能过"变成一个具体的画面',
+ why:'涉水的判断不能靠数字，要靠身体上的参照点。流动的水远比静止的水危险，而深度在水下是看不出来的。',
+ steps:['看不见底、看不清是否有井盖或塌陷的水，一律不过','水在流动、并且已经到小腿以上，不要尝试通过','拿不准就绕路或等；水退得比人想的快'],
+ mistake:'跟着前面的人走。对方可能刚好走在没有井盖的那一侧。',
+ done:'你有一个自己身上的参照点，而不是一个记不住的厘米数。'},
+{id:'r3',s:'rain',pri:3,who:'self',cost:'15 分钟 · 0 元',cond:p=>p.mobility==='wheel'||p.mobility==='slow',
+ title:'重新算一遍你今天的路线，按"常走的可能不能用"',
+ why:'积水会同时让坡道打滑、让盲道和路缘失效、让电梯停运。平时最优的那条路，今天可能是最差的。',
+ steps:['列出常走路线上依赖的设施：坡道、电梯、地下通道、过街天桥','逐个判断：积水或停电时它还在不在','找一条备用路线，哪怕更远','如果找不到备用路线，今天就不出门，或者请人陪同'],
+ mistake:'到了现场才发现过不去，然后在雨里临时找路——那是风险最高的状态。',
+ done:'你有 A、B 两条路线，并且知道 B 在什么条件下启用。'},
+{id:'r4',s:'rain',pri:4,who:'property',cost:'10 分钟 · 0 元',
+ title:'把该找物业的事一次性说完',
+ why:'暴雨期间物业电话会被打爆，一次说清楚比打三次有效，也让你排进他们的处理顺序里。',
+ steps:['先看一圈：地下车库排水、单元门口挡水、天井和落水口有没有堵','打一次电话，把看到的问题一起说，问清楚今天有没有值班人','要一个能直接联系到人的号码，不要只有前台','把号码存进手机，备注"暴雨-物业值班"'],
+ mistake:'在业主群里发一句就当报过了。群消息没有责任人。',
+ done:'你手机里有一个今天打得通的人的号码。'},
+{id:'r5',s:'rain',pri:5,who:'self',cost:'20 分钟 · 0–100 元',
+ title:'按"可能停电 12 小时"准备，而不是按下雨准备',
+ why:'暴雨真正打乱生活的往往是次生的停电停水，而不是雨。这一步做了，后面几个小时的难度差很多。',
+ steps:['手机、充电宝充满','手电放在伸手能拿到的地方，别用蜡烛','接一桶水备用（冲厕所用）','需要冷藏的药，问清楚断电后能放多久'],
+ mistake:'把手电放在需要开灯才能找到的抽屉里。',
+ done:'关灯站在原地，你能摸到手电。'},
+{id:'r6',s:'rain',pri:6,who:'help',cost:'3 分钟 · 0 元',cond:p=>p.alone==='alone',
+ title:'约好今天的报平安时间',
+ why:'暴雨天独居，被困或停电都可能让你联系不上外界。事先约好的时间点，是别人开始找你的依据。',
+ steps:['选一个人，约一个具体时间','说明：没回消息请打电话，打不通请联系物业','把对方号码设成紧急联系人'],
+ mistake:'把"没回消息"默认成"在忙"。所以要把处置方式一起说清楚。',
+ done:'对方明确应了，并且知道下一步该做什么。'},
+{id:'r7',s:'rain',pri:7,who:'emergency',cost:'现在就记 · 0 元',
+ title:'记住三种要立刻撤的情况',
+ why:'暴雨中的决策窗口很短，这三条不需要判断，出现即行动。',
+ steps:['水开始进入你所在的地下或半地下空间 → 立刻往上走','室内进水且电器仍通电 → 在干燥处断总闸，做不到就离开','车被水围住 → 立即离车，不要留在车内等水退'],
+ mistake:'回去取东西。所有东西都可以再买。',
+ done:'这三条你能背下来。'},
+
+/* ---------------- 台风 ---------------- */
+{id:'w1',s:'wind',pri:1,who:'self',cost:'3 分钟 · 0 元',
+ title:'先搞清楚现在是什么颜色预警，最强在几点',
+ why:'预警颜色不是严重程度打分，是行动指令。蓝色和红色要求你做的事完全不同。',
+ steps:['查当地气象台官方渠道发布的预警信号颜色，不要只看第三方天气 App 推送','记下预计影响最强的时间段','据此倒推：你还剩几个小时可以准备'],
+ mistake:'只看台风中心离你多远。风雨影响范围可以延伸到中心几百公里外。',
+ done:'你能说出：现在什么颜色、最强在几点、你还剩几小时。'},
+{id:'w2',s:'wind',pri:2,who:'self',cost:'30 分钟 · 0 元',
+ title:'把阳台和窗边清空',
+ why:'台风阶段的伤害大部分来自飞掷物和玻璃，而不是风把人吹走。能被吹动的东西，就是明天的飞掷物。',
+ steps:['阳台上的花盆、晾衣杆、纸箱、椅子，全部收进室内','检查窗户是否关严、锁扣是否到位','拉上窗帘（玻璃破裂时能挡一部分碎片）','确认家里哪一间没有外窗——那是风最大时的撤退位置'],
+ mistake:'风起来之后再去阳台收东西。那是最危险的几分钟。',
+ done:'阳台上没有任何"风能吹动"的东西，你知道撤退房间是哪间。'},
+{id:'w3',s:'wind',pri:3,who:'self',cost:'20 分钟 · 0–100 元',cond:p=>p.mobility!=='none'||p.body==='chronic'||p.body==='ill',
+ title:'按"电梯会停"来安排接下来两天',
+ why:'停电时电梯停运，对依赖电梯的人来说，这等于被锁在楼上或楼下。这件事必须在风起来之前决定。',
+ steps:['决定这两天待在哪儿：家里，还是提前去有人的地方','如果留在家里：药、水、食物、充电，全部备到两天份','如果需要下楼：现在就下，不要等预警升级','把这个决定告诉一个人'],
+ mistake:'想着"停电了再说"。停电之后你就没有选择权了。',
+ done:'你已经做了决定，并且按那个决定把东西备齐了。'},
+{id:'w4',s:'wind',pri:4,who:'self',cost:'一次采购 · 100–200 元',
+ title:'备齐三天不用开火的食物和水',
+ why:'台风可能造成停水停电，外卖和快递停运，超市关门或被抢空。三天不是因为风刮三天，是因为供应恢复需要时间。',
+ steps:['水：按每人每天 3 升准备三天','食物：完全不用加热、不用冷藏的——面包、饼干、坚果、罐头、即食麦片','有宠物的同样备三天','今天买完，等预警升级货架大概率空了'],
+ mistake:'囤一堆需要煮的方便面。停电停气时它们和纸板没有区别。',
+ done:'不开火、不用冰箱，你也能吃满三天。'},
+{id:'w5',s:'wind',pri:5,who:'help',cost:'5 分钟 · 0 元',cond:p=>p.alone==='alone',
+ title:'把"没消息就是有事"这条线设好',
+ why:'一个人住时，最危险的不是台风，是没有人知道你现在的状态。这条线要在停电断网之前设好。',
+ steps:['选一个人，约定每天固定时间互报一次','说明：没回请打电话，打不通请联系物业或社区','把物业、社区、紧急联系人的号码写在纸上贴冰箱——手机没电时纸还在'],
+ mistake:'只依赖微信。断网或没电时，纸上的号码才是能用的那份。',
+ done:'冰箱上有一张纸，上面的号码在断网时依然有效。'},
+{id:'w6',s:'wind',pri:6,who:'self',cost:'10 分钟 · 0 元',cond:p=>p.mobility==='sense',
+ title:'换一个你确定能收到的预警接收方式',
+ why:'预警多以声音提示或图文推送发布。如果你的接收渠道正好是受限的那一种，你会比别人晚知道。',
+ steps:['开启手机的震动 / 闪光提醒','跟一个人约好：预警升级时直接打给你或发文字','确认社区有没有可以登记的特殊需求名单'],
+ mistake:'假设"到时候一定会有人通知我"。要把"谁通知"具体到人。',
+ done:'有一个具体的人，答应了在预警升级时通知你。'},
+{id:'w7',s:'wind',pri:7,who:'emergency',cost:'现在就记 · 0 元',
+ title:'风最大的那几个小时，只做这三件事',
+ why:'这个阶段不需要你判断，照做就行。',
+ steps:['待在没有外窗的房间，远离玻璃','玻璃破了就关上那个房间的门，不要进去清理','绝对不要出门——包括风势暂歇时，那可能只是台风眼'],
+ mistake:'出去"看看情况"或去阳台拍照。',
+ done:'这三条你不用想就能做出来。'},
+
+/* ---------------- 寒潮 ---------------- */
+{id:'c1',s:'cold',pri:1,who:'self',cost:'10 分钟 · 0 元',
+ title:'先检查取暖方式安不安全',
+ why:'寒潮期间室内的风险比室外高：一氧化碳中毒和取暖设备起火，都发生在人以为最安全的地方。',
+ steps:['绝对不在密闭房间烧炭、烧煤气取暖','燃气热水器、壁挂炉所在空间要保持通风','电热毯、取暖器不要整夜无人看管，远离窗帘和被褥','有条件装一个一氧化碳报警器（几十元）'],
+ mistake:'为了保暖把所有门窗封死。缺氧和一氧化碳都是无声的。',
+ done:'你能说出家里哪个取暖设备今晚不会无人值守地开着。'},
+{id:'c2',s:'cold',pri:2,who:'self',cost:'15 分钟 · 0 元',
+ title:'按分层穿，而不是靠一件厚外套',
+ why:'分层的作用是可调节。室内外温差大时，能脱掉一层比一直捂着更不容易出汗——出汗后受凉是失温的常见起点。',
+ steps:['贴身层选排汗的，不要穿棉质贴身衣物长时间在户外','中间层保暖，外层防风','手、脚、头颈是散热最快的地方，优先保护','衣服湿了要尽快换下'],
+ mistake:'穿一件很厚的外套出门，室内闷出汗，出门再受凉。',
+ done:'你今天的穿法是可以中途脱掉一层的。'},
+{id:'c3',s:'cold',pri:3,who:'self',cost:'20 分钟 · 0–50 元',cond:p=>p.mobility!=='none'||p.body!=='well',
+ title:'把结冰路面当成今天的头号风险',
+ why:'寒潮里最常见的伤是摔伤，而不是冻伤。坡道结冰比台阶更危险，因为它看不出来。',
+ steps:['能不出门就不出门；必须出门就避开清晨和夜间','走有摩擦的地面，避开地砖、金属井盖、坡道','鞋底选粗纹的，缩小步幅，重心压低','拄杖或助行器要检查底端防滑'],
+ mistake:'把手插在口袋里走。摔倒时手拿不出来，伤得更重。',
+ done:'你知道今天哪一段路是结冰高风险，并且有绕开的方案。'},
+{id:'c4',s:'cold',pri:4,who:'self',cost:'15 分钟 · 0 元',
+ title:'防水管冻裂，比修水管便宜得多',
+ why:'水管冻裂通常发生在夜里最低温时，而修复要等到寒潮过去。事前十几分钟能省掉几天没水。',
+ steps:['给露天或未保温的水管、水表包上保温材料或旧衣物','夜间让龙头保持极细的水流','出门几天就关掉总阀并把管内水放空','提前接一桶水备用'],
+ mistake:'等到冻上了再用热水浇。骤热会让管子直接裂开。',
+ done:'今晚睡前你做完了保温和滴水这两件事。'},
+{id:'c5',s:'cold',pri:5,who:'self',cost:'10 分钟 · 0 元',cond:p=>p.body==='chronic'||p.body==='ill',
+ title:'把骤降温对身体的影响提前处理掉',
+ why:'气温骤降会明显加重心脑血管负担，而这类风险的窗口通常在清晨。',
+ steps:['清晨不要立刻到室外活动，先在室内活动开','确认药备够了，寒潮期间不方便出门取药','量血压 / 血糖的频率按医生建议提高','记进健康笔记，下次复诊时能说清楚'],
+ mistake:'因为怕冷就整天不动。完全不活动同样是风险。',
+ done:'这几天的药够用，你知道清晨该怎么起身。'},
+{id:'c6',s:'cold',pri:6,who:'help',cost:'5 分钟 · 0 元',cond:p=>p.alone==='alone',
+ title:'约好互报平安，并且说清楚"多久没回要来找"',
+ why:'独居时取暖设备故障、失温、摔倒，都可能在没有人知道的情况下持续几个小时。',
+ steps:['约一个固定时间互发消息','明确：多久没回就打电话，打不通就上门或找物业','把备用钥匙交给一个信得过的人或物业'],
+ mistake:'只说"有事我找你"。要约的是没消息时对方该做什么。',
+ done:'有人知道你的作息，也知道多久没消息该来看看。'},
+{id:'c7',s:'cold',pri:7,who:'emergency',cost:'现在就记 · 0 元',
+ title:'认出失温和一氧化碳中毒的信号',
+ why:'这两件事的共同点是：当事人自己往往判断不出来，等到发现时已经晚了。',
+ steps:['失温：不受控地发抖、说话含糊、动作变笨、后期反而不冷了','一氧化碳中毒：头痛、恶心、乏力，尤其是多人同时出现或离开房间就好转','怀疑一氧化碳：立刻开窗、离开房间、到室外，然后打 120','怀疑失温：移到温暖处、换掉湿衣服、包裹躯干，不要给酒'],
+ mistake:'"缓一会儿就好了"。这两件事都会在缓的过程中继续加重。',
+ done:'你能说出每一种至少两个信号。'}
+];
+
+const QBANK = {
+  heat:[['空调开多少度合适？','原型阶段给的是通用说法：以体感舒适、不出汗为准，通常在 26℃ 上下，同时保证有一定通风。真实版本这里需要引用当地卫健部门或气象部门的公开建议，并标注来源。'],
+        ['分不清是中暑还是普通不舒服怎么办？','分界点是意识和出汗：意识模糊、说话不清、皮肤发烫却停止出汗，按热射病处理，立刻打 120。拿不准时按更严重的那种处理，代价更小。'],
+        ['家里没有空调怎么办？','把一间朝北房间做成撤退房间，白天遮光、早晚通风；白天尽量到有空调的公共空间（图书馆、商场、地铁站、社区服务中心）。这条需要各地公开的纳凉点信息接入。']],
+  rain:[['积水到什么程度就不能走了？','不能靠厘米数判断。看不见底、看不清是否有井盖或塌陷的水一律不过；水在流动且已到小腿以上不要尝试。绕路或等待的成本远低于蹚水。'],
+        ['家里进水了要不要先断电？','要，但前提是你能站在干燥处操作总闸。做不到就直接离开，到安全处再联系物业或电力部门。'],
+        ['车在积水里熄火了怎么办？','立即离车，不要留在车内等水退。开门困难时从侧窗离开。人比车重要，这一条没有例外。']],
+  wind:[['台风眼过去是不是就安全了？','不是。风会从反方向重新加强，而且往往更猛。风势暂歇不等于结束，以官方发布的解除信息为准。'],
+        ['窗户要不要贴胶带？','这一条在公开资料里说法不一，原型不给结论。更可靠的做法是远离窗边、拉上窗帘、待在没有外窗的房间。真实版本需要核对当地应急部门的正式指引。'],
+        ['停电了冰箱里的药还能用吗？','不同药物差别很大，必须问开药的医生或药师，不要自行判断。建议现在就问清楚"断电后能放多久"，并记进健康笔记。']],
+  cold:[['电热毯可以整夜开着吗？','原型的保守建议是不要，尤其是无人看管时。睡前预热、入睡前关闭是更常见的做法。具体以设备说明书为准。'],
+        ['怎么判断家里有没有一氧化碳？','靠人是判断不出来的，它无色无味。可靠的做法是装一个一氧化碳报警器，并保证燃烧设备所在空间通风。'],
+        ['冻伤了要怎么处理？','不要揉搓、不要用热水直接冲、不要用火烤。移到温暖处，用接近体温的温水复温，尽快就医。']]
+};
+
+/* ---------- 路径 B 种子数据 ---------- */
+const B_TYPES = {road:'路不好走 / 临时修路', block:'无障碍通道被占用', lift:'电梯停运 / 故障', other:'其他在地信息'};
+const B_SEED = [
+  {id:'b1',type:'road',place:'长风路 · 地铁 2 号口外',t:'人行道整段开挖，围挡把盲道也占了',
+   note:'施工牌上写到月底。目前只能绕到马路对面走，对面有连续坡道。',by:'路过的人',ts:Date.now()-2*3600e3,valid:true,ok:6,stale:0},
+  {id:'b2',type:'block',place:'城南商场 · 一层西侧',t:'无障碍卫生间被当成杂物间锁了',
+   note:'问了保安，说要去服务台拿钥匙。服务台在三层，往返差不多十分钟。',by:'常来的人',ts:Date.now()-26*3600e3,valid:true,ok:11,stale:1},
+  {id:'b3',type:'lift',place:'康宁小区 · 3 号楼',t:'电梯停运检修，公告说三天',
+   note:'一楼门口贴了纸。楼里有几户住在高层、平时靠电梯，物业电话在公告上。',by:'住户',ts:Date.now()-5*3600e3,valid:true,ok:4,stale:0},
+  {id:'b4',type:'road',place:'滨江步道 · 南段',t:'雨后积水没退，坡道最下面一截打滑',
+   note:'今天早上还有水。走上面那条平路可以绕过去，多五分钟。',by:'晨练的人',ts:Date.now()-52*3600e3,valid:false,ok:3,stale:5},
+  {id:'b5',type:'other',place:'社区服务中心 · 二层',t:'工作日下午有免费轮椅借用，需要押证件',
+   note:'问过前台，说提前打电话更稳妥，周末不一定有人。',by:'居民',ts:Date.now()-9*3600e3,valid:true,ok:8,stale:0},
+  {id:'b6',type:'block',place:'新街口地铁站 · B 口',t:'升降平台故障，按了没人应答',
+   note:'旁边有站务室，从站务室能联系到人，但要等。A 口有直梯，从 A 口进比较稳。',by:'乘客',ts:Date.now()-14*3600e3,valid:true,ok:9,stale:2}
+];
+
+/* ---------- 路径 C 种子数据 ---------- */
+const C_KINDS = {body:'身体反应',trip:'出行 / 天气',med:'用药',care:'就医 / 康复'};
+const C_SEED = [
+  {id:'n1',kind:'trip',t:'下午出门买菜，回来后头晕了半小时',
+   note:'当时太阳很大，走了大概二十分钟没有阴凉。回家躺了一会儿好转。',weather:true,follow:true,ts:Date.now()-1*86400e3},
+  {id:'n2',kind:'med',t:'降压药按时吃了，没有漏',note:'早上八点。',weather:false,follow:false,ts:Date.now()-1*86400e3},
+  {id:'n3',kind:'body',t:'夜里腿抽筋两次',note:'白天出汗多，水喝得少。',weather:true,follow:true,ts:Date.now()-3*86400e3},
+  {id:'n4',kind:'care',t:'社区医院复查，血压偏高一点',note:'医生说继续观察，两周后再看。下次记得带上这两周的记录。',weather:false,follow:true,ts:Date.now()-9*86400e3},
+  {id:'n5',kind:'trip',t:'雨天走地铁通道，坡道滑，差点摔',weather:true,follow:false,note:'以后下雨走里面那条有防滑垫的。',ts:Date.now()-12*86400e3}
+];
+</script>
+
+<script>
+/* ============================================================
+   状态
+   ============================================================ */
+const KEY = 'wx-adapt-v02';
+const DEF = {
+  scen:null,
+  pf:{outing:null,body:null,alone:null,mobility:null,needs:[]},
+  done:[], star:[], places:[],
+  res:null, notes:null,
+  card:{name:'',basic:'',move:'',health:'',contact:''},
+  big:false, ans:null
+};
+let S = Object.assign({}, DEF, JSON.parse(localStorage.getItem(KEY) || '{}'));
+S.pf = Object.assign({}, DEF.pf, S.pf||{});
+S.card = Object.assign({}, DEF.card, S.card||{});
+if(!S.res) S.res = B_SEED.map(x=>Object.assign({},x));
+if(!S.notes) S.notes = C_SEED.map(x=>Object.assign({},x));
+const save = ()=>localStorage.setItem(KEY, JSON.stringify(S));
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const md = s => esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+const has = (a,v) => (a||[]).indexOf(v)>-1;
+const tog = (a,v) => { const i=a.indexOf(v); i>-1?a.splice(i,1):a.push(v); };
+const ago = ts => {
+  const m = Math.round((Date.now()-ts)/60000);
+  if(m<60) return m+' 分钟前';
+  if(m<1440) return Math.round(m/60)+' 小时前';
+  return Math.round(m/1440)+' 天前';
+};
+
+/* ============================================================
+   路由
+   ============================================================ */
+const VIEWS = {
+  'home':      {t:'今天我该怎么办', tab:'home'},
+  'a-scenario':{t:'天气应对', tab:'a', back:'home', step:'1 / 3'},
+  'a-profile': {t:'补充我的情况', tab:'a', back:'a-scenario', step:'2 / 3'},
+  'a-advice':  {t:'今日行动建议', tab:'a', back:'a-profile', step:'3 / 3'},
+  'b':         {t:'日常无障碍资源', tab:'b'},
+  'b-new':     {t:'报一条新情况', tab:'b', back:'b'},
+  'c':         {t:'我的健康笔记', tab:'c'},
+  'c-new':     {t:'记一条', tab:'c', back:'c'},
+  'sos':       {t:'紧急求助', tab:null, back:'home'},
+  'card-edit': {t:'紧急信息卡', tab:null, back:'sos'},
+  'starred':   {t:'我收藏的', tab:'a', back:'a-advice'}
+};
+let view = 'home';
+
+function go(v){
+  view = v;
+  document.querySelectorAll('.view').forEach(e=>e.classList.toggle('on', e.id==='v-'+v));
+  const cfg = VIEWS[v];
+  document.getElementById('title').textContent = cfg.t;
+  document.getElementById('step').textContent = cfg.step || '';
+  const back = document.getElementById('back');
+  back.hidden = !cfg.back;
+  back.onclick = ()=>go(cfg.back);
+  renderTabs();
+  document.getElementById('sosBtn').hidden = (v==='sos' || v==='card-edit');
+  window.scrollTo({top:0,behavior:'instant'});
+  if(v==='a-scenario') renderScen();
+  if(v==='a-profile') renderProfileForm();
+  if(v==='a-advice') renderAdvice();
+  if(v==='b') renderB();
+  if(v==='b-new') renderBForm();
+  if(v==='c') renderC();
+  if(v==='c-new') renderCForm();
+  if(v==='sos') renderSos();
+  if(v==='card-edit') renderCardForm();
+  if(v==='starred') renderStarred();
+  stopSpeak();
+}
+
+const TABS = [
+  {k:'home', ico:'☰', label:'首页', v:'home'},
+  {k:'a', ico:'🌤', label:'天气应对', v:()=>S.scen ? 'a-advice' : 'a-scenario'},
+  {k:'b', ico:'♿', label:'无障碍', v:'b'},
+  {k:'c', ico:'📓', label:'健康笔记', v:'c'}
+];
+function renderTabs(){
+  const cur = VIEWS[view].tab;
+  document.getElementById('tabbar').innerHTML = TABS.map(t=>
+    `<button class="tab" role="tab" aria-selected="${t.k===cur}" data-t="${t.k}">
+       <span class="ti" aria-hidden="true">${t.ico}</span><span class="tl">${t.label}</span></button>`).join('');
+  document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{
+    const t = TABS.find(x=>x.k===b.dataset.t);
+    go(typeof t.v==='function' ? t.v() : t.v);
+  });
+}
+
+/* ============================================================
+   首页
+   ============================================================ */
+const PATHS = [
+  {k:'A', t:'天气应对 / 气候韧性支持', v:'a-scenario',
+   s:'高温、暴雨、台风、寒潮。选一个情境，补充你今天的情况，拿到一份 3–5 条的行动建议。',
+   m:()=>S.scen ? `上次看的是${SCEN[S.scen].name} · 已完成 ${CARDS.filter(c=>c.s===S.scen&&has(S.done,c.id)).length} 条` : '还没开始'},
+  {k:'B', t:'日常无障碍资源', v:'b',
+   s:'路不好走、通道被占、电梯停运。别人填的在地信息，你也可以顺手报一条。',
+   m:()=>`${S.res.filter(r=>r.valid).length} 条仍有效 · 共 ${S.res.length} 条`},
+  {k:'C', t:'个性化健康笔记本', v:'c',
+   s:'记下身体反应、出行影响、用药和就医。系统帮你归拢成提醒和阶段总结。',
+   m:()=>`${S.notes.length} 条记录 · ${S.notes.filter(n=>n.follow).length} 条需要后续关注`}
+];
+document.getElementById('paths').innerHTML = PATHS.map(p=>`
+  <button class="path" data-go="${p.v}">
+    <span class="k"><span class="letter">路径 ${p.k}</span></span>
+    <span class="t">${esc(p.t)}</span>
+    <span class="s">${esc(p.s)}</span>
+    <span class="m"><b>${esc(p.m())}</b></span>
+  </button>`).join('');
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+
+/* ============================================================
+   路径 A
+   ============================================================ */
+function renderScen(){
+  document.getElementById('scenGrid').innerHTML = Object.entries(SCEN).map(([k,s])=>`
+    <button data-s="${k}" aria-pressed="${S.scen===k}">
+      <span class="ico" aria-hidden="true">${s.ico}</span>
+      <span class="t">${esc(s.name)}</span>
+      <span class="s">${esc(s.sub)}</span>
+    </button>`).join('');
+  document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{
+    S.scen = b.dataset.s; S.ans = null; save(); renderScen();
+    document.getElementById('toA2').disabled = false;
+  });
+  document.getElementById('toA2').disabled = !S.scen;
+}
+document.getElementById('toA2').onclick = ()=>go('a-profile');
+
+function renderProfileForm(){
+  document.getElementById('profileForm').innerHTML = PKEYS.map(k=>{
+    const q = P[k];
+    return `<div class="field">
+      <label>${esc(q.q)} <span>· ${esc(q.note)}</span></label>
+      <div class="opts">${q.opts.map(([v,l])=>{
+        const on = q.multi ? has(S.pf[k],v) : S.pf[k]===v;
+        return `<button class="opt" data-k="${k}" data-v="${v}" aria-pressed="${on}">${esc(l)}</button>`;
+      }).join('')}</div></div>`;
+  }).join('');
+  document.querySelectorAll('#profileForm .opt').forEach(b=>b.onclick=()=>{
+    const k=b.dataset.k, v=b.dataset.v;
+    if(P[k].multi){
+      if(v==='none') S.pf[k] = has(S.pf[k],'none') ? [] : ['none'];
+      else { S.pf[k]=(S.pf[k]||[]).filter(x=>x!=='none'); tog(S.pf[k],v); }
+    } else S.pf[k] = S.pf[k]===v ? null : v;
+    save(); renderProfileForm();
+  });
+}
+document.getElementById('toA3').onclick = ()=>go('a-advice');
+document.getElementById('skipA2').onclick = ()=>go('a-advice');
+document.getElementById('editProfile').onclick = ()=>go('a-profile');
+document.getElementById('toStarred').onclick = ()=>go('starred');
+document.getElementById('toEmergencyFromA').onclick = ()=>go('sos');
+
+const answered = () => PKEYS.some(k=>P[k].multi ? (S.pf[k]||[]).length : S.pf[k]);
+const cardsFor = s => CARDS.filter(c=>c.s===s && (!c.cond || c.cond(S.pf))).sort((a,b)=>a.pri-b.pri);
+
+function renderAdvice(){
+  if(!S.scen){ go('a-scenario'); return; }
+  const s = SCEN[S.scen];
+  const chips = [`<span class="chip">${s.ico} ${esc(s.name)}</span>`];
+  PKEYS.forEach(k=>{
+    const v = S.pf[k];
+    if(P[k].multi) (v||[]).filter(x=>x!=='none').forEach(x=>chips.push(`<span class="chip">${esc(LB[x])}</span>`));
+    else if(v && v!=='none' && v!=='well') chips.push(`<span class="chip">${esc(LB[v])}</span>`);
+  });
+  if(!answered()) chips.push('<span class="chip warn">还没填个人情况，下面是通用版</span>');
+  document.getElementById('adviceChips').innerHTML = chips.join('');
+
+  const list = cardsFor(S.scen);
+  const first = list.find(c=>!has(S.done,c.id)) || list[0];
+  document.getElementById('ladder').innerHTML = `
+    <div class="rung risk"><div class="d-label">当前风险</div><p>${md(s.risk)}</p></div>
+    <div class="rung me"><div class="d-label">与我有关的影响</div><p>${impactFor(S.scen,S.pf).map(md).join('<br><br>')}</p></div>
+    <div class="rung"><div class="d-label">现在先做什么</div><p>${esc(first ? first.title : '这一轮的事都做完了。')}</p></div>`;
+
+  document.getElementById('adviceCount').textContent = `${list.filter(c=>has(S.done,c.id)).length} / ${list.length} 已完成`;
+  renderList(document.getElementById('adviceList'), list);
+
+  const qs = QBANK[S.scen];
+  document.getElementById('qbank').innerHTML = qs.map((q,i)=>`<button data-q="${i}">${esc(q[0])}</button>`).join('');
+  document.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{
+    S.ans = +b.dataset.q; save(); renderAnswer();
+  });
+  renderAnswer();
+}
+function renderAnswer(){
+  const el = document.getElementById('answer');
+  if(S.ans==null || !QBANK[S.scen] || !QBANK[S.scen][S.ans]){ el.innerHTML=''; return; }
+  el.innerHTML = `<div class="answer">${esc(QBANK[S.scen][S.ans][1])}
+    <span class="src">原型阶段的固定回答，未经官方核对。真实版本需标注来源与更新日期。</span></div>`;
+}
+
+function renderList(el, list){
+  if(!list.length){ el.innerHTML = '<div class="empty">这里还没有条目。</div>'; return; }
+  el.innerHTML = list.map(c=>{
+    const w = WHO[c.who], done = has(S.done,c.id), star = has(S.star,c.id);
+    return `<article class="item ${done?'done':''}" data-id="${c.id}">
+      <div class="item-head">
+        <button class="tick" data-tick="${c.id}" aria-label="标记完成" aria-pressed="${done}">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 5"/></svg></button>
+        <button class="item-body" data-open="${c.id}" aria-expanded="false">
+          <span class="item-title">${esc(c.title)}</span>
+          <span class="item-meta">
+            <span class="who ${w.cls}">${esc(w.label)}</span>
+            <span class="cost">${esc(c.cost)}</span>
+            ${c.cond?'<span class="cost">· 因你填的情况出现</span>':''}
+          </span></button>
+        <button class="star" data-star="${c.id}" aria-label="收藏" aria-pressed="${star}">★</button>
+        <span class="caret" aria-hidden="true">&#9654;</span>
+      </div>
+      <div class="detail">
+        <div class="d-block"><div class="d-label">为什么</div><p>${esc(c.why)}</p></div>
+        <div class="d-block"><div class="d-label">怎么做</div><ol>${c.steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div>
+        <div class="d-block d-warn"><div class="d-label">最常见的错</div><p>${esc(c.mistake)}</p></div>
+        <div class="d-block d-done"><div class="d-label">做完怎么算对</div><p>${esc(c.done)}</p></div>
+      </div></article>`;
+  }).join('');
+  el.querySelectorAll('[data-tick]').forEach(b=>b.onclick=e=>{
+    e.stopPropagation(); tog(S.done,b.dataset.tick); save();
+    view==='starred' ? renderStarred() : renderAdvice();
+  });
+  el.querySelectorAll('[data-star]').forEach(b=>b.onclick=e=>{
+    e.stopPropagation(); tog(S.star,b.dataset.star); save();
+    view==='starred' ? renderStarred() : renderAdvice();
+  });
+  const toggle = id => {
+    const it = el.querySelector('.item[data-id="'+id+'"]');
+    const on = !it.classList.contains('open');
+    it.classList.toggle('open', on);
+    it.querySelector('[data-open]').setAttribute('aria-expanded', on);
+  };
+  el.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>toggle(b.dataset.open));
+  el.querySelectorAll('.caret').forEach(c=>c.onclick=()=>toggle(c.closest('.item').dataset.id));
+}
+
+function renderStarred(){
+  const list = CARDS.filter(c=>has(S.star,c.id));
+  renderList(document.getElementById('starList'), list);
+}
+
+/* ---------- 朗读 / 字号 ---------- */
+let speaking = false;
+function stopSpeak(){
+  if(window.speechSynthesis) speechSynthesis.cancel();
+  speaking = false;
+  const b = document.getElementById('speak');
+  if(b){ b.setAttribute('aria-pressed','false'); b.textContent='🔊 朗读这段'; }
+}
+document.getElementById('speak').onclick = ()=>{
+  const b = document.getElementById('speak');
+  if(!window.speechSynthesis){ b.textContent='这个浏览器不支持朗读'; return; }
+  if(speaking){ stopSpeak(); return; }
+  const text = document.getElementById('ladder').innerText;
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'zh-CN'; u.rate = .95;
+  u.onend = stopSpeak;
+  speechSynthesis.speak(u);
+  speaking = true; b.setAttribute('aria-pressed','true'); b.textContent='⏹ 停止朗读';
+};
+function applyBig(){
+  document.body.style.fontSize = S.big ? '17.5px' : '';
+  const b = document.getElementById('bigger');
+  b.setAttribute('aria-pressed', String(!!S.big));
+  b.textContent = S.big ? 'Aa 恢复字号' : 'Aa 放大字号';
+}
+document.getElementById('bigger').onclick = ()=>{ S.big=!S.big; save(); applyBig(); };
+
+/* ============================================================
+   路径 B —— 日常无障碍资源
+   ============================================================ */
+let bFilter = 'all', bValidOnly = false, bFav = false, bSort = 'time';
+function renderB(){
+  const f = document.getElementById('bFilters');
+  f.innerHTML =
+    [['all','全部']].concat(Object.entries(B_TYPES)).map(([k,l])=>
+      `<button class="fchip" data-bf="${k}" aria-pressed="${bFilter===k}">${esc(l)}</button>`).join('')
+    + `<span style="flex-basis:100%;height:0"></span>`
+    + `<button class="fchip" data-btog="valid" aria-pressed="${bValidOnly}">只看仍有效</button>`
+    + `<button class="fchip" data-btog="fav" aria-pressed="${bFav}">只看收藏地点</button>`
+    + `<button class="fchip" data-btog="sort" aria-pressed="false">${bSort==='time'?'按更新时间 ↓':'按确认次数 ↓'}</button>`;
+  f.querySelectorAll('[data-bf]').forEach(b=>b.onclick=()=>{ bFilter=b.dataset.bf; renderB(); });
+  f.querySelectorAll('[data-btog]').forEach(b=>b.onclick=()=>{
+    const k=b.dataset.btog;
+    if(k==='valid') bValidOnly=!bValidOnly;
+    if(k==='fav') bFav=!bFav;
+    if(k==='sort') bSort = bSort==='time' ? 'ok' : 'time';
+    renderB();
+  });
+
+  let list = S.res.slice();
+  if(bFilter!=='all') list = list.filter(r=>r.type===bFilter);
+  if(bValidOnly) list = list.filter(r=>r.valid);
+  if(bFav) list = list.filter(r=>has(S.places,r.place));
+  list.sort((a,b)=> bSort==='time' ? b.ts-a.ts : b.ok-a.ok);
+
+  const el = document.getElementById('bList');
+  if(!list.length){ el.innerHTML = '<div class="empty">这个条件下还没有信息。你可以报一条。</div>'; return; }
+  el.innerHTML = list.map(r=>`
+    <article class="res ${r.valid?'':'stale'}">
+      <div class="res-top">
+        <span class="tag ${r.type}">${esc(B_TYPES[r.type])}</span>
+        <span class="valid ${r.valid?'ok':'no'}">${r.valid?'仍有效':'已失效'}</span>
+        ${has(S.places,r.place)?'<span class="tag">★ 常用地点</span>':''}
+      </div>
+      <div class="res-t">${esc(r.t)}</div>
+      <div class="res-p">${esc(r.place)}${r.note?' —— '+esc(r.note):''}</div>
+      <div class="res-f">
+        <span class="mono">${esc(ago(r.ts))}更新</span>
+        <span>${esc(r.by)}提供</span>
+        <span>${r.ok} 人说还在 · ${r.stale} 人说已恢复</span>
+      </div>
+      <div class="res-act">
+        <button data-ok="${r.id}">今天还是这样</button>
+        <button data-stale="${r.id}">已经恢复了</button>
+        <button data-fav="${esc(r.place)}">${has(S.places,r.place)?'取消收藏':'收藏地点'}</button>
+      </div>
+    </article>`).join('');
+  el.querySelectorAll('[data-ok]').forEach(b=>b.onclick=()=>{
+    const r=S.res.find(x=>x.id===b.dataset.ok); r.ok++; r.valid=true; r.ts=Date.now(); save(); renderB();
+  });
+  el.querySelectorAll('[data-stale]').forEach(b=>b.onclick=()=>{
+    const r=S.res.find(x=>x.id===b.dataset.stale); r.stale++; r.valid=false; r.ts=Date.now(); save(); renderB();
+  });
+  el.querySelectorAll('[data-fav]').forEach(b=>b.onclick=()=>{ tog(S.places,b.dataset.fav); save(); renderB(); });
+}
+document.getElementById('toBNew').onclick = ()=>go('b-new');
+document.getElementById('bCancel').onclick = ()=>go('b');
+
+function renderBForm(){
+  document.getElementById('bForm').innerHTML = `
+    <div class="field"><label>是哪一类？</label>
+      <div class="opts">${Object.entries(B_TYPES).map(([k,l],i)=>
+        `<button class="opt" data-nt="${k}" aria-pressed="${i===0}">${esc(l)}</button>`).join('')}</div></div>
+    <div class="field"><label>在哪儿？ <span>· 写别人找得到的说法就行</span></label>
+      <input type="text" id="nPlace" placeholder="比如：城南商场 一层西侧"></div>
+    <div class="field"><label>看到了什么？</label>
+      <input type="text" id="nTitle" placeholder="比如：无障碍卫生间被锁了"></div>
+    <div class="field"><label>补充一句 <span>· 可不填</span></label>
+      <textarea id="nNote" placeholder="有没有替代路线？问过谁？大概持续到什么时候？"></textarea></div>`;
+  document.querySelectorAll('[data-nt]').forEach(b=>b.onclick=()=>{
+    document.querySelectorAll('[data-nt]').forEach(x=>x.setAttribute('aria-pressed', String(x===b)));
+  });
+}
+document.getElementById('bSubmit').onclick = ()=>{
+  const type = document.querySelector('[data-nt][aria-pressed="true"]').dataset.nt;
+  const place = document.getElementById('nPlace').value.trim();
+  const t = document.getElementById('nTitle').value.trim();
+  if(!place || !t){ alert('地点和情况这两项填一下，其他可以不填。'); return; }
+  S.res.unshift({id:'u'+Date.now(), type, place, t, note:document.getElementById('nNote').value.trim(),
+                 by:'你', ts:Date.now(), valid:true, ok:1, stale:0});
+  save(); go('b');
+};
+
+/* ============================================================
+   路径 C —— 健康笔记本
+   ============================================================ */
+let cFilter = 'all';
+function renderC(){
+  const f = document.getElementById('cFilters');
+  f.innerHTML = [['all','全部']].concat(Object.entries(C_KINDS)).concat([['follow','需要后续关注']])
+    .map(([k,l])=>`<button class="fchip" data-cf="${k}" aria-pressed="${cFilter===k}">${esc(l)}</button>`).join('');
+  f.querySelectorAll('[data-cf]').forEach(b=>b.onclick=()=>{ cFilter=b.dataset.cf; renderC(); });
+
+  let list = S.notes.slice().sort((a,b)=>b.ts-a.ts);
+  if(cFilter==='follow') list = list.filter(n=>n.follow);
+  else if(cFilter!=='all') list = list.filter(n=>n.kind===cFilter);
+
+  const el = document.getElementById('cList');
+  el.innerHTML = !list.length
+    ? '<div class="empty">这个条件下还没有记录。</div>'
+    : list.map(n=>`
+      <article class="note">
+        <div class="note-top">
+          <span class="tag">${esc(C_KINDS[n.kind])}</span>
+          ${n.weather?'<span class="tag lift">与天气 / 出行有关</span>':''}
+          ${n.follow?'<span class="tag block">需要后续关注</span>':''}
+        </div>
+        <div class="note-t">${esc(n.t)}</div>
+        ${n.note?`<div class="note-p">${esc(n.note)}</div>`:''}
+        <div class="note-f"><span class="mono">${esc(ago(n.ts))}</span>
+          <button class="linkbtn" data-del="${n.id}" style="font-size:11.5px">删除</button></div>
+      </article>`).join('');
+  el.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{
+    S.notes = S.notes.filter(n=>n.id!==b.dataset.del); save(); renderC();
+  });
+  renderInsight();
+}
+
+function renderInsight(){
+  const n = S.notes, wk = n.filter(x=>Date.now()-x.ts < 14*86400e3);
+  const weather = wk.filter(x=>x.weather).length;
+  const follow = n.filter(x=>x.follow);
+  const byKind = Object.keys(C_KINDS).map(k=>[C_KINDS[k], n.filter(x=>x.kind===k).length]).filter(x=>x[1]);
+  const lastCare = n.filter(x=>x.kind==='care').sort((a,b)=>b.ts-a.ts)[0];
+  const lastMed = n.filter(x=>x.kind==='med').sort((a,b)=>b.ts-a.ts)[0];
+
+  const sum = [];
+  sum.push(`最近两周共 ${wk.length} 条记录${weather?`，其中 <b>${weather} 条和天气或出行有关</b>`:''}。`);
+  if(byKind.length) sum.push('分布：' + byKind.map(x=>`${x[0]} ${x[1]} 条`).join(' · ') + '。');
+  if(follow.length) sum.push(`有 <b>${follow.length} 条</b>标了需要后续关注，下次看医生时可以直接念这几条。`);
+  if(weather>=2) sum.push('连续出现天气相关的不适，值得在路径 A 里把"我的情况"填全，让建议往前挪一档。');
+  if(!n.length) sum.push('还没有记录。第一条可以就写今天身体怎么样。');
+
+  const rem = [];
+  rem.push({when:'每天', what:'服药打卡', sub: lastMed ? `最近一次记录：${ago(lastMed.ts)}` : '还没有用药记录'});
+  rem.push({when:'每周', what:'量一次血压 / 血糖并记下来', sub:'原型里是固定项，真实版本应由用户自己设定'});
+  rem.push({when: lastCare ? '约 '+Math.max(0, 14-Math.round((Date.now()-lastCare.ts)/86400e3))+' 天后' : '未设置',
+            what:'复查提醒', sub: lastCare ? `上次就医记录：${ago(lastCare.ts)}` : '记一条就医记录后，这里会出现复查提醒'});
+
+  document.getElementById('cInsight').innerHTML = `
+    <div class="insight"><h3>阶段总结</h3><ul>${sum.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+    <div class="insight"><h3>周期提醒</h3>
+      ${rem.map(r=>`<div class="remind"><span class="when">${esc(r.when)}</span>
+        <span class="what">${esc(r.what)}<small>${esc(r.sub)}</small></span></div>`).join('')}
+    </div>`;
+}
+
+document.getElementById('toCNew').onclick = ()=>go('c-new');
+document.getElementById('cCancel').onclick = ()=>go('c');
+document.getElementById('toCard').onclick = ()=>go('sos');
+
+function renderCForm(){
+  document.getElementById('cForm').innerHTML = `
+    <div class="field"><label>今天遇到了什么情况？</label>
+      <input type="text" id="ntTitle" placeholder="比如：下午出门后头晕"></div>
+    <div class="field"><label>身体有什么反应？ <span>· 可不填</span></label>
+      <textarea id="ntNote" placeholder="持续多久、什么时候缓解、当时在做什么"></textarea></div>
+    <div class="field"><label>归到哪一类？</label>
+      <div class="opts">${Object.entries(C_KINDS).map(([k,l],i)=>
+        `<button class="opt" data-ck="${k}" aria-pressed="${i===0}">${esc(l)}</button>`).join('')}</div></div>
+    <div class="field"><label>和天气 / 出行有关吗？</label>
+      <div class="opts">
+        <button class="opt" data-cw="1" aria-pressed="false">有关</button>
+        <button class="opt" data-cw="0" aria-pressed="true">无关 / 不确定</button></div></div>
+    <div class="field"><label>需要后续关注吗？ <span>· 标了的会进阶段总结，也方便下次跟医生说</span></label>
+      <div class="opts">
+        <button class="opt" data-cfo="1" aria-pressed="false">需要</button>
+        <button class="opt" data-cfo="0" aria-pressed="true">不用</button></div></div>`;
+  ['ck','cw','cfo'].forEach(g=>{
+    document.querySelectorAll('[data-'+g+']').forEach(b=>b.onclick=()=>{
+      document.querySelectorAll('[data-'+g+']').forEach(x=>x.setAttribute('aria-pressed', String(x===b)));
+    });
+  });
+}
+document.getElementById('cSubmit').onclick = ()=>{
+  const t = document.getElementById('ntTitle').value.trim();
+  if(!t){ alert('第一栏写一句就行，其他可以不填。'); return; }
+  const pick = g => document.querySelector('[data-'+g+'][aria-pressed="true"]').dataset[g];
+  S.notes.unshift({id:'n'+Date.now(), kind:pick('ck'), t,
+    note:document.getElementById('ntNote').value.trim(),
+    weather:pick('cw')==='1', follow:pick('cfo')==='1', ts:Date.now()});
+  save(); go('c');
+};
+
+/* ============================================================
+   常驻 —— 紧急求助 / 紧急信息卡
+   ============================================================ */
+const GENERIC = {
+  doNow:['先确认你现在这个位置安不安全，不安全就先离开','如果能说话，先打电话；说不出话，把紧急信息卡给对方看','把门打开或告诉别人你在哪一间——救援要能进得来'],
+  doNot:['不要自己开车去医院','不要回去取东西','不要在拿不准的时候等一等看看'],
+  call:'110 报警 · 119 火灾与被困救援 · 120 医疗急救。'
+};
+function renderSos(){
+  const s = S.scen ? SCEN[S.scen] : null;
+  const g = s || GENERIC;
+  document.getElementById('sosScen').textContent = s ? s.name : '通用';
+
+  const contact = (S.card.contact||'').trim();
+  document.getElementById('calls').innerHTML = `
+    <a class="call" href="tel:110"><span class="num">110</span><span class="lb">报警</span></a>
+    <a class="call" href="tel:119"><span class="num">119</span><span class="lb">火警 · 被困救援</span></a>
+    <a class="call" href="tel:120"><span class="num">120</span><span class="lb">医疗急救</span></a>
+    <button class="call soft" id="toCardEdit2"><span class="num">${contact?esc(contact.split('\n')[0]):'填写紧急联系人'}</span>
+      <span class="lb">${contact?'紧急联系人 · 物业 / 社区':'物业 / 社区 / 家人'}</span></button>`;
+  document.getElementById('toCardEdit2').onclick = ()=>go('card-edit');
+
+  document.getElementById('sosDo').innerHTML = `
+    <div class="do-row now"><div class="d-label">现在先做什么</div>
+      <ul>${g.doNow.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+    <div class="do-row dont"><div class="d-label">不要做什么</div>
+      <ul>${g.doNot.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+    <div class="do-row"><div class="d-label">需要联系谁</div>
+      <ul><li>${esc(g.call)}</li></ul></div>`;
+
+  renderCard();
+}
+
+function autoCard(){
+  const pf = S.pf, out = {};
+  out.basic = [pf.alone==='alone'?'独居':'', pf.body==='chronic'?'有慢性病，长期服药':'', pf.body==='ill'?'目前正在生病或恢复中':'']
+    .filter(Boolean).join('；');
+  out.move = {wheel:'使用轮椅或助行器，需要无台阶通道',slow:'行走缓慢，上下楼吃力',sense:'视力或听力受限，请用文字或近距离沟通',none:''}[pf.mobility] || '';
+  const meds = S.notes.filter(n=>n.kind==='med' || n.kind==='care').slice(0,2).map(n=>n.t);
+  out.health = meds.join('；');
+  return out;
+}
+function renderCard(){
+  const a = autoCard(), c = S.card;
+  const row = (label, val, auto) => {
+    const own = (val||'').trim();
+    const v = own || auto || '';
+    const tail = (!own && auto) ? '<br><span class="dim" style="font-size:12px">（自动带入，建议核对后补充）</span>' : '';
+    return `<div class="card-row"><b>${esc(label)}</b><span class="${v?'':'dim'}">${v?esc(v).replace(/\n/g,'<br>')+tail:'未填写 —— 建议补上'}</span></div>`;
+  };
+  document.getElementById('cardBox').innerHTML = `
+    <div class="card">
+      <div class="card-h"><b>紧急信息卡</b><span>请交给救护人员</span></div>
+      ${row('姓名 / 称呼', c.name)}
+      ${row('基本情况', c.basic, a.basic)}
+      ${row('行动能力', c.move, a.move)}
+      ${row('健康 / 用药', c.health, a.health)}
+      ${row('紧急联系人', c.contact)}
+    </div>`;
+}
+function cardText(){
+  const a = autoCard(), c = S.card;
+  const p = (l,v,au)=>`${l}：${(v||'').trim()||au||'（未填写）'}`;
+  return ['紧急信息卡',
+    p('姓名 / 称呼', c.name), p('基本情况', c.basic, a.basic), p('行动能力 / 辅助设备', c.move, a.move),
+    p('重要健康信息 / 用药', c.health, a.health), p('紧急联系人', c.contact)].join('\n');
+}
+document.getElementById('editCard').onclick = ()=>go('card-edit');
+document.getElementById('copyCard').onclick = async ()=>{
+  const b = document.getElementById('copyCard');
+  try{ await navigator.clipboard.writeText(cardText()); b.textContent='已复制'; }
+  catch(e){ b.textContent='复制失败，请手动选择'; }
+  setTimeout(()=>b.textContent='复制成文字', 1800);
+};
+
+function renderCardForm(){
+  const a = autoCard();
+  const f = (k,label,note,ph) => `<div class="field"><label>${esc(label)} <span>· ${esc(note)}</span></label>
+    <textarea id="cf-${k}" placeholder="${esc(ph)}">${esc(S.card[k]||'')}</textarea></div>`;
+  document.getElementById('cardForm').innerHTML =
+    `<div class="field"><label>姓名 / 称呼</label><input type="text" id="cf-name" value="${esc(S.card.name||'')}" placeholder="别人怎么称呼你"></div>`
+    + f('basic','基本情况','留空会自动用你在路径 A 填的：'+(a.basic||'（暂无）'), '年龄段、是否独居、住址门牌')
+    + f('move','行动能力 / 辅助设备','留空会自动用：'+(a.move||'（暂无）'), '比如：使用轮椅，需要两人协助转移；助听器在右耳')
+    + f('health','重要健康信息 / 用药','留空会自动用最近的用药与就医记录', '过敏史、慢性病、正在服用的药、不能用的药')
+    + f('contact','紧急联系人','第一行会显示在求助页的按钮上', '姓名 电话 关系\n物业 / 社区值班电话');
+}
+document.getElementById('cardSave').onclick = ()=>{
+  ['name','basic','move','health','contact'].forEach(k=>{
+    S.card[k] = document.getElementById('cf-'+k).value;
+  });
+  save(); go('sos');
+};
+document.getElementById('cardCancel').onclick = ()=>go('sos');
+document.getElementById('sosBtn').onclick = ()=>go('sos');
+
+/* ============================================================
+   启动
+   ============================================================ */
+applyBig();
+go('home');
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape' && VIEWS[view].back) go(VIEWS[view].back);
+});
+</script>
