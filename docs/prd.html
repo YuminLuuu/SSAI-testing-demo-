@@ -1,0 +1,761 @@
+<title>今天我该怎么办</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@700&display=swap">
+<style>
+:root{
+  --ground:#EDF2F0; --surface:#FBFCFC; --surface-2:#E2EAE8;
+  --ink:#15201E; --ink-2:#4B5B58; --ink-3:#7E8D8A;
+  --line:#D0DAD7; --line-soft:#DFE7E5;
+  --accent:#186459; --accent-ink:#0E4A41; --accent-soft:#D9EAE6; --on-accent:#F4F8F7;
+  --warn:#9C7407; --warn-bg:#F5EBCF;
+  --stop:#AE3524; --stop-bg:#F6DDD8;
+  --open:#2F6FC4; --open-bg:#DEE9F7;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#0D1514; --surface:#151F1D; --surface-2:#1D2A27;
+  --ink:#E3ECEA; --ink-2:#A2B4B0; --ink-3:#71827E;
+  --line:#283835; --line-soft:#1F2C2A;
+  --accent:#5CC0B1; --accent-ink:#8AD6C9; --accent-soft:#173B36; --on-accent:#0D1514;
+  --warn:#D9AF48; --warn-bg:#332A12;
+  --stop:#E8796A; --stop-bg:#3A1E1A;
+  --open:#7FB0EE; --open-bg:#16283D;
+}}
+:root[data-theme="dark"]{
+  --ground:#0D1514; --surface:#151F1D; --surface-2:#1D2A27;
+  --ink:#E3ECEA; --ink-2:#A2B4B0; --ink-3:#71827E;
+  --line:#283835; --line-soft:#1F2C2A;
+  --accent:#5CC0B1; --accent-ink:#8AD6C9; --accent-soft:#173B36; --on-accent:#0D1514;
+  --warn:#D9AF48; --warn-bg:#332A12;
+  --stop:#E8796A; --stop-bg:#3A1E1A;
+  --open:#7FB0EE; --open-bg:#16283D;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:"Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  font-size:15.5px;line-height:1.86;-webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:720px;margin:0 auto;padding:0 22px 90px}
+h1,h2,h3{margin:0;text-wrap:balance;font-family:"Noto Serif SC",Georgia,serif}
+p{margin:0;color:var(--ink-2)}
+ul,ol{margin:0;padding-left:20px}
+li{margin-bottom:5px}
+li::marker{color:var(--accent)}
+strong,b{font-weight:700;color:var(--ink)}
+a{color:var(--accent);text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3)}
+
+/* ---------- header ---------- */
+header{padding:52px 0 28px;border-bottom:2px solid var(--ink)}
+header .eyebrow{display:block;margin-bottom:14px}
+header h1{font-size:32px;line-height:1.34;letter-spacing:-.012em}
+header .sub{margin-top:14px;font-size:15.5px;max-width:48ch}
+.meta{margin-top:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px 20px;
+  padding-top:20px;border-top:1px solid var(--line)}
+.meta div{display:flex;flex-direction:column;gap:2px}
+.meta .k{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.meta .v{font-size:13.5px;color:var(--ink);line-height:1.5}
+
+/* ---------- toc ---------- */
+.toc{margin:26px 0 0;padding:18px 20px;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.toc .eyebrow{display:block;margin-bottom:11px}
+.toc ol{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:2px 20px}
+.toc li{margin:0}
+.toc a{display:flex;gap:9px;padding:3px 0;font-size:13.5px;text-decoration:none;color:var(--ink-2);align-items:baseline}
+.toc a:hover{color:var(--accent)}
+.toc a b{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);font-weight:400;flex:none;width:18px}
+
+/* ---------- sections ---------- */
+section{padding:40px 0;border-bottom:1px solid var(--line);scroll-margin-top:20px}
+section > .eyebrow{display:block;margin-bottom:9px;color:var(--accent)}
+h2{font-size:22px;line-height:1.45;letter-spacing:-.006em;margin-bottom:16px}
+h3{font-family:inherit;font-size:14.5px;font-weight:700;margin:26px 0 9px;color:var(--ink)}
+h3:first-of-type{margin-top:18px}
+p + p{margin-top:14px}
+p.lead{color:var(--ink);font-size:16.5px;line-height:1.8}
+.stack{display:flex;flex-direction:column;gap:14px}
+
+/* ---------- callouts ---------- */
+.call{padding:16px 18px;border-radius:10px;font-size:14px;line-height:1.75}
+.call .eyebrow{display:block;margin-bottom:7px}
+.call.acc{background:var(--accent-soft);color:var(--accent-ink)}
+.call.acc .eyebrow,.call.acc b{color:var(--accent-ink)}
+.call.warn{background:var(--warn-bg);color:var(--warn)}
+.call.warn .eyebrow,.call.warn b{color:var(--warn)}
+.call.stop{background:var(--stop-bg);color:var(--stop)}
+.call.stop .eyebrow,.call.stop b{color:var(--stop)}
+.call li::marker{color:currentColor}
+
+/* ---------- persona / plain cards ---------- */
+.cards{display:grid;gap:12px}
+@media(min-width:620px){.cards.two{grid-template-columns:1fr 1fr}}
+.card{padding:16px 18px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.card .eyebrow{display:block;margin-bottom:6px}
+.card h4{margin:0 0 6px;font-size:14.5px;font-weight:700}
+.card p{font-size:13.5px;line-height:1.72}
+.card .quote{margin-top:9px;padding-left:11px;border-left:2px solid var(--accent);font-size:13px;color:var(--ink);line-height:1.7}
+
+/* ---------- requirement blocks ---------- */
+.reqs{display:flex;flex-direction:column;gap:11px;margin-top:16px}
+.req{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.req-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:11px 16px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+.rid{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:500;letter-spacing:.06em;color:var(--accent-ink)}
+.pri{font-family:"IBM Plex Mono",monospace;font-size:10.5px;padding:1px 7px;border-radius:3px;background:var(--ink);color:var(--ground);letter-spacing:.06em}
+.pri.p1{background:var(--ink-3)}
+.pri.p2{background:transparent;color:var(--ink-3);box-shadow:inset 0 0 0 1px var(--line)}
+.st{font-size:11px;padding:2px 9px;border-radius:100px;font-weight:500;margin-left:auto;box-shadow:inset 0 0 0 1px currentColor}
+.st.built{background:var(--accent-soft);color:var(--accent-ink)}
+.st.todo{background:var(--warn-bg);color:var(--warn)}
+.st.open{background:var(--open-bg);color:var(--open)}
+.st.no{background:var(--stop-bg);color:var(--stop)}
+.req-b{padding:14px 16px}
+.req-b .t{font-size:14.5px;font-weight:700;line-height:1.6;color:var(--ink)}
+.req-b .d{margin-top:7px;font-size:13.5px;line-height:1.75}
+.ac{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+.ac .eyebrow{display:block;margin-bottom:6px}
+.ac ul{padding-left:0;list-style:none}
+.ac li{display:flex;gap:9px;font-size:13px;line-height:1.7;color:var(--ink-2);margin-bottom:4px}
+.ac li::before{content:"□";flex:none;font-family:"IBM Plex Mono",monospace;color:var(--accent);padding-top:1px}
+
+/* ---------- IA tree ---------- */
+.tree{
+  margin-top:16px;padding:18px 20px;background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;line-height:1.95;color:var(--ink-2);
+  overflow-x:auto;white-space:pre;
+}
+.tree b{color:var(--accent-ink);font-weight:500}
+.tree i{color:var(--ink-3);font-style:normal}
+
+/* ---------- tables ---------- */
+.tbl-wrap{overflow-x:auto;margin-top:16px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:13.5px}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line-soft);vertical-align:top;line-height:1.65}
+th{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+   color:var(--ink-3);font-weight:400;background:var(--surface-2);white-space:nowrap}
+tr:last-child td{border-bottom:none}
+td b{color:var(--ink)}
+td.num{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--ink-3)}
+
+/* ---------- decision list ---------- */
+.dec{display:flex;flex-direction:column;gap:0;margin-top:16px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.dec-row{padding:16px 18px;border-bottom:1px solid var(--line-soft)}
+.dec-row:last-child{border-bottom:none}
+.dec-top{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.dec-top .rid{color:var(--open)}
+.dec-q{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.6;margin-top:4px}
+.dec-b{margin-top:8px;display:grid;gap:6px}
+.dec-b div{display:flex;gap:10px;font-size:13px;line-height:1.7;color:var(--ink-2)}
+.dec-b div > b:first-child{flex:none;width:74px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink-3);font-weight:400;padding-top:4px}
+
+footer{padding:34px 0 0;color:var(--ink-3);font-size:12.5px;line-height:1.85}
+footer p+p{margin-top:10px;color:var(--ink-3)}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">产品需求文档 · PRD v0.2</span>
+  <h1>今天我该怎么办</h1>
+  <p class="sub">极端天气下，面向独居者、行动不便者、生活经验有限人群的行动工具。这份文档定义 v0.2 原型已经确定的范围，以及在用户访谈之前必须挂起的决策。</p>
+  <div class="meta">
+    <div><span class="k">版本</span><span class="v mono">v0.2 · 2026-08-20</span></div>
+    <div><span class="k">状态</span><span class="v">原型已跑通，需求未冻结</span></div>
+    <div><span class="k">配套原型</span><span class="v mono">app.html</span></div>
+    <div><span class="k">上游文档</span><span class="v">路径树需求稿 · 对内定位说明</span></div>
+  </div>
+</header>
+
+<nav class="toc" aria-label="目录">
+  <span class="eyebrow">目录</span>
+  <ol>
+    <li><a href="#s1"><b>01</b>问题与机会</a></li>
+    <li><a href="#s2"><b>02</b>目标用户</a></li>
+    <li><a href="#s3"><b>03</b>定位与非目标</a></li>
+    <li><a href="#s4"><b>04</b>信息架构</a></li>
+    <li><a href="#s5"><b>05</b>功能需求 A · 天气应对</a></li>
+    <li><a href="#s6"><b>06</b>功能需求 B · 无障碍资源</a></li>
+    <li><a href="#s7"><b>07</b>功能需求 C · 健康笔记</a></li>
+    <li><a href="#s8"><b>08</b>功能需求 D · 紧急求助</a></li>
+    <li><a href="#s9"><b>09</b>全局要求 E</a></li>
+    <li><a href="#s10"><b>10</b>内容规范与红线</a></li>
+    <li><a href="#s11"><b>11</b>数据与隐私</a></li>
+    <li><a href="#s12"><b>12</b>衡量指标</a></li>
+    <li><a href="#s13"><b>13</b>范围与里程碑</a></li>
+    <li><a href="#s14"><b>14</b>待决策问题</a></li>
+    <li><a href="#s15"><b>15</b>风险与停止条件</a></li>
+  </ol>
+</nav>
+
+<section id="s1">
+  <span class="eyebrow">01 · 背景</span>
+  <h2>问题与机会</h2>
+  <p class="lead">极端天气来临时，信息是不缺的——预警、科普、新闻推送都在。卡住人的是另外三件事：<b>这些信息里哪一条跟我有关</b>、<b>现在这个小时我具体该做什么</b>、<b>这件事该不该我自己弄、不该的话找谁、怎么开口</b>。</p>
+  <p>现有渠道各自解决了一部分：气象台发布权威预警，但它只到"发生什么"，不到"你该做什么"；科普内容按知识分类组织（什么是台风、中暑怎么办），而人在事发时是按时间和处境提问的；政务与社区服务能提供实际帮助，但用户往往不知道边界在哪，也开不了口。</p>
+  <p>对独居者、行动不便者、生活经验有限的人来说，这三个缺口的代价被放大：没有人替他们做判断，没有人顺手帮一把，也没有人在他们出事时立刻发现。</p>
+  <div class="call acc" style="margin-top:20px">
+    <span class="eyebrow">产品主张</span>
+    不是知识库，是一份<b>会根据你今天的处境变化的行动清单</b>；并且把「该找谁 + 怎么开口」当成和应对知识同等重要的内容来做。
+  </div>
+  <div class="call warn" style="margin-top:12px">
+    <span class="eyebrow">前提说明</span>
+    上述判断目前是<b>假设，未经用户访谈验证</b>。本文档中所有需求的优先级都建立在这个假设之上；假设被证伪时，第 15 节的停止条件生效。
+  </div>
+</section>
+
+<section id="s2">
+  <span class="eyebrow">02 · 用户</span>
+  <h2>目标用户与他们要完成的事</h2>
+  <p>三类主要用户，共同点不是身份标签，而是<b>缺少可以立刻调用的外部帮助</b>。</p>
+  <div class="cards two" style="margin-top:18px">
+    <div class="card">
+      <span class="eyebrow">主要用户 1</span>
+      <h4>独居、生活经验有限</h4>
+      <p>多为独自租住的年轻人。第一次遇到台风停水停电、房屋渗水，不知道哪些事该找物业、哪些该找房东、哪些要自己扛，也担心开口麻烦别人。</p>
+      <p class="quote">"我不知道这算不算大事，也不知道该打给谁。"</p>
+    </div>
+    <div class="card">
+      <span class="eyebrow">主要用户 2</span>
+      <h4>行动不便 / 使用轮椅</h4>
+      <p>日常出行高度依赖坡道、电梯、无障碍通道。极端天气会同时让这些设施失效，平时最优的那条路线在当天可能完全不可用。</p>
+      <p class="quote">"停电了电梯就停，我在楼上下不来。"</p>
+    </div>
+    <div class="card">
+      <span class="eyebrow">主要用户 3</span>
+      <h4>慢性病 / 恢复期独居者</h4>
+      <p>骤冷骤热会直接加重身体负担，用药和就医安排会被天气打乱；紧急时刻需要能一次性说清自己的健康信息。</p>
+      <p class="quote">"真出事的时候，我说不清我在吃什么药。"</p>
+    </div>
+    <div class="card">
+      <span class="eyebrow">次要用户</span>
+      <h4>关心他们的人</h4>
+      <p>家人、朋友、社区工作者。他们不是使用主体，但是"报平安"和"紧急信息卡"两个机制的另一端，产品设计必须把他们算进去。</p>
+    </div>
+  </div>
+  <h3>用户要完成的事（按优先级）</h3>
+  <ol>
+    <li><b>搞清楚这次跟我有没有关系</b>，以及严重到什么程度需要改变今天的安排。</li>
+    <li><b>拿到此刻能照做的三到五件事</b>，而不是一篇需要自己提炼的科普。</li>
+    <li><b>判断这件事该不该我自己做</b>；不该的话，知道找谁、什么时候找、第一句话怎么说。</li>
+    <li><b>今天这条路还能不能走</b>——对依赖无障碍设施的人，这是每天都要问的问题。</li>
+    <li><b>把身体状况留下痕迹</b>，以便下次跟医生说清楚，或在紧急时刻一次性交出去。</li>
+  </ol>
+</section>
+
+<section id="s3">
+  <span class="eyebrow">03 · 边界</span>
+  <h2>产品定位与明确不做的事</h2>
+  <p>产品作用在气候适应（adaptation）框架里的一个很窄的位置：不改变致灾因子、暴露度和个体敏感性，只补齐适应能力里的<b>知识／技能</b>与<b>社会资本</b>两项。这条边界同时是一条能拒绝需求的判据——<b>任何不作用在这两项上的功能想法，都应排到很后面。</b></p>
+  <div class="reqs">
+    <div class="req"><div class="req-h"><span class="rid">非目标 1</span><span class="st no">明确不做</span></div>
+      <div class="req-b"><div class="t">不发布预警，不替代官方渠道</div>
+        <div class="d">产品任何时候都不得与官方预警相矛盾，并始终提供官方渠道的出口。预警的权威解释权在气象与应急部门。</div></div></div>
+    <div class="req"><div class="req-h"><span class="rid">非目标 2</span><span class="st no">明确不做</span></div>
+      <div class="req-b"><div class="t">不做医疗诊断</div>
+        <div class="d">健康笔记是记录与整理工具，不产生诊断结论、不给用药建议。涉及药物的内容一律指向"问开药的医生或药师"。</div></div></div>
+    <div class="req"><div class="req-h"><span class="rid">非目标 3</span><span class="st no">明确不做</span></div>
+      <div class="req-b"><div class="t">不做社交网络</div>
+        <div class="d">路径 B 是信息互填，不是社区。没有关注、没有主页、没有私信。降低运营与内容审核成本，也避免把求助变成表演。</div></div></div>
+    <div class="req"><div class="req-h"><span class="rid">非目标 4</span><span class="st no">明确不做</span></div>
+      <div class="req-b"><div class="t">不追求日活</div>
+        <div class="d">极端天气一年发生几次，日活会逼产品往"每天来打开一下"的方向加功能，而那些功能一定和核心机制无关。指标见第 12 节。</div></div></div>
+  </div>
+</section>
+
+<section id="s4">
+  <span class="eyebrow">04 · 架构</span>
+  <h2>信息架构</h2>
+  <p>三条并列路径 + 一个常驻功能。三条路径的时间尺度不同，这是它们并列而不是合并的原因：A 是<b>事件驱动</b>（一年几次），B 是<b>日常</b>（可能每天），C 是<b>长期</b>（周与月）。常驻紧急求助横跨三者。</p>
+  <div class="tree">├─ <b>路径 A · 天气应对</b>  <i>事件驱动</i>
+│   ├─ 选择当前天气情境（高温 / 暴雨 / 台风 / 寒潮）
+│   ├─ 补充个人情况（外出 · 身体状态 · 是否独居 · 行动能力 · 出行需求）
+│   ├─ 今日行动建议：<i>当前风险 → 与我有关的影响 → 现在先做什么</i>
+│   │   └─ 3–5 条优先行动 · 朗读 · 放大字号 · 继续提问
+│   └─ 延伸：收藏 / 标记完成 · 更详细说明 · 跳转紧急求助
+│
+├─ <b>路径 B · 日常无障碍资源</b>  <i>日常</i>
+│   ├─ 浏览（路不好走 / 通道被占 / 电梯停运 / 其他）
+│   ├─ 按地点 · 类型 · 更新时间 · 是否仍有效筛选
+│   ├─ 用户补一条新情况 · 标记是否已失效
+│   └─ 延伸：收藏常用地点
+│
+├─ <b>路径 C · 个性化健康笔记本</b>  <i>长期</i>
+│   ├─ 查看记录（身体反应 / 出行天气 / 用药 / 就医康复）
+│   ├─ 新增一条（发生什么 · 身体反应 · 是否与天气有关 · 是否需关注）
+│   ├─ 系统整理：周期提醒 · 阶段总结 · 风险提示
+│   └─ 延伸：生成紧急信息卡
+│
+└─ <b>常驻 · 紧急求助</b>  <i>全局</i>
+    ├─ 110 / 119 / 120 / 物业 · 社区 · 紧急联系人
+    ├─ 现在先做什么 · 不要做什么 · 需要联系谁
+    └─ 紧急信息卡：基本情况 · 行动能力 · 健康用药 · 紧急联系人</div>
+  <div class="call acc" style="margin-top:16px">
+    <span class="eyebrow">跨路径的数据流</span>
+    路径 A 的<b>个人情况</b>与路径 C 的<b>用药与就医记录</b>自动带入紧急信息卡；路径 A 的<b>当前情境</b>决定紧急页的行动提示内容。这三条连线是产品成立的关键——否则三条路径只是拼在一起的三个 App。
+  </div>
+</section>
+
+<section id="s5">
+  <span class="eyebrow">05 · 功能需求</span>
+  <h2>路径 A · 天气应对</h2>
+  <p>四个情境：高温／热浪、暴雨／内涝、台风／强风、寒潮／极端低温。这条路径是产品的主线，也是三条路径里唯一在事件发生时被外部事件唤起的。</p>
+  <div class="reqs">
+
+    <div class="req"><div class="req-h"><span class="rid">A-1</span><span class="pri">P0</span><span class="st built">原型已实现</span></div>
+      <div class="req-b"><div class="t">选择当前天气情境</div>
+        <div class="d">四选一，每个情境带一句体感描述（"体感闷、夜里也不降温"），让用户按感受而不是气象术语来选。</div>
+        <div class="ac"><span class="eyebrow">验收标准</span><ul>
+          <li>四个情境入口在首屏同时可见，不需要滚动或展开</li>
+          <li>选择后可随时返回更换，已填的个人情况不丢失</li>
+        </ul></div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">A-2</span><span class="pri">P0</span><span class="st built">原型已实现</span></div>
+      <div class="req-b"><div class="t">补充个人情况（五个问题）</div>
+        <div class="d">今天是否外出／通勤、当前身体状态、是否独居、行动能力、今天有什么非出门不可的事（可多选）。全部可跳过，可随时修改。</div>
+        <div class="ac"><span class="eyebrow">验收标准</span><ul>
+          <li>五个问题都能跳过，跳过后仍能拿到通用版建议，并明确标注"这是通用版"</li>
+          <li>答案在本地持久化，下次进入不需重填</li>
+          <li>问题措辞不使用医学或残障术语，用第一人称日常说法</li>
+        </ul></div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">A-3</span><span class="pri">P0</span><span class="st built">原型已实现</span></div>
+      <div class="req-b"><div class="t">今日行动建议的三段阅读结构</div>
+        <div class="d">固定顺序：<b>当前风险 → 与我有关的影响 → 现在先做什么</b>。这个顺序本身是产品观点——先解释风险的性质（而非严重程度打分），再落到"我"，最后才给动作。</div>
+        <div class="ac"><span class="eyebrow">验收标准</span><ul>
+          <li>三段顺序固定，不可因排版原因调换</li>
+          <li>"现在先做什么"始终指向清单里第一条未完成的行动</li>
+        </ul></div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">A-4</span><span class="pri">P0</span><span class="st built">原型已实现</span></div>
+      <div class="req-b"><div class="t">个性化的影响段</div>
+        <div class="d">"与我有关的影响"由情境 × 个人情况实时拼装，不是固定文案。例：轮椅 + 暴雨 → "积水会让轮椅打滑并卡住前轮，盲道和路缘坡在水下看不见"。</div>
+        <div class="ac"><span class="eyebrow">验收标准</span><ul>
+          <li>改动任一个人情况，影响段的内容可见地变化</li>
+          <li>未填个人情况时给出诚实的兜底文案，不假装个性化</li>
+          <li>每条影响必须落到具体后果，不允许"请注意安全"一类空话</li>
+        </ul></div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">A-5</span><span class="pri">P0</span><span class="st built">原型已实现</span></div>
+      <div class="req-b"><div class="t">3–5 条优先行动 + 动作卡固定字段</div>
+        <div class="d">按优先级排序，因个人情况新增的条目要标出来源。每张动作卡的字段固定：动作 / 为什么 / 怎么做 / 耗时与花费 / <b>这事该不该我自己做</b> / 最常见的错 / 做完怎么算对。</div>
+        <div class="ac"><span class="eyebrow">验收标准</span><ul>
+          <li>七个字段缺一不可；没有内容的字段说明这条动作卡还没写完，不得上线</li>
+          <li>"该不该我自己做"有四个取值：自己可以做 / 找物业社区 / 需要找人搭把手 / 情况不对就求助</li>
+          <li>"最常见的错"必须是具体的错误行为，不是"注意安全"</li>
+        </ul></div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">A-6</span><span class="pri">P0</span><span class="st built">原型已实现</span></div>
+      <div class="req-b"><div class="t">朗读与放大字号</div>
+        <div class="d">建议正文可整段朗读（中文语音），字号可一键放大。这两项对本产品不是辅助功能，是主功能——目标用户里有相当比例在视力受限或情况紧急时无法细读。</div>
+        <div class="ac"><span class="eyebrow">验收标准</span><ul>
+          <li>朗读可随时停止，切换页面时自动停止</li>
+          <li>不支持语音合成的浏览器给出明确提示，不静默失败</li>
+          <li>放大字号后布局不破，不出现横向滚动</li>
+        </ul></div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">A-7</span><span class="pri">P1</span><span class="st built">原型已实现</span></div>
+      <div class="req-b"><div class="t">收藏与标记完成</div>
+        <div class="d">收藏跨情境汇总到一处；完成状态显示为"已完成 n / 共 m"。</div>
+        <div class="ac"><span class="eyebrow">验收标准</span><ul>
+          <li>刷新或关闭后状态保留</li>
+          <li>勾选完成不隐藏条目，只降低视觉权重——用户需要能回头确认自己做过什么</li>
+        </ul></div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">A-8</span><span class="pri">P1</span><span class="st open">待决策</span></div>
+      <div class="req-b"><div class="t">继续提问</div>
+        <div class="d">原型为每个情境预置三个高频问题与固定回答，<b>不接模型</b>，页面上明确标注。是否接入 AI、以及如何把回答锁定在已核对语料内，见待决策 <span class="mono">D-3</span>。</div>
+        <div class="ac"><span class="eyebrow">验收标准（原型阶段）</span><ul>
+          <li>每条回答都标注"未经官方核对"与来源要求</li>
+          <li>不假装是实时对话</li>
+        </ul></div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">A-9</span><span class="pri">P1</span><span class="st todo">待实现</span></div>
+      <div class="req-b"><div class="t">时间阶段分段（T-72h / T-24h / 进行中 / 灾后）</div>
+        <div class="d">v0.1 原型按时间阶段组织台风清单，v0.2 扩到四个情境时暂未纳入。这是<b>已知的功能回退</b>：暴雨和寒潮同样有明确的时间轴，高温则更接近持续状态。</div>
+        <div class="ac"><span class="eyebrow">验收标准</span><ul>
+          <li>需先确认：四个情境是否都适用同一套时间分段，还是各自不同</li>
+          <li>访谈中重点验证：用户是按"现在几点"还是按"现在什么情况"来找信息</li>
+        </ul></div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">A-10</span><span class="pri">P1</span><span class="st open">待决策</span></div>
+      <div class="req-b"><div class="t">接入真实预警与定位</div>
+        <div class="d">当前由用户自选情境。接入定位与气象预警可以省掉一步，但引入授权成本、离线不可用、以及与官方口径不一致的风险。见待决策 <span class="mono">D-2</span>。</div></div></div>
+
+  </div>
+</section>
+
+<section id="s6">
+  <span class="eyebrow">06 · 功能需求</span>
+  <h2>路径 B · 日常无障碍资源</h2>
+  <p>四类在地信息：路不好走／临时修路、无障碍通道被占用、电梯停运／故障、其他在地信息。这条路径的价值密度取决于信息新鲜度，而不是信息总量。</p>
+  <div class="reqs">
+
+    <div class="req"><div class="req-h"><span class="rid">B-1</span><span class="pri">P0</span><span class="st built">原型已实现</span></div>
+      <div class="req-b"><div class="t">浏览与筛选</div>
+        <div class="d">按类型筛选，按更新时间或确认次数排序，可只看仍有效的、只看收藏地点的。</div>
+        <div class="ac"><span class="eyebrow">验收标准</span><ul>
+          <li>每条信息必须同时显示：更新时间、提供者、"还在／已恢复"的计数</li>
+          <li>已失效的信息降低视觉权重但不删除——"上周这里修好了"本身是有用的信息</li>
+        </ul></div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">B-2</span><span class="pri">P0</span><span class="st built">原型已实现</span></div>
+      <div class="req-b"><div class="t">用户报一条新情况</div>
+        <div class="d">四个字段：类型、地点、看到了什么、补充一句。只有前两项必填。</div>
+        <div class="ac"><span class="eyebrow">验收标准</span><ul>
+          <li>提交路径不超过三步，一只手可完成</li>
+          <li>文案明确"写你亲眼看到的就够，不用写全"，降低提交门槛</li>
+        </ul></div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">B-3</span><span class="pri">P0</span><span class="st built">原型已实现</span></div>
+      <div class="req-b"><div class="t">有效性标记</div>
+        <div class="d">"今天还是这样"与"已经恢复了"两个按钮直接改变状态与计数，不需要评论、不需要注册。</div>
+        <div class="ac"><span class="eyebrow">验收标准</span><ul>
+          <li>一次点击即生效，并立刻刷新更新时间</li>
+          <li>信息超过一定时长无人确认时自动标为"待确认"（阈值待定）</li>
+        </ul></div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">B-4</span><span class="pri">P0</span><span class="st todo">待实现</span></div>
+      <div class="req-b"><div class="t">内容审核与滥用防护</div>
+        <div class="d">用户生成内容一旦联网就需要处理：错误信息、恶意信息、涉及具体住址的隐私风险。原型阶段全部为本地数据，不涉及；<b>联网前必须先有方案</b>。</div>
+        <div class="ac"><span class="eyebrow">验收标准</span><ul>
+          <li>有举报入口与下架机制</li>
+          <li>地点粒度不精确到门牌与个人住址</li>
+          <li>明确标注"非官方数据"，且不得用于替代官方通告</li>
+        </ul></div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">B-5</span><span class="pri">P0</span><span class="st open">待决策</span></div>
+      <div class="req-b"><div class="t">数据来源与冷启动</div>
+        <div class="d">纯用户互填时，没人填这条路径就是空的。是否接入官方或第三方无障碍数据，见待决策 <span class="mono">D-4</span>。这一条同时关系到第 15 节的停止条件之一。</div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">B-6</span><span class="pri">P1</span><span class="st todo">待实现</span></div>
+      <div class="req-b"><div class="t">结构化地点</div>
+        <div class="d">当前地点是自由文本，无法按距离排序或做"我附近"。需要结构化后才能支撑真实使用。</div></div></div>
+
+  </div>
+</section>
+
+<section id="s7">
+  <span class="eyebrow">07 · 功能需求</span>
+  <h2>路径 C · 个性化健康笔记本</h2>
+  <p>四类记录：身体反应、出行／天气影响、用药、就医／康复。它的价值出口不在"记录"本身，而在<b>两个交付时刻</b>：下次跟医生说清楚，以及紧急时刻一次性交出去。</p>
+  <div class="reqs">
+
+    <div class="req"><div class="req-h"><span class="rid">C-1</span><span class="pri">P0</span><span class="st built">原型已实现</span></div>
+      <div class="req-b"><div class="t">记录列表与筛选</div>
+        <div class="d">按四类筛选，另有"需要后续关注"一个横切筛选项。</div>
+        <div class="ac"><span class="eyebrow">验收标准</span><ul>
+          <li>与天气／出行有关的记录有独立标记，可被路径 A 复用</li>
+          <li>记录可删除，删除不需要二次确认之外的任何流程</li>
+        </ul></div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">C-2</span><span class="pri">P0</span><span class="st built">原型已实现</span></div>
+      <div class="req-b"><div class="t">新增一条记录（四个问题）</div>
+        <div class="d">今天遇到了什么情况 / 身体有什么反应 / 是否与天气·出行有关 / 是否需要后续关注。只有第一项必填。</div>
+        <div class="ac"><span class="eyebrow">验收标准</span><ul>
+          <li>能在 30 秒内完成一条记录</li>
+          <li>不要求填时间——系统自动记，用户在难受的时候不该被表单为难</li>
+        </ul></div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">C-3</span><span class="pri">P1</span><span class="st built">原型已实现</span></div>
+      <div class="req-b"><div class="t">阶段总结</div>
+        <div class="d">由记录实时计算：最近两周条数、其中与天气相关的比例、标记为需后续关注的条数。连续出现天气相关不适时，反向提示用户去把路径 A 的个人情况填全。</div>
+        <div class="ac"><span class="eyebrow">验收标准</span><ul>
+          <li>总结只做归纳与计数，<b>不产生任何诊断性结论</b></li>
+          <li>记录为空时说"还没有记录"，不编造总结</li>
+        </ul></div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">C-4</span><span class="pri">P1</span><span class="st todo">待实现</span></div>
+      <div class="req-b"><div class="t">周期提醒</div>
+        <div class="d">服药、复查、量血压。原型中为固定示例项，真实版本需要用户自定义周期，并依赖系统通知能力（Web 端受限）。</div>
+        <div class="ac"><span class="eyebrow">验收标准</span><ul>
+          <li>提醒周期由用户设定，不预设任何医学频率</li>
+          <li>复查提醒的时间基准来自用户自己的就医记录</li>
+        </ul></div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">C-5</span><span class="pri">P0</span><span class="st built">原型已实现</span></div>
+      <div class="req-b"><div class="t">生成紧急信息卡</div>
+        <div class="d">这是路径 C 与常驻紧急功能的连接点，也是这条路径最可能被验证成立的价值出口。详见 <span class="mono">D-4</span>。</div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">C-6</span><span class="pri">P2</span><span class="st open">待决策</span></div>
+      <div class="req-b"><div class="t">导出 / 同步给家人</div>
+        <div class="d">健康数据是本产品里最敏感的一类。是否支持导出或同步，见待决策 <span class="mono">D-5</span>。</div></div></div>
+
+  </div>
+</section>
+
+<section id="s8">
+  <span class="eyebrow">08 · 功能需求</span>
+  <h2>常驻 · 紧急求助</h2>
+  <p>全局常驻，任何页面一键可达。设计前提是：<b>用这块功能的人处在最差的状态</b>——可能看不清、说不出话、只有一只手、只有几秒钟。</p>
+  <div class="reqs">
+
+    <div class="req"><div class="req-h"><span class="rid">D-1</span><span class="pri">P0</span><span class="st built">原型已实现</span></div>
+      <div class="req-b"><div class="t">常驻入口与一键拨号</div>
+        <div class="d">红色常驻按钮；紧急页给出 110 / 119 / 120 与紧急联系人四个入口，直接触发拨号。</div>
+        <div class="ac"><span class="eyebrow">验收标准</span><ul>
+          <li>入口在所有页面可见，且不遮挡正文最后一行</li>
+          <li>号码字号足够大，误触率低；每个号码标注适用场景，不让用户临场判断打哪个</li>
+        </ul></div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">D-2</span><span class="pri">P0</span><span class="st built">原型已实现</span></div>
+      <div class="req-b"><div class="t">情境化的紧急行动提示</div>
+        <div class="d">三段固定结构：现在先做什么 / 不要做什么 / 需要联系谁。内容随路径 A 当前情境变化；未选情境时给通用版。</div>
+        <div class="ac"><span class="eyebrow">验收标准</span><ul>
+          <li>每段不超过三条，不需要用户判断，照做即可</li>
+          <li>"不要做什么"视觉上单独成块，与"要做什么"不可混淆</li>
+          <li>这部分内容属于高危内容，必须逐条标注来源（见第 10 节）</li>
+        </ul></div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">D-3</span><span class="pri">P0</span><span class="st built">原型已实现</span></div>
+      <div class="req-b"><div class="t">紧急信息卡</div>
+        <div class="d">五个字段：姓名／称呼、基本情况、行动能力／辅助设备、重要健康信息／用药、紧急联系人。可编辑、可复制成文字。</div>
+        <div class="ac"><span class="eyebrow">验收标准</span><ul>
+          <li>未填写的字段显示为"未填写 —— 建议补上"，不隐藏</li>
+          <li>卡片写给"完全不认识你的人"看，字段命名与排版按此校准</li>
+        </ul></div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">D-4</span><span class="pri">P0</span><span class="st built">原型已实现</span></div>
+      <div class="req-b"><div class="t">跨路径自动带入</div>
+        <div class="d">基本情况与行动能力来自路径 A 的个人情况；健康用药来自路径 C 最近的用药与就医记录。自动带入的内容明确标注"自动带入，建议核对后补充"。</div>
+        <div class="ac"><span class="eyebrow">验收标准</span><ul>
+          <li>用户手填的内容永远覆盖自动带入的内容</li>
+          <li>自动带入与手填在视觉上可区分</li>
+        </ul></div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">D-5</span><span class="pri">P1</span><span class="st open">待决策</span></div>
+      <div class="req-b"><div class="t">脱离 App 的可达性</div>
+        <div class="d">真出事时人可能解不开锁、找不到 App。锁屏可见、可打印、二维码是三个候选方向，见待决策 <span class="mono">D-6</span>。</div></div></div>
+
+  </div>
+</section>
+
+<section id="s9">
+  <span class="eyebrow">09 · 全局要求</span>
+  <h2>无障碍、可用性与技术约束</h2>
+  <div class="reqs">
+
+    <div class="req"><div class="req-h"><span class="rid">E-1</span><span class="pri">P0</span><span class="st todo">部分实现</span></div>
+      <div class="req-b"><div class="t">无障碍达到 WCAG 2.1 AA</div>
+        <div class="d">这是本产品的<b>基本要求而非加分项</b>：目标用户中包含轮椅使用者、视力与听力受限者。</div>
+        <div class="ac"><span class="eyebrow">验收标准</span><ul>
+          <li>正文对比度 ≥ 4.5:1，大字号 ≥ 3:1；深浅两套主题都要满足</li>
+          <li>所有可点击区域 ≥ 44 × 44 px</li>
+          <li>全流程可键盘操作，焦点可见</li>
+          <li>读屏语义完整：状态类控件有 aria 状态，图标有替代文本</li>
+          <li>尊重系统的减少动画偏好</li>
+          <li><b>待补</b>：真实读屏软件（VoiceOver / TalkBack）实机走查</li>
+        </ul></div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">E-2</span><span class="pri">P0</span><span class="st built">原型已实现</span></div>
+      <div class="req-b"><div class="t">断网可用</div>
+        <div class="d">极端天气常伴随断网断电。核心内容必须在完全离线时可读。</div>
+        <div class="ac"><span class="eyebrow">验收标准</span><ul>
+          <li>断网状态下，三条路径与紧急功能的已加载内容全部可用</li>
+          <li>字体等外部资源加载失败时有可用的回退，不影响阅读</li>
+        </ul></div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">E-3</span><span class="pri">P0</span><span class="st built">原型已实现</span></div>
+      <div class="req-b"><div class="t">无账号、本地优先</div>
+        <div class="d">原型不设账号、不设后端，全部状态存于浏览器本地。这是原型的取舍，也是隐私上的默认立场（见第 11 节）。</div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">E-4</span><span class="pri">P0</span><span class="st todo">待实现</span></div>
+      <div class="req-b"><div class="t">内容溯源字段</div>
+        <div class="d">每条动作卡、每条紧急提示都需带上：来源机构、来源链接、核对人、核对日期。当前内容全部为未核对草稿。</div>
+        <div class="ac"><span class="eyebrow">验收标准</span><ul>
+          <li>缺少来源字段的内容<b>不允许对真实用户发布</b></li>
+          <li>用户可查看任意一条建议的来源</li>
+        </ul></div></div></div>
+
+    <div class="req"><div class="req-h"><span class="rid">E-5</span><span class="pri">P1</span><span class="st built">原型已实现</span></div>
+      <div class="req-b"><div class="t">深浅色主题与字号适配</div>
+        <div class="d">跟随系统深浅色；支持一键放大字号。夜间使用与低光环境是这个产品的常见场景。</div></div></div>
+
+  </div>
+</section>
+
+<section id="s10">
+  <span class="eyebrow">10 · 内容</span>
+  <h2>内容规范与安全红线</h2>
+  <div class="call stop">
+    <span class="eyebrow">当前状态</span>
+    原型中的具体数字与处置方法<b>全部是待核对的草稿</b>。在给任何真实用户使用之前，必须逐条比对应急管理部门、当地气象台、红十字会的公开指引并标注来源。
+  </div>
+  <h3>四条红线</h3>
+  <ol>
+    <li><b>不得与官方预警相矛盾</b>，并在每个情境页提供官方渠道出口。</li>
+    <li><b>高危内容必须有来源</b>：涉水深度判断、中暑与热射病分界、失温与一氧化碳中毒识别、食物与药品安全、取暖设备使用。这几类写错会出事。</li>
+    <li><b>公开资料说法不一时，不给结论</b>。原型的处理方式是明写"这一条公开资料说法不一，本产品不给结论"，并给出更可靠的替代做法（例：台风天窗户贴胶带）。</li>
+    <li><b>不给用药建议</b>。所有涉药内容一律指向"问开药的医生或药师"，并提示不要自行停药。</li>
+  </ol>
+  <h3>内容写作规范</h3>
+  <ul>
+    <li><b>判断标准用身体参照点，不用数字。</b>"看不见底的水一律不过"优于"水深超过 X 厘米不要通过"——后者在现场无法测量。</li>
+    <li><b>"最常见的错"必须是具体行为</b>，例如"风起来之后再去阳台收东西"，而不是"注意安全"。</li>
+    <li><b>避开适应不良（maladaptation）建议</b>：某些措施短期有效但长期加剧脆弱性，最典型的是高温时鼓励人人猛开空调。</li>
+    <li><b>语言纪律</b>：不使用"脆弱人群""弱势群体""适应能力"等对内术语，用户界面上一个字都不出现。</li>
+  </ul>
+</section>
+
+<section id="s11">
+  <span class="eyebrow">11 · 数据</span>
+  <h2>数据与隐私</h2>
+  <p>这个产品会收集三类数据，敏感度递增：路径 A 的个人情况（含行动能力与身体状态）、路径 B 的位置行为、路径 C 的健康记录。<b>其中后两类在中国属于敏感个人信息</b>，一旦联网即触发更严格的合规要求。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>数据</th><th>敏感度</th><th>原型现状</th><th>联网版本的要求</th></tr></thead>
+      <tbody>
+        <tr><td><b>个人情况</b><br>行动能力 · 身体状态 · 是否独居</td><td>高</td><td>本地存储，不上传</td><td>默认本地；如需上传须单独告知与同意，且不得用于个性化广告或推荐</td></tr>
+        <tr><td><b>无障碍信息</b><br>地点 · 时间 · 提交者</td><td>中</td><td>本地存储</td><td>地点粒度不到门牌；提交者默认匿名；不记录提交者轨迹</td></tr>
+        <tr><td><b>健康记录</b><br>症状 · 用药 · 就医</td><td>最高</td><td>本地存储，不上传</td><td>默认永不上传；导出须用户主动发起，且明示导出内容</td></tr>
+        <tr><td><b>紧急信息卡</b></td><td>最高</td><td>本地存储</td><td>紧急场景下的展示优先于隐私保护——但展示范围由用户预先决定</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="call acc" style="margin-top:16px">
+    <span class="eyebrow">默认立场</span>
+    <b>本地优先，能不上传就不上传。</b>这条立场同时是隐私保护、是合规成本控制，也是对用户的一个可信承诺——它让"独居"这类信息可以被安心填写。任何要打破它的功能，都必须先回答"不上传能不能做到"。
+  </div>
+</section>
+
+<section id="s12">
+  <span class="eyebrow">12 · 指标</span>
+  <h2>怎么判断它有用</h2>
+  <p>不看日活。极端天气一年发生几次，日活对这个产品是有害指标——它会逼我们往"每天来打开一下"的方向加功能，而那些功能一定和核心机制无关。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th class="num">#</th><th>该看的</th><th>它在验证什么</th></tr></thead>
+      <tbody>
+        <tr><td class="num">M1</td><td><b>预警窗口内的完成率</b><br>预警发布后 72 小时内勾掉了几条</td><td>"外部事件替我们唤起动机"这个机制是否成立</td></tr>
+        <tr><td class="num">M2</td><td><b>跨事件的准备度提升</b><br>同一用户第二次比第一次做得如何</td><td>coping → adaptation 的唯一硬证据，也是这个产品存在的理由</td></tr>
+        <tr><td class="num">M3</td><td><b>社会连接的建立率</b><br>真的填了紧急联系人、真的发出了那条约定消息</td><td>最难但最有价值的一个数——它衡量的是社会资本是否被真的补上</td></tr>
+        <tr><td class="num">M4</td><td><b>求助话术的使用</b><br>复制率，以及复制之后是否真的联系了</td><td>如果这块数据好，产品重心就该整体挪过去</td></tr>
+        <tr><td class="num">M5</td><td><b>路径 B 的信息新鲜度</b><br>有多少条信息在 24 小时内被确认过</td><td>互填模式能否自我维持——这条不成立，路径 B 就不成立</td></tr>
+        <tr><td class="num">M6</td><td><b>紧急信息卡完成度</b><br>五个字段填了几个</td><td>路径 C 的价值出口假设是否成立</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="s13">
+  <span class="eyebrow">13 · 计划</span>
+  <h2>范围与里程碑</h2>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th class="num">阶段</th><th>范围</th><th>出口标准</th></tr></thead>
+      <tbody>
+        <tr><td class="num"><b>v0.2</b><br>当前</td><td>三条路径 + 常驻紧急求助的完整骨架，本地存储，内容为草稿</td><td><b>已完成。</b>四条路径全流程可走通，可拿去做访谈道具</td></tr>
+        <tr><td class="num"><b>v0.3</b><br>接下来两周</td><td>不加功能。找 8–12 个过去 12 个月真实经历过台风／暴雨／热浪的独居者与行动不便者做访谈</td><td>第 14 节的六个待决策问题中，至少 D-1、D-3、D-4 得到结论</td></tr>
+        <tr><td class="num"><b>v0.4</b></td><td>内容核对：为每条动作卡与紧急提示补齐来源、核对人、核对日期（<span class="mono">E-4</span>）；补 <span class="mono">A-9</span> 时间阶段；实机读屏走查（<span class="mono">E-1</span>）</td><td>没有一条无来源的内容；WCAG 2.1 AA 自查通过</td></tr>
+        <tr><td class="num"><b>v1.0</b></td><td>按访谈结论收敛到一条主路径 + 必要支撑；如路径 B 联网，须先完成 <span class="mono">B-4</span> 审核机制</td><td>M1 与 M3 有可读数据</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="call warn" style="margin-top:16px">
+    <span class="eyebrow">范围纪律</span>
+    <b>v0.3 阶段不加任何功能。</b>当前的下一步不是把内容做全，而是拿这一版去问：哪一条你真的会做，哪一条你看了就划过去。<b>划过去的比勾选的更有信息量。</b>
+  </div>
+</section>
+
+<section id="s14">
+  <span class="eyebrow">14 · 决策</span>
+  <h2>待决策问题</h2>
+  <p>以下六个问题在原型里都已按某种方式先行处理，但结论未定。每一条都写明了<b>需要什么才能决定</b>——多数需要访谈数据，而不是更多讨论。</p>
+  <div class="dec">
+
+    <div class="dec-row">
+      <div class="dec-top"><span class="rid mono">D-1</span><span class="eyebrow">影响：整体信息架构</span></div>
+      <div class="dec-q">三条路径并列，还是天气应对为主、另两条收进二级？</div>
+      <div class="dec-b">
+        <div><b>现状</b><span>首页三张卡片并列，各自显示当前状态。</span></div>
+        <div><b>取舍</b><span>并列让另两条路径可被发现，但削弱了主线；收进二级则更聚焦，但路径 B、C 可能永远没人点。</span></div>
+        <div><b>需要</b><span>访谈中观察用户第一次打开时先点哪一条，以及他们认为这三件事是不是一个产品。</span></div>
+      </div>
+    </div>
+
+    <div class="dec-row">
+      <div class="dec-top"><span class="rid mono">D-2</span><span class="eyebrow">影响：A-10 · 技术架构</span></div>
+      <div class="dec-q">路径 A 要不要接真实预警数据与定位？</div>
+      <div class="dec-b">
+        <div><b>现状</b><span>用户自己选情境，不依赖授权，离线可用。</span></div>
+        <div><b>取舍</b><span>接入省掉一步、能做推送唤起（直接关系到 M1）；但引入定位授权流失、离线不可用、与官方口径不一致的风险。</span></div>
+        <div><b>需要</b><span>确认气象数据的合规来源与授权方式；访谈中确认用户是否愿意为此授权定位。</span></div>
+      </div>
+    </div>
+
+    <div class="dec-row">
+      <div class="dec-top"><span class="rid mono">D-3</span><span class="eyebrow">影响：A-8 · 内容安全</span></div>
+      <div class="dec-q">"继续提问"要不要接 AI？如果接，如何把回答锁死在已核对语料内？</div>
+      <div class="dec-b">
+        <div><b>现状</b><span>预置问题 + 固定回答，页面明确标注不接模型。</span></div>
+        <div><b>取舍</b><span>开放问答的体验明显更好，但高危内容一旦生成错误答案，代价是人身安全，且与第 10 节的红线直接冲突。</span></div>
+        <div><b>需要</b><span>先完成 <span class="mono">E-4</span> 的内容溯源体系——没有已核对语料，就没有可以锁定的范围。</span></div>
+      </div>
+    </div>
+
+    <div class="dec-row">
+      <div class="dec-top"><span class="rid mono">D-4</span><span class="eyebrow">影响：B-5 · 路径 B 是否成立</span></div>
+      <div class="dec-q">路径 B 的信息来源：纯用户互填，还是接入官方／第三方数据？</div>
+      <div class="dec-b">
+        <div><b>现状</b><span>纯互填，原型内置 6 条种子数据。</span></div>
+        <div><b>取舍</b><span>互填的独家性最高、成本最低，但冷启动阶段是空的；接入外部数据能解决冷启动，但那些数据的更新频率通常撑不起"今天这条路能不能走"。</span></div>
+        <div><b>需要</b><span>先摸清有没有可用的超本地数据源。<b>这条同时是停止条件之一</b>（见第 15 节第 3 条）。</span></div>
+      </div>
+    </div>
+
+    <div class="dec-row">
+      <div class="dec-top"><span class="rid mono">D-5</span><span class="eyebrow">影响：C-6 · 隐私立场</span></div>
+      <div class="dec-q">健康记录只留本地，还是支持导出／同步给家人？</div>
+      <div class="dec-b">
+        <div><b>现状</b><span>只在本地，换设备不同步。</span></div>
+        <div><b>取舍</b><span>换手机即丢失是真实的流失点，也让 M2（跨事件对比）无法测量；但联网存储健康数据会显著抬高合规门槛与信任成本。</span></div>
+        <div><b>需要</b><span>访谈中确认用户对"健康记录上云"的接受度；优先考虑本地导出文件这种不需要服务端的折中方案。</span></div>
+      </div>
+    </div>
+
+    <div class="dec-row">
+      <div class="dec-top"><span class="rid mono">D-6</span><span class="eyebrow">影响：D-5 · 紧急场景可达性</span></div>
+      <div class="dec-q">紧急信息卡要不要脱离 App 存在？</div>
+      <div class="dec-b">
+        <div><b>现状</b><span>在 App 内展示，可复制成文字。</span></div>
+        <div><b>取舍</b><span>真出事时人可能解不开锁、找不到 App，卡片再完整也交不出去。锁屏可见、可打印、二维码是三个候选方向，成本与形态差别很大。</span></div>
+        <div><b>需要</b><span>先确认 M6——如果用户根本不填这张卡，这个问题不用回答。</span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="s15">
+  <span class="eyebrow">15 · 证伪</span>
+  <h2>风险与停止条件</h2>
+  <p>这些不是风险清单，是<b>预先写好的停止条件</b>。写在前面，是为了到时候不会自己骗自己。</p>
+  <div class="stack" style="margin-top:18px">
+    <div class="call stop"><span class="eyebrow">停止条件 1</span>
+      <b>访谈里没有人在事后做过任何准备动作。</b>那说明"预防"是伪需求，我们只能做事发工具，市场和价值都小很多，整个定位要推倒重来。</div>
+    <div class="call stop"><span class="eyebrow">停止条件 2</span>
+      <b>「该找谁 + 怎么开口」没有引起明显反应。</b>那说明我们对这个人群的判断错了——她们卡住的地方不是社交成本，而是别的东西。这一块是最独特的假设，它塌了，差异化就塌了。</div>
+    <div class="call stop"><span class="eyebrow">停止条件 3</span>
+      <b>找不到官方之外的独家数据来源。</b>没有超本地的积水点、停电范围、社区级信息，产品就只是一个套壳的内容产品，会被免费且权威的官方渠道碾过去。</div>
+    <div class="call stop"><span class="eyebrow">停止条件 4</span>
+      <b>个性化问题产生的差异，用户感知不到。</b>那"因人而异"这个核心卖点不成立，产品会退化成一份精美的通用清单。</div>
+  </div>
+  <h3>其他风险</h3>
+  <ul>
+    <li><b>内容责任风险。</b>高危内容出错的代价是人身安全。缓解方式是第 10 节的四条红线与 <span class="mono">E-4</span> 的溯源体系，二者缺一不可。</li>
+    <li><b>三条路径互不相干的风险。</b>如果跨路径的数据流（第 4 节）没有被用户感知到，产品会被当成三个独立小工具，留存与价值都会打折。</li>
+    <li><b>无障碍做成"看起来无障碍"的风险。</b>只做代码层面的 aria 与对比度、不做实机走查，等于没做。<span class="mono">E-1</span> 的最后一条是硬要求。</li>
+  </ul>
+</section>
+
+<footer>
+  <p><b>文档关系。</b>本 PRD 的定位、指标与停止条件部分承自对内定位说明（<span class="mono">docs/positioning.html</span>，不对外使用）；功能范围承自路径树需求稿；实现状态对应可交互原型 <span class="mono">app.html</span>（v0.2）与 <span class="mono">index.html</span>（v0.1，台风单情境，保留作对照）。</p>
+  <p><b>本文档包含多项未验证假设。</b>标注为「待决策」的条目在完成用户访谈前不应作为结论对外表述；标注为「原型已实现」指的是交互流程已跑通，<b>不代表内容已核对</b>。</p>
+  <p>紧急情况请拨打 <span class="mono">110 / 119 / 120</span>。内容需核对来源：应急管理部 · 中国气象局预警信号分级 · 中国红十字会应急救护指南。</p>
+</footer>
+
+</div>
