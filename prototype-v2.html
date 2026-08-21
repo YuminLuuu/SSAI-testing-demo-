@@ -1,0 +1,1180 @@
+<title>今日出行</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@700;900&family=Space+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700..900&display=swap">
+<style>
+:root{
+  --paper:#F2F0E9; --paper-2:#E8E4D9; --card:#FFFDF6;
+  --ink:#1A1726; --ink-2:#57516B; --ink-3:#8B849C;
+  --hair:#D7D1C3; --rule:#1A1726;
+  --pop:#FFC93C; --pop-2:#FFE08A; --on-pop:#1A1726;
+  --grape:#4736CE; --grape-soft:#E4E0FB;
+  --flare:#D93C1B; --flare-soft:#FADED6;
+  --amber:#9C6304; --amber-soft:#F8E7BF;
+  --moss:#0E7050; --moss-soft:#D6ECE1;
+  --hard:4px 4px 0 var(--ink);
+  --hard-sm:3px 3px 0 var(--ink);
+  --dot:rgba(26,23,38,.07);
+  --on-signal:#FFFDF6; --nav-bg:#1A1726; --nav-fg:#FFC93C; --sos-bg:#D93C1B; --sos-fg:#FFFDF6;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#141220; --paper-2:#1D1A2B; --card:#221E33;
+    --ink:#F3F0E8; --ink-2:#B4ADC6; --ink-3:#847C9B;
+    --hair:#332E47; --rule:#4A4363;
+    --pop:#FFC93C; --pop-2:#7A5A0E; --on-pop:#1A1726;
+    --grape:#AC9DFF; --grape-soft:#2C2455;
+    --flare:#FF7C5C; --flare-soft:#3E2119;
+    --amber:#E8B44A; --amber-soft:#3B2D11;
+    --moss:#54C99D; --moss-soft:#12382C;
+    --hard:4px 4px 0 #0A0812; --hard-sm:3px 3px 0 #0A0812;
+    --dot:rgba(243,240,232,.06);
+    --on-signal:#141220; --nav-bg:#FFC93C; --nav-fg:#1A1726; --sos-bg:#E8481F; --sos-fg:#FFFDF6;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#141220; --paper-2:#1D1A2B; --card:#221E33;
+  --ink:#F3F0E8; --ink-2:#B4ADC6; --ink-3:#847C9B;
+  --hair:#332E47; --rule:#4A4363;
+  --pop:#FFC93C; --pop-2:#7A5A0E; --on-pop:#1A1726;
+  --grape:#AC9DFF; --grape-soft:#2C2455;
+  --flare:#FF7C5C; --flare-soft:#3E2119;
+  --amber:#E8B44A; --amber-soft:#3B2D11;
+  --moss:#54C99D; --moss-soft:#12382C;
+  --hard:4px 4px 0 #0A0812; --hard-sm:3px 3px 0 #0A0812;
+  --dot:rgba(243,240,232,.06);
+  --on-signal:#141220; --nav-bg:#FFC93C; --nav-fg:#1A1726; --sos-bg:#E8481F; --sos-fg:#FFFDF6;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; color:var(--ink);
+  background-color:var(--paper);
+  background-image:radial-gradient(var(--dot) 1px, transparent 1.2px);
+  background-size:16px 16px;
+  font-family:"Noto Sans SC","PingFang SC","Hiragino Sans GB",system-ui,sans-serif;
+  font-size:15.5px; line-height:1.7; -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{margin:0;text-wrap:balance;font-weight:700}
+p{margin:0}
+ul{margin:0;padding:0;list-style:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;text-align:left}
+input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--grape);outline-offset:2px;border-radius:3px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+.mono{font-family:"Space Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.serif{font-family:"Noto Serif SC",Georgia,serif}
+.num{font-family:"Fraunces","Noto Serif SC",Georgia,serif;font-variant-numeric:tabular-nums;font-weight:900;letter-spacing:-.02em}
+.kicker{
+  font-family:"Space Mono",monospace;font-size:11px;font-weight:700;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);
+}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* ============ shell ============ */
+.app{
+  max-width:452px;margin:0 auto;min-height:100vh;
+  border-left:1px solid var(--hair);border-right:1px solid var(--hair);
+  background:var(--paper);
+  background-image:radial-gradient(var(--dot) 1px, transparent 1.2px);
+  background-size:16px 16px;
+  padding-bottom:170px;position:relative;
+}
+
+/* ============ masthead ============ */
+.mast{background:var(--pop);color:var(--on-pop);border-bottom:3px solid var(--ink);position:relative;overflow:hidden}
+.mast-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:14px 20px 0}
+.mast-top .kicker{color:rgba(26,23,38,.62)}
+.mast-mid{display:flex;align-items:flex-end;gap:14px;padding:2px 20px 10px}
+.mast-date{font-size:60px;line-height:.86;letter-spacing:-.045em}
+.mast-word h1{font-family:"Noto Serif SC",Georgia,serif;font-weight:900;font-size:27px;line-height:1.05;letter-spacing:-.01em}
+.mast-word span{display:block;font-family:"Fraunces",Georgia,serif;font-weight:700;font-size:12.5px;letter-spacing:.22em;text-transform:uppercase;color:rgba(26,23,38,.6);margin-top:3px}
+.mast-tools{display:flex;gap:8px;align-items:center}
+.iconbtn{
+  min-width:38px;height:38px;padding:0 11px;border:2px solid var(--ink);border-radius:999px;
+  background:rgba(255,255,255,.5);font-size:12.5px;font-weight:700;color:var(--on-pop);
+  display:inline-flex;align-items:center;justify-content:center;gap:5px;
+}
+.iconbtn:hover{background:#fff}
+
+/* weather strip */
+.wx{display:flex;align-items:center;gap:10px;width:100%;padding:11px 20px;border-top:2px dashed rgba(26,23,38,.35);color:var(--on-pop)}
+.wx-face{font-size:26px;line-height:1}
+.wx-body{flex:1;min-width:0}
+.wx-line{font-weight:700;font-size:15px;letter-spacing:-.005em}
+.wx-sub{font-family:"Space Mono",monospace;font-size:11.5px;color:rgba(26,23,38,.68);letter-spacing:.02em}
+.wx-edit{font-family:"Space Mono",monospace;font-size:11px;font-weight:700;letter-spacing:.1em;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
+
+/* verdict band */
+.verdict{padding:16px 20px 18px;border-bottom:3px solid var(--ink);position:relative}
+.verdict .lead{font-family:"Noto Serif SC",Georgia,serif;font-weight:900;font-size:22px;line-height:1.35;letter-spacing:-.01em}
+.verdict .lead em{font-style:normal;padding:0 .12em;background-image:linear-gradient(to top,var(--hl) 0 46%,transparent 46%)}
+.verdict .sub{margin-top:8px;font-size:14px;color:var(--ink-2)}
+.tagrow{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.tag{
+  font-family:"Space Mono",monospace;font-size:11.5px;font-weight:700;letter-spacing:.04em;
+  padding:4px 10px;border:1.5px solid currentColor;border-radius:999px;
+}
+.t-flare{color:var(--flare);background:var(--flare-soft)}
+.t-amber{color:var(--amber);background:var(--amber-soft)}
+.t-moss{color:var(--moss);background:var(--moss-soft)}
+.t-grape{color:var(--grape);background:var(--grape-soft)}
+
+/* ============ sections ============ */
+.sec{padding:26px 20px 4px}
+.sec-head{display:flex;align-items:center;gap:11px;margin-bottom:14px}
+.sec-no{
+  font-family:"Fraunces",Georgia,serif;font-weight:900;font-size:15px;
+  width:30px;height:30px;flex:none;border:2px solid var(--ink);border-radius:50%;
+  display:grid;place-items:center;background:var(--pop);color:var(--on-pop);
+}
+.sec-head h2{font-family:"Noto Serif SC",Georgia,serif;font-weight:900;font-size:18.5px;letter-spacing:-.01em;white-space:nowrap}
+.sec-head .fill{flex:1;height:0;border-top:2px solid var(--rule)}
+.sec-note{font-size:13.5px;color:var(--ink-2);margin:-6px 0 14px}
+
+/* ============ today status chips ============ */
+.qrow{margin-bottom:14px}
+.qrow:last-child{margin-bottom:0}
+.qlab{font-size:13px;font-weight:700;color:var(--ink-2);margin-bottom:7px;display:block}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  min-height:40px;padding:7px 14px;border:2px solid var(--ink);border-radius:999px;
+  background:var(--card);font-size:14px;font-weight:500;transition:transform .12s, box-shadow .12s;
+}
+.chip:hover{transform:translate(-1px,-1px);box-shadow:2px 2px 0 var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);font-weight:700}
+.chip[aria-pressed="true"]:hover{box-shadow:none;transform:none}
+
+/* ============ risk cards ============ */
+.riskscroll{display:flex;gap:14px;overflow-x:auto;padding:4px 20px 22px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+.riskscroll::-webkit-scrollbar{height:6px}
+.riskscroll::-webkit-scrollbar-thumb{background:var(--hair);border-radius:99px}
+.rcard{
+  flex:0 0 246px;scroll-snap-align:start;border:2.5px solid var(--ink);border-radius:14px;
+  background:var(--card);box-shadow:var(--hard);overflow:hidden;display:flex;flex-direction:column;
+}
+.rcard-top{display:flex;align-items:center;gap:8px;padding:7px 12px;border-bottom:2.5px solid var(--ink);font-family:"Space Mono",monospace;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.rcard-body{padding:13px 14px 15px;display:flex;flex-direction:column;gap:9px;flex:1}
+.rcard-score{display:flex;align-items:baseline;gap:8px}
+.rcard-score .n{font-size:52px;line-height:.82}
+.rcard-score .d{font-family:"Space Mono",monospace;font-size:12px;color:var(--ink-3);font-weight:700}
+.rcard h3{font-family:"Noto Serif SC",Georgia,serif;font-weight:900;font-size:17px}
+.rcard p{font-size:13.5px;line-height:1.62;color:var(--ink-2)}
+.rcard .why{font-size:12.5px;color:var(--ink-3);border-top:1.5px dashed var(--hair);padding-top:8px;margin-top:auto}
+.meter{height:9px;border:2px solid var(--ink);border-radius:99px;background:var(--paper-2);overflow:hidden}
+.meter i{display:block;height:100%;background:currentColor}
+.lv-hi{color:var(--flare)} .lv-mid{color:var(--amber)} .lv-lo{color:var(--moss)}
+.lv-hi .rcard-top{background:var(--flare-soft);color:var(--flare)}
+.lv-mid .rcard-top{background:var(--amber-soft);color:var(--amber)}
+.lv-lo .rcard-top{background:var(--moss-soft);color:var(--moss)}
+
+/* ============ action list ============ */
+.acts{border-top:2px solid var(--rule)}
+.act{border-bottom:1.5px solid var(--hair);padding:15px 20px}
+.act.p-hi{border-left:7px solid var(--flare)}
+.act.p-mid{border-left:7px solid var(--amber)}
+.act.p-lo{border-left:7px solid var(--moss)}
+.act-head{display:flex;gap:12px;align-items:flex-start}
+.act-no{font-family:"Fraunces",Georgia,serif;font-weight:900;font-size:19px;color:var(--ink-3);flex:none;width:26px;padding-top:1px}
+.act-main{flex:1;min-width:0}
+.act-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;align-items:center}
+.pill{font-family:"Space Mono",monospace;font-size:10.5px;font-weight:700;letter-spacing:.08em;padding:2.5px 8px;border-radius:999px}
+.pill-hi{background:var(--flare);color:var(--on-signal)}
+.pill-mid{background:var(--amber);color:var(--on-signal)}
+.pill-lo{background:var(--moss);color:var(--on-signal)}
+.pill-time{background:var(--ink);color:var(--paper)}
+.act-text{font-size:16px;font-weight:500;line-height:1.62;letter-spacing:-.005em}
+.act.done .act-text{color:var(--ink-3);text-decoration:line-through;text-decoration-thickness:2px}
+.act-toggle{display:inline-flex;align-items:center;gap:6px;margin-top:9px;font-family:"Space Mono",monospace;font-size:11.5px;font-weight:700;color:var(--grape);letter-spacing:.06em;min-height:32px}
+.act-toggle .car{transition:transform .18s}
+.act.open .act-toggle .car{transform:rotate(90deg)}
+.act-why{margin-top:10px;padding:12px 14px;border:2px solid var(--ink);border-radius:12px;background:var(--grape-soft);font-size:14px;line-height:1.7}
+.act-why .src{margin-top:9px;display:flex;flex-wrap:wrap;gap:6px}
+.act-why .src span{font-family:"Space Mono",monospace;font-size:10.5px;font-weight:700;padding:2px 8px;border:1.5px solid var(--grape);border-radius:999px;color:var(--grape)}
+.check{
+  flex:none;width:34px;height:34px;border:2.5px solid var(--ink);border-radius:9px;background:var(--card);
+  display:grid;place-items:center;font-size:17px;color:transparent;transition:.12s;
+}
+.check[aria-pressed="true"]{background:var(--moss);border-color:var(--moss);color:var(--on-signal)}
+
+/* ============ time window ============ */
+.tw{padding:0 20px 6px}
+.tw-bars{display:flex;gap:3px;align-items:flex-end;height:96px;border:2.5px solid var(--ink);border-radius:12px;background:var(--card);padding:10px 10px 0;box-shadow:var(--hard-sm)}
+.tw-bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;position:relative}
+.tw-bar i{display:block;border-radius:3px 3px 0 0;border:1.5px solid var(--ink);border-bottom:none}
+.b0 i{background:var(--moss)} .b1 i{background:var(--pop)} .b2 i{background:var(--flare)}
+.tw-axis{display:flex;justify-content:space-between;font-family:"Space Mono",monospace;font-size:10.5px;color:var(--ink-3);margin-top:6px;padding:0 2px}
+.tw-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:12.5px;color:var(--ink-2)}
+.tw-legend b{display:inline-block;width:12px;height:12px;border:1.5px solid var(--ink);border-radius:3px;vertical-align:-1px;margin-right:5px}
+.tw-best{
+  margin-top:12px;padding:12px 14px;border:2.5px solid var(--ink);border-radius:12px;
+  background:var(--pop);color:var(--on-pop);box-shadow:var(--hard-sm);font-size:15px;font-weight:700;
+}
+.tw-best span{display:block;font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.14em;font-weight:700;color:rgba(26,23,38,.62);text-transform:uppercase}
+
+/* ============ generic cards ============ */
+.box{border:2.5px solid var(--ink);border-radius:14px;background:var(--card);padding:15px 16px;box-shadow:var(--hard-sm)}
+.box + .box{margin-top:13px}
+.box h3{font-family:"Noto Serif SC",Georgia,serif;font-weight:900;font-size:16px;margin-bottom:6px}
+.box p{font-size:14px;color:var(--ink-2);line-height:1.68}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+@media (max-width:400px){.duo{grid-template-columns:1fr}}
+.alert{border:2.5px solid var(--flare);border-radius:14px;background:var(--flare-soft);padding:14px 15px;box-shadow:3px 3px 0 var(--flare)}
+.alert h3{font-family:"Noto Serif SC",Georgia,serif;font-weight:900;font-size:15.5px;color:var(--flare);margin-bottom:5px}
+.alert p{font-size:13.5px;color:var(--ink-2);line-height:1.65}
+.alert.warn{border-color:var(--amber);background:var(--amber-soft);box-shadow:3px 3px 0 var(--amber)}
+.alert.warn h3{color:var(--amber)}
+.alert .acts2{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap}
+.minibtn{min-height:36px;padding:6px 12px;border:2px solid var(--ink);border-radius:999px;background:var(--card);font-size:13px;font-weight:700}
+.minibtn:hover{box-shadow:2px 2px 0 var(--ink)}
+.btn{
+  display:block;width:100%;min-height:50px;border:2.5px solid var(--ink);border-radius:12px;
+  background:var(--card);font-size:15.5px;font-weight:700;text-align:center;box-shadow:var(--hard-sm);
+  padding:12px;transition:transform .12s,box-shadow .12s;
+}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--ink)}
+.btn-pop{background:var(--pop);color:var(--on-pop)}
+.btn-grape{background:var(--grape);color:var(--on-signal);border-color:var(--ink)}
+
+/* ============ bottom bars ============ */
+.dock{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:452px;z-index:60}
+.sos{
+  display:flex;align-items:center;justify-content:center;gap:9px;width:calc(100% - 24px);margin:0 12px 9px;
+  min-height:56px;border:3px solid var(--ink);border-radius:14px;background:var(--sos-bg);color:var(--sos-fg);
+  font-size:17px;font-weight:700;letter-spacing:.06em;box-shadow:var(--hard);
+}
+.sos:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--ink)}
+.tabbar{display:grid;grid-template-columns:repeat(4,1fr);border-top:3px solid var(--ink);background:var(--card)}
+.tab{padding:9px 4px calc(9px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:center;gap:2px;min-height:56px;justify-content:center}
+.tab + .tab{border-left:1.5px solid var(--hair)}
+.tab span{font-size:12.5px;font-weight:700;color:var(--ink-3)}
+.tab i{font-style:normal;font-size:17px;line-height:1;filter:grayscale(1);opacity:.5}
+.tab[aria-current="page"]{background:var(--nav-bg)}
+.tab[aria-current="page"] span{color:var(--nav-fg)}
+.tab[aria-current="page"] i{filter:none;opacity:1}
+
+/* ============ sheet ============ */
+.scrim{position:fixed;inset:0;background:rgba(26,23,38,.55);z-index:90;display:none}
+.scrim.on{display:block}
+.sheet{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:452px;z-index:100;
+  background:var(--paper);border-top:3px solid var(--ink);border-radius:20px 20px 0 0;
+  max-height:88vh;overflow-y:auto;display:none;padding-bottom:26px;
+}
+.sheet.on{display:block;animation:up .22s ease}
+@keyframes up{from{transform:translate(-50%,26px);opacity:.4}to{transform:translate(-50%,0);opacity:1}}
+.sheet-head{position:sticky;top:0;background:var(--pop);color:var(--on-pop);border-bottom:3px solid var(--ink);border-radius:17px 17px 0 0;padding:13px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.sheet-head h2{font-family:"Noto Serif SC",Georgia,serif;font-weight:900;font-size:18px}
+.sheet-body{padding:18px}
+
+/* sliders */
+.sl{margin-bottom:15px}
+.sl-top{display:flex;justify-content:space-between;align-items:baseline;font-size:13.5px;font-weight:700;margin-bottom:2px}
+.sl-top b{font-family:"Space Mono",monospace;font-size:14px}
+input[type=range]{width:100%;height:32px;-webkit-appearance:none;appearance:none;background:transparent}
+input[type=range]::-webkit-slider-runnable-track{height:8px;background:var(--paper-2);border:2px solid var(--ink);border-radius:99px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;margin-top:-11px;border-radius:50%;background:var(--pop);border:2.5px solid var(--ink)}
+input[type=range]::-moz-range-track{height:8px;background:var(--paper-2);border:2px solid var(--ink);border-radius:99px}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--pop);border:2.5px solid var(--ink)}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13px;font-weight:700;color:var(--ink-2);margin-bottom:6px}
+.field input[type=text],.field textarea,.field select{
+  width:100%;padding:11px 13px;border:2.5px solid var(--ink);border-radius:11px;background:var(--card);font-size:15px;
+}
+.field textarea{min-height:78px;resize:vertical}
+.emerg{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:16px}
+.emerg button{border:3px solid var(--ink);border-radius:14px;background:var(--sos-bg);color:var(--sos-fg);padding:16px 6px;text-align:center;box-shadow:var(--hard-sm)}
+.emerg .n{font-family:"Fraunces",Georgia,serif;font-weight:900;font-size:27px;display:block;line-height:1}
+.emerg .l{font-size:12px;font-weight:700}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1.5px dashed var(--hair);font-size:14px}
+.kv b{font-weight:700;color:var(--ink-3);font-size:13px;white-space:nowrap}
+.share-box{border:2.5px solid var(--ink);border-radius:12px;background:var(--card);padding:13px;font-size:14px;line-height:1.72;white-space:pre-wrap;margin-bottom:13px}
+
+/* ============ engine rail ============ */
+.rail{display:none}
+@media (min-width:1220px){
+  .rail{
+    display:block;position:fixed;left:28px;top:28px;width:296px;max-height:calc(100vh - 56px);overflow-y:auto;
+    border:2.5px solid var(--ink);border-radius:16px;background:var(--card);box-shadow:var(--hard);
+  }
+  .rail-head{background:var(--ink);color:var(--paper);padding:12px 15px}
+  .rail-head h2{font-family:"Noto Serif SC",Georgia,serif;font-weight:900;font-size:15.5px}
+  .rail-head p{font-family:"Space Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--pop);margin-top:2px}
+  .rail-body{padding:14px 15px 16px}
+}
+.eng-grp{margin-bottom:14px}
+.eng-grp > .kicker{display:block;margin-bottom:7px}
+.eng-in{display:flex;flex-wrap:wrap;gap:5px}
+.eng-in span{font-family:"Space Mono",monospace;font-size:10.5px;font-weight:700;padding:3px 7px;border:1.5px solid var(--hair);border-radius:6px;color:var(--ink-2)}
+.eng-in span.on{border-color:var(--grape);background:var(--grape-soft);color:var(--grape)}
+.eng-row{display:grid;grid-template-columns:1fr 34px;gap:8px;align-items:center;padding:5px 0;border-bottom:1.5px dashed var(--hair)}
+.eng-row:last-child{border-bottom:none}
+.eng-name{font-size:12.5px;font-weight:500}
+.eng-name small{display:block;font-family:"Space Mono",monospace;font-size:9.5px;color:var(--ink-3);letter-spacing:.04em}
+.eng-sc{font-family:"Space Mono",monospace;font-size:13px;font-weight:700;text-align:right}
+.eng-off{opacity:.42}
+.eng-arrow{text-align:center;font-family:"Space Mono",monospace;font-size:11px;color:var(--ink-3);letter-spacing:.2em;margin:2px 0 10px}
+
+/* empty / low-risk */
+.calm{
+  border:2.5px solid var(--moss);border-radius:14px;background:var(--moss-soft);padding:18px;
+  box-shadow:3px 3px 0 var(--moss);
+}
+.calm h3{font-family:"Noto Serif SC",Georgia,serif;font-weight:900;font-size:19px;color:var(--moss);margin-bottom:6px}
+.calm p{font-size:14.5px;color:var(--ink-2)}
+.sticker{
+  display:inline-block;transform:rotate(-4deg);background:var(--grape);color:#fff;
+  font-family:"Space Mono",monospace;font-size:11px;font-weight:700;letter-spacing:.08em;
+  padding:4px 10px;border:2px solid var(--ink);border-radius:6px;box-shadow:2px 2px 0 var(--ink);
+}
+.foot{padding:26px 20px 10px;border-top:2px solid var(--rule);margin-top:22px}
+.foot p{font-size:12.5px;color:var(--ink-3);line-height:1.68}
+.log-item{border-bottom:1.5px dashed var(--hair);padding:11px 0}
+.log-item:last-child{border-bottom:none}
+.log-item .d{font-family:"Space Mono",monospace;font-size:11.5px;color:var(--ink-3);letter-spacing:.04em}
+.log-item .t{font-size:14.5px;margin-top:2px}
+</style>
+
+<aside class="rail" aria-label="风险评估引擎读数">
+  <div class="rail-head">
+    <h2>风险评估引擎</h2>
+    <p>5 inputs &rarr; 7 mechanisms</p>
+  </div>
+  <div class="rail-body" id="rail-engine"></div>
+</aside>
+
+<main class="app">
+  <header class="mast">
+    <div class="mast-top">
+      <span class="kicker">出行助手 · v2.0 原型</span>
+      <span class="kicker mono">No.231</span>
+    </div>
+    <div class="mast-mid">
+      <div class="mast-date num" id="mast-date">21</div>
+      <div class="mast-word">
+        <h1>今日出行</h1>
+        <span>The Daily Outing</span>
+      </div>
+      <div class="mast-tools" style="margin-left:auto">
+        <button class="iconbtn" id="btn-share" aria-label="分享今天的方案给家人">分享</button>
+      </div>
+    </div>
+    <button class="wx" id="btn-weather" aria-label="展开编辑天气参数">
+      <span class="wx-face" id="wx-face" aria-hidden="true">🌤</span>
+      <span class="wx-body">
+        <span class="wx-line" id="wx-line">多云转雷阵雨 · 28–34°C</span>
+        <span class="wx-sub" id="wx-sub">HUM 75% · RAIN 8mm · AQI 62 · UV 6</span>
+      </span>
+      <span class="wx-edit">调整 &rsaquo;</span>
+    </button>
+  </header>
+
+  <div id="view"></div>
+
+  <div class="dock">
+    <button class="sos" id="btn-sos">🆘 紧急支持 · SOS</button>
+    <nav class="tabbar" aria-label="主导航">
+      <button class="tab" data-tab="today" aria-current="page"><i>📰</i><span>今日</span></button>
+      <button class="tab" data-tab="advice"><i>🧭</i><span>建议</span></button>
+      <button class="tab" data-tab="log"><i>✏️</i><span>记录</span></button>
+      <button class="tab" data-tab="me"><i>🙋</i><span>我的</span></button>
+    </nav>
+  </div>
+</main>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+  <div class="sheet-head">
+    <h2 id="sheet-title">标题</h2>
+    <button class="iconbtn" id="sheet-close" aria-label="关闭">关闭 ✕</button>
+  </div>
+  <div class="sheet-body" id="sheet-body"></div>
+</div>
+
+<script>
+/* ============================================================
+   出行助手 v2.0 — 原型逻辑
+   5 输入端 → 风险评估引擎 → 6 模块行动方案
+   纯前端、无后端、无网络请求（字体除外）
+   ============================================================ */
+
+var S = {
+  tab: 'today',
+  weather: { name:'夏季午后雷阵雨', type:'雷阵雨', face:'⛈', tmax:34, tmin:28, hum:75, rain:8, wind:18, aqi:62, uv:6 },
+  profile: {
+    mobility:'wheelchair',      // none | slow | wheelchair | sense
+    living:'alone',             // alone | with
+    health:'chronic',           // none | chronic | other
+    route:'长风路地铁站 → 社区服务中心',
+    contact:{ name:'王姐', phone:'138****6021', rel:'同楼邻居' }
+  },
+  today: { going:'unsure', body:'ok', errands:['就医取药'] },
+  history: [
+    { date:'7月19日', tmax:32, type:'晴',     reaction:'头晕',       sev:'中等', trip:true },
+    { date:'6月28日', tmax:29, type:'雷阵雨', reaction:'在通道滑倒', sev:'轻微', trip:true },
+    { date:'12月5日', tmax:9,  type:'霾',     reaction:'呼吸不畅',   sev:'中等', trip:false }
+  ],
+  obstacles: [
+    { place:'长风路地铁站 2 号口', type:'积水', ago:'3 小时前', wx:'降雨 8mm', alt:'走 1 号口，有防滑垫和直梯', status:'仍有效' },
+    { place:'社区服务中心西门坡道', type:'路面损坏', ago:'2 天前', wx:'晴 31°C', alt:'从正门无障碍通道进', status:'待确认' }
+  ],
+  done: {},
+  open: {}
+};
+
+var PRESETS = [
+  { name:'夏季午后雷阵雨', type:'雷阵雨', face:'⛈', tmax:34, tmin:28, hum:75, rain:8,  wind:18, aqi:62,  uv:6 },
+  { name:'高温晴热',       type:'晴',     face:'☀️', tmax:38, tmin:29, hum:55, rain:0,  wind:10, aqi:78,  uv:10 },
+  { name:'秋高气爽',       type:'晴',     face:'🌤', tmax:24, tmin:16, hum:50, rain:0,  wind:12, aqi:38,  uv:4 },
+  { name:'寒潮雨雪',       type:'雪',     face:'🌨', tmax:1,  tmin:-5, hum:82, rain:12, wind:34, aqi:90,  uv:2 },
+  { name:'重度雾霾',       type:'霾',     face:'🌫', tmax:12, tmin:5,  hum:60, rain:0,  wind:6,  aqi:186, uv:2 },
+  { name:'台风外围',       type:'台风',   face:'🌀', tmax:29, tmin:25, hum:88, rain:60, wind:75, aqi:40,  uv:3 }
+];
+
+var MOBILITY = { none:'无特殊需求', slow:'走得慢', wheelchair:'使用轮椅或助行器', sense:'视力或听力受限' };
+var LIVING   = { alone:'独居', with:'与人同住' };
+var HEALTH   = { none:'无慢性病', chronic:'有慢性病长期用药', other:'有其他需关注的健康状况' };
+var GOING    = { stay:'不出门', out:'要出门', unsure:'还不确定' };
+var BODY     = { ok:'还可以', tired:'有点乏力', sick:'正在生病或恢复中' };
+var ERRANDS  = ['就医取药','买菜','遛宠物','必须到岗','没有'];
+
+/* ---------- 引擎：按风险机制独立评分 ---------- */
+function histMatch(pred){
+  for (var i=0;i<S.history.length;i++){ if (pred(S.history[i])) return S.history[i]; }
+  return null;
+}
+function clamp(n){ return Math.max(0, Math.min(99, Math.round(n))); }
+
+function engine(){
+  var w = S.weather, p = S.profile, t = S.today, out = [];
+  var tiredF = t.body==='sick' ? 1.2 : (t.body==='tired' ? 1.1 : 1);
+
+  /* 体温调节障碍 */
+  (function(){
+    var base = 0;
+    if (w.tmax > 32) base += 28 + (w.tmax-32)*6.5;
+    if (w.hum > 80 && w.tmax > 26) base += (w.hum-80)*1.1 + 14;
+    if (base <= 0) return;
+    var wt = 1 + (p.mobility==='wheelchair'?0.30:0) + (p.mobility==='slow'?0.12:0) + (p.health==='chronic'?0.18:0);
+    var h = histMatch(function(r){ return Math.abs(r.tmax-w.tmax)<=3 && r.reaction==='头晕'; });
+    out.push({
+      id:'heat', icon:'🔥', name:'热相关风险', code:'HEAT',
+      score: clamp(base*wt*(h?1.15:1)*tiredF),
+      line:'下午体感 '+(w.tmax+7)+'°C，'+(p.mobility==='wheelchair'?'坐姿散热比步行慢':'高温下体温调节负担明显加重')+'。',
+      hist: h ? ('上次 '+h.tmax+'°C 你记录过'+h.reaction+'（'+h.date+'）' ) : null,
+      src:['天气','个人画像'].concat(h?['健康历史']:[])
+    });
+  })();
+
+  /* 滑倒 / 摔倒 */
+  (function(){
+    var base = 0;
+    if (w.rain > 5) base = 30 + (w.rain-5)*3.2;
+    if (w.type==='雪') base = Math.max(base, 64);
+    if (w.type==='雾') base += 8;
+    if (base <= 0) return;
+    var wt = 1 + (p.mobility==='wheelchair'?0.22:0) + (p.mobility==='slow'?0.28:0) + (p.mobility==='sense'?0.34:0);
+    var h = histMatch(function(r){ return r.reaction.indexOf('滑')>=0; });
+    out.push({
+      id:'slip', icon:'💧', name:'滑倒摔倒风险', code:'SLIP',
+      score: clamp(base*wt*(h?1.15:1)*tiredF),
+      line:(w.type==='雪'?'路面可能结冰':'降水 '+w.rain+'mm')+'，你常走的'+(p.route.split('→')[0].trim())+'一段有坡道。',
+      hist: h ? ('上次雨天你在通道'+h.reaction.replace('在通道','')+'（'+h.date+'）') : null,
+      src:['天气','个人画像','无障碍上报'].concat(h?['健康历史']:[])
+    });
+  })();
+
+  /* 坠落物 / 飞掷物 */
+  (function(){
+    var base = 0;
+    if (w.wind > 20) base = 25 + (w.wind-20)*1.6;
+    if (w.type==='台风') base = Math.max(base, 74);
+    if (base <= 0) return;
+    out.push({
+      id:'wind', icon:'🌀', name:'坠落物风险', code:'WIND',
+      score: clamp(base*(p.living==='alone'?1.1:1)),
+      line:'风速 '+w.wind+'km/h，阳台物件、广告牌和临时围挡都可能被吹落。',
+      hist:null, src:['天气'].concat(p.living==='alone'?['个人画像']:[])
+    });
+  })();
+
+  /* 呼吸刺激 */
+  (function(){
+    var base = 0;
+    if (w.aqi > 100) base = 30 + (w.aqi-100)*0.4;
+    if (base <= 0) return;
+    var wt = 1 + (p.health==='chronic'?0.35:0);
+    var h = histMatch(function(r){ return r.reaction.indexOf('呼吸')>=0; });
+    out.push({
+      id:'air', icon:'😷', name:'呼吸刺激风险', code:'AIR',
+      score: clamp(base*wt*(h?1.12:1)),
+      line:'AQI '+w.aqi+'，'+(p.health==='chronic'?'你长期用药，气道更敏感':'长时间户外会有明显刺激')+'。',
+      hist: h ? ('上次'+h.type+'天你记录过'+h.reaction+'（'+h.date+'）') : null,
+      src:['天气','个人画像'].concat(h?['健康历史']:[])
+    });
+  })();
+
+  /* 紫外线暴露 */
+  (function(){
+    var base = 0;
+    if (w.uv > 6) base = 28 + (w.uv-6)*9;
+    if (base <= 0) return;
+    out.push({
+      id:'uv', icon:'🕶', name:'紫外线暴露', code:'UV',
+      score: clamp(base*(p.health==='chronic'?1.2:1)),
+      line:'UV 指数 '+w.uv+'，10–16 点直晒最强'+(p.health==='chronic'?'；部分长期用药有光敏性':'')+'。',
+      hist:null, src:['天气'].concat(p.health==='chronic'?['个人画像']:[])
+    });
+  })();
+
+  /* 设施停运 */
+  (function(){
+    if (!(p.mobility==='wheelchair' || p.mobility==='slow')) return;
+    var base = 0;
+    if (w.rain > 30 || w.wind > 40 || w.type==='台风') base = 58 + Math.min(20, w.rain*0.2);
+    if (base <= 0) return;
+    out.push({
+      id:'facility', icon:'🛗', name:'设施停运风险', code:'FACL',
+      score: clamp(base*(p.living==='alone'?1.08:1)),
+      line:'暴雨/大风天电梯停运和临时停电的概率上升，你依赖直梯出入。',
+      hist:null, src:['天气','个人画像']
+    });
+  })();
+
+  out.sort(function(a,b){ return b.score-a.score; });
+
+  /* 独居无响应 — 依赖其他机制的最高分 */
+  if (p.living==='alone' && out.length && out[0].score >= 58){
+    out.push({
+      id:'alone', icon:'📵', name:'独居无响应风险', code:'SOLO',
+      score: clamp(out[0].score*0.8),
+      line:'今天有高分风险触发，而你独居——出状况时没人会第一时间发现。',
+      hist:null, src:['个人画像','引擎联动']
+    });
+    out.sort(function(a,b){ return b.score-a.score; });
+  }
+  return out;
+}
+
+/* ---------- 行动清单 ---------- */
+var ACTION_BOOK = {
+  heat: [
+    { pr:'hi',  when:'上午 11 点前', text:'中午前把要办的事做完，13:00–16:00 不出门',
+      why:'下午体感温度是全天最高的一段，你使用轮椅、坐姿散热慢，暴露 20 分钟就可能出现不适。', who:'自己可以做' },
+    { pr:'mid', when:'出门前做', text:'装满 1 升水，并在路线上先定好 2 个能进去的阴凉点',
+      why:'不是「多喝水」这种通用建议——你需要提前知道中途能在哪停下来，轮椅进得去的便利店或社区中心。', who:'自己可以做' },
+    { pr:'mid', when:'全天注意', text:'记住三个撤退信号：头晕、不再出汗、想吐',
+      why:'出现任意一条就立刻进最近的室内并联系人，不要坚持把事办完。', who:'情况不对就求助' }
+  ],
+  slip: [
+    { pr:'hi',  when:'下午出门前', text:'改走地铁 1 号口直梯，避开南门那段坡道',
+      why:'雨后坡道和盲道砖最滑，1 号口有防滑垫和直梯，多绕 200 米但全程无坡。', who:'自己可以做' },
+    { pr:'mid', when:'现在做',     text:'检查轮椅前轮 / 助行器脚垫的磨损情况',
+      why:'磨平的橡胶在湿地面上几乎没有摩擦力，这是雨天摔倒最常见的原因。', who:'自己可以做' },
+    { pr:'lo',  when:'全天注意',   text:'把要办的事合并成一趟，减少上下坡次数',
+      why:'每一次进出都是一次风险敞口，次数比时长更关键。', who:'自己可以做' }
+  ],
+  wind: [
+    { pr:'hi',  when:'现在做',   text:'把阳台上的花盆、晾衣杆、纸箱收进屋',
+      why:'这个风速已经能吹动 3 公斤以内的物件，坠落砸到楼下是最常见的事故。', who:'自己可以做' },
+    { pr:'mid', when:'全天注意', text:'行进时远离广告牌、临时围挡和大树',
+      why:'轮椅高度较低，被侧向阵风带偏时留给你的反应距离更短。', who:'自己可以做' }
+  ],
+  air: [
+    { pr:'hi',  when:'现在做',   text:'全天关窗，开净化器；必须出门戴 N95（不是普通棉布口罩）',
+      why:'这个 AQI 下普通棉布口罩几乎不过滤 PM2.5，对长期用药的人差别很明显。', who:'自己可以做' },
+    { pr:'mid', when:'出门前做', text:'把非必须的行程改到明天',
+      why:'空气质量通常一两天内回落，能推迟的事推迟成本最低。', who:'自己可以做' }
+  ],
+  uv: [
+    { pr:'mid', when:'10–16 点', text:'避开直晒时段；出门戴宽檐帽 + 长袖',
+      why:'轮椅使用者的头颈和前臂长时间朝上暴露，是最容易晒伤的部位。', who:'自己可以做' },
+    { pr:'lo',  when:'出门前做', text:'防晒在出门前 20 分钟涂好',
+      why:'部分长期用药有光敏性，晒伤门槛比一般人低。', who:'自己可以做' }
+  ],
+  facility: [
+    { pr:'hi',  when:'15 点前', text:'把需要下楼的事提前到 15 点前完成',
+      why:'暴雨大风天停电和电梯停运多发生在傍晚，你依赖直梯出入，被困在楼上代价很大。', who:'自己可以做' },
+    { pr:'mid', when:'现在做',  text:'找物业确认备用出入口和电梯停运时的应急方案',
+      why:'这件事不该你自己扛，物业有义务提前告知备用路线。', who:'找物业社区' }
+  ],
+  alone: [
+    { pr:'hi',  when:'现在做',   text:'和王姐约好 16:00 互报平安',
+      why:'今天有高分风险触发，独居最大的风险不是出事，是出事后没人知道。', who:'需要找人帮忙' },
+    { pr:'mid', when:'出门前做', text:'把今天的计划用「分享」发给紧急联系人',
+      why:'对方知道你几点出门、去哪、几点该回来，才有可能发现异常。', who:'自己可以做' }
+  ]
+};
+
+var HOME_ACTIONS = [
+  { pr:'hi',  when:'现在做',   text:'关好门窗，检查阳台地漏是否通畅', why:'不出门不代表没有风险，室内进水和渗漏是暴雨天最常见的损失。', who:'自己可以做', src:['天气'] },
+  { pr:'mid', when:'全天注意', text:'定 3 个补水提醒，每次 200ml', why:'室内闷热同样会导致脱水，你长期用药，脱水后不适来得更快。', who:'自己可以做', src:['天气','个人画像'] },
+  { pr:'mid', when:'现在做',   text:'把常用药、充电宝、手机放在伸手可及的一处', why:'万一停电或身体不适，你不需要在黑暗里跨越房间去拿东西。', who:'自己可以做', src:['个人画像'] },
+  { pr:'lo',  when:'下午',     text:'和王姐互报一次平安', who:'需要找人帮忙', why:'独居时，一次简单的确认就能把「没人知道」这个风险降到最低。', src:['个人画像'] }
+];
+
+function buildActions(risks){
+  if (S.today.going === 'stay'){
+    return HOME_ACTIONS.map(function(a,i){ return Object.assign({}, a, { id:'home'+i }); });
+  }
+  var list = [];
+  risks.forEach(function(r){
+    var book = ACTION_BOOK[r.id] || [];
+    var take = r.score >= 70 ? book.length : (r.score >= 45 ? Math.min(2, book.length) : 1);
+    for (var i=0;i<take;i++){
+      var a = book[i];
+      var pr = r.score >= 70 ? a.pr : (a.pr==='hi' ? 'mid' : 'lo');
+      list.push({ id:r.id+'-'+i, pr:pr, when:a.when, text:a.text, why:a.why, who:a.who, src:r.src, from:r.name, score:r.score });
+    }
+  });
+  if (!list.length){
+    list.push({ id:'calm-0', pr:'lo', when:'全天', text:'按你原本的计划出门就行，今天不需要额外准备',
+      why:'温度、降水、风速、AQI、紫外线全部在阈值以下，没有任何风险机制被触发。确认「今天没问题」本身就是答案。',
+      who:'自己可以做', src:['天气','个人画像'], from:'低风险日', score:0 });
+    list.push({ id:'calm-1', pr:'lo', when:'回家后', text:'花 10 秒记一句今天的身体感觉',
+      why:'舒适日的记录同样有用——引擎需要知道你在什么条件下是舒服的，才能判断什么条件下不舒服。',
+      who:'自己可以做', src:['健康历史'], from:'低风险日', score:0 });
+  }
+  var rank = { hi:0, mid:1, lo:2 };
+  list.sort(function(a,b){ return rank[a.pr]-rank[b.pr] || (b.score||0)-(a.score||0); });
+  if (S.today.errands.indexOf('就医取药') >= 0 && list.length){
+    list.unshift({ id:'errand-med', pr:'hi', when:'上午 8–11 点', text:'取药这趟安排在上午 8–11 点，别拖到下午',
+      why:'你勾了「就医取药」这件必须做的事。这是今天唯一躲不掉的外出，把它放进全天最安全的时间段。',
+      who:'自己可以做', src:['今日状态','天气'], from:'必须出门的事', score:100 });
+  }
+  return list;
+}
+
+/* ---------- 逐小时时间窗 ---------- */
+function hourly(){
+  var w = S.weather, out = [];
+  for (var h=6; h<=21; h++){
+    var frac = Math.max(0, Math.sin(Math.PI*(h-5)/17));
+    var t = w.tmin + (w.tmax-w.tmin)*frac;
+    var r = 0;
+    if (w.rain > 0){
+      if (w.type==='雷阵雨') r = (h>=13 && h<=17) ? w.rain*0.20 : w.rain*0.015;
+      else r = w.rain/16;
+    }
+    var p = S.profile;
+    var heatW = 1 + (p.mobility==='wheelchair'?0.3:0) + (p.health==='chronic'?0.15:0);
+    var slipW = 1 + (p.mobility==='wheelchair'?0.2:0) + (p.mobility==='slow'?0.25:0) + (p.mobility==='sense'?0.3:0);
+    var sc = 0;
+    if (t > 32) sc += (t-32)*7*heatW;
+    if (t < 2)  sc += (2-t)*6*slipW;
+    if (w.hum > 80 && t > 26) sc += 8;
+    if (r > 0.5) sc += (26 + r*3)*slipW;
+    if (w.uv > 6 && h>=10 && h<=16) sc += 22;
+    if (w.aqi > 100) sc += 18 * (1 + (p.health==='chronic'?0.3:0));
+    if (w.wind > 20) sc += 14;
+    out.push({ h:h, t:Math.round(t), r:Math.round(r*10)/10, sc:Math.round(sc), lv: sc<18?0:(sc<42?1:2) });
+  }
+  return out;
+}
+function bestWindow(hrs){
+  var best=null, cur=null;
+  for (var i=0;i<hrs.length;i++){
+    if (hrs[i].lv===0){ if(!cur) cur={s:hrs[i].h,e:hrs[i].h}; else cur.e=hrs[i].h; }
+    else { if (cur && (!best || (cur.e-cur.s)>(best.e-best.s))) best=cur; cur=null; }
+  }
+  if (cur && (!best || (cur.e-cur.s)>(best.e-best.s))) best=cur;
+  return best;
+}
+function fmtHour(h){ return (h<12?'上午 ':(h<18?'下午 ':'晚上 ')) + (h<=12?h:h-12) + ' 点'; }
+function period(h){ return h<12 ? '上午' : (h<18 ? '下午' : '晚上'); }
+function clock(h){ return (h<=12 ? h : h-12) + ' 点'; }
+function fmtRange(b){
+  if (!b) return null;
+  var e = b.e + 1;
+  if (period(b.s) === period(e)) return period(b.s) + ' ' + (b.s<=12?b.s:b.s-12) + '–' + clock(e);
+  return period(b.s) + ' ' + clock(b.s) + '–' + period(e) + ' ' + clock(e);
+}
+</script>
+
+<script>
+/* ============================================================
+   渲染层
+   ============================================================ */
+var $ = function(s){ return document.querySelector(s); };
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function lvClass(n){ return n>=70?'lv-hi':(n>=45?'lv-mid':'lv-lo'); }
+function lvWord(n){ return n>=70?'高':(n>=45?'中':'低'); }
+function prWord(p){ return p==='hi'?'高优先级':(p==='mid'?'中优先级':'低优先级'); }
+
+function renderMast(){
+  var w = S.weather;
+  $('#wx-face').textContent = w.face;
+  $('#wx-line').textContent = w.type + ' · ' + w.tmin + '–' + w.tmax + '°C';
+  $('#wx-sub').textContent  = '湿度 '+w.hum+'% · 降水 '+w.rain+'mm · 风 '+w.wind+'km/h · AQI '+w.aqi+' · UV '+w.uv;
+}
+
+/* ---- 模块一：今日摘要条 ---- */
+function viewVerdict(risks){
+  var top = risks.length ? risks[0].score : 0;
+  var lvl, hl;
+  if (top >= 70)      { lvl='高';       hl='var(--flare-soft)'; }
+  else if (top >= 45) { lvl='中等偏高'; hl='var(--amber-soft)'; }
+  else                { lvl='偏低';     hl='var(--moss-soft)';  }
+
+  var hrs = hourly(), best = fmtRange(bestWindow(hrs));
+  var lead, sub;
+  if (S.today.going === 'stay'){
+    lead = '今天你选了不出门。<em>那就把家里这几件事做了。</em>';
+    sub  = '不出门不代表没有风险——下面是今天的居家安全方案。';
+  } else if (top < 20){
+    lead = '今天没什么要特别小心的，<em>放心出门。</em>';
+    sub  = '温度、降水、空气质量都在你的舒适区间内。确认「今天没问题」本身也是一种答案。';
+  } else {
+    lead = '今天出门风险 <em>' + lvl + '</em>。' + (best ? '最好在' + best + '出门。' : '今天全天都不太合适出门。');
+    sub  = risks[0].icon + ' ' + risks[0].name + '是今天的主要问题：' + risks[0].line;
+  }
+  var tags = risks.slice(0,3).map(function(r){
+    return '<span class="tag '+(r.score>=70?'t-flare':(r.score>=45?'t-amber':'t-moss'))+'">'+r.name+' '+r.score+'</span>';
+  }).join('');
+  return '<section class="verdict" style="--hl:'+hl+'">'
+    + '<p class="lead serif">'+lead+'</p>'
+    + '<p class="sub">'+esc(sub)+'</p>'
+    + '<div class="tagrow">'+tags+'<span class="tag t-grape">'+esc(S.profile.route)+'</span></div>'
+    + '</section>';
+}
+
+/* ---- 输入端③：今日状态 ---- */
+function viewStatus(){
+  function group(label, key, map){
+    var html = '<div class="qrow"><span class="qlab">'+label+'</span><div class="chips">';
+    Object.keys(map).forEach(function(k){
+      html += '<button class="chip" data-set="'+key+'" data-val="'+k+'" aria-pressed="'+(S.today[key]===k)+'">'+map[k]+'</button>';
+    });
+    return html + '</div></div>';
+  }
+  var er = '<div class="qrow"><span class="qlab">今天必须出门的事（可多选）</span><div class="chips">';
+  ERRANDS.forEach(function(e){
+    er += '<button class="chip" data-errand="'+e+'" aria-pressed="'+(S.today.errands.indexOf(e)>=0)+'">'+e+'</button>';
+  });
+  er += '</div></div>';
+
+  return '<section class="sec">'
+    + secHead('①','今日状态')
+    + '<p class="sec-note">默认沿用上次的选择。改一下，下面整套方案立刻重算。</p>'
+    + group('今天是否出门','going',GOING)
+    + group('身体感觉','body',BODY)
+    + er
+    + '</section>';
+}
+function secHead(no, title){
+  return '<div class="sec-head"><span class="sec-no">'+no+'</span><h2>'+title+'</h2><span class="fill"></span></div>';
+}
+
+/* ---- 模块二：风险提示卡片 ---- */
+function viewRisks(risks){
+  if (!risks.length){
+    return '<section class="sec">'+secHead('②','风险提示')
+      + '<div class="calm"><h3>今天没有触发任何风险机制</h3><p>温度、降水、风速、空气质量和紫外线都在阈值以下。祝你出行顺利。</p></div></section>';
+  }
+  var cards = risks.map(function(r){
+    return '<article class="rcard '+lvClass(r.score)+'" tabindex="0">'
+      + '<div class="rcard-top"><span aria-hidden="true">'+r.icon+'</span><span>'+r.code+'</span><span style="margin-left:auto">'+lvWord(r.score)+'</span></div>'
+      + '<div class="rcard-body">'
+      +   '<div class="rcard-score"><span class="n num">'+r.score+'</span><span class="d">/100</span></div>'
+      +   '<div class="meter"><i style="width:'+r.score+'%"></i></div>'
+      +   '<h3>'+r.name+'</h3>'
+      +   '<p>'+esc(r.line)+'</p>'
+      +   (r.hist ? '<p class="why">📓 '+esc(r.hist)+'</p>' : '<p class="why">来源：'+r.src.join(' + ')+'</p>')
+      + '</div></article>';
+  }).join('');
+  return '<section class="sec">'+secHead('②','风险提示')
+    + '<p class="sec-note">只显示今天触发了、并且和你相关的风险。按评分从高到低。</p></section>'
+    + '<div class="riskscroll">'+cards+'</div>';
+}
+
+/* ---- 模块三：行动清单 ---- */
+function viewActions(acts){
+  var items = acts.map(function(a, i){
+    var done = !!S.done[a.id], open = !!S.open[a.id];
+    var no = (i+1) < 10 ? '0'+(i+1) : ''+(i+1);
+    return '<li class="act p-'+a.pr+(done?' done':'')+(open?' open':'')+'">'
+      + '<div class="act-head">'
+      +   '<span class="act-no">'+no+'</span>'
+      +   '<div class="act-main">'
+      +     '<div class="act-meta">'
+      +       '<span class="pill pill-'+a.pr+'">'+prWord(a.pr)+'</span>'
+      +       '<span class="pill pill-time">'+a.when+'</span>'
+      +       '<span class="pill" style="background:var(--paper-2);color:var(--ink-2)">'+a.who+'</span>'
+      +     '</div>'
+      +     '<p class="act-text">'+esc(a.text)+'</p>'
+      +     '<button class="act-toggle" data-why="'+a.id+'" aria-expanded="'+open+'"><span class="car">▸</span>为什么是这条</button>'
+      +     (open ? '<div class="act-why"><p>'+esc(a.why)+'</p><div class="src">'
+              + (a.src||[]).map(function(s){ return '<span>'+s+'</span>'; }).join('')
+              + '</div></div>' : '')
+      +   '</div>'
+      +   '<button class="check" data-done="'+a.id+'" aria-pressed="'+done+'" aria-label="标记完成：'+esc(a.text)+'">✔</button>'
+      + '</div></li>';
+  }).join('');
+  var n = acts.filter(function(a){ return S.done[a.id]; }).length;
+  return '<section class="sec">'+secHead('③', S.today.going==='stay' ? '居家安全清单' : '行动清单')
+    + '<p class="sec-note">按优先级排序，共 '+acts.length+' 条，已完成 '+n+' 条。点开可以看这条是怎么来的。</p></section>'
+    + '<ul class="acts">'+items+'</ul>';
+}
+
+/* ---- 模块四：出行时间窗 ---- */
+function viewWindow(){
+  if (S.today.going === 'stay') return '';
+  var hrs = hourly(), best = fmtRange(bestWindow(hrs));
+  var bars = hrs.map(function(x){
+    var hgt = Math.max(16, Math.min(100, 22 + x.sc*0.8));
+    return '<div class="tw-bar b'+x.lv+'" title="'+x.h+':00 · '+x.t+'°C'+(x.r>0?' · 降水 '+x.r+'mm':'')+'">'
+      + '<i style="height:'+hgt+'%"></i></div>';
+  }).join('');
+  return '<section class="sec">'+secHead('④','出行时间窗')
+    + '<p class="sec-note">信息性建议，不是指令。柱子越高越不建议出门。</p></section>'
+    + '<div class="tw">'
+    +   '<div class="tw-bars">'+bars+'</div>'
+    +   '<div class="tw-axis"><span>06:00</span><span>10:00</span><span>14:00</span><span>18:00</span><span>21:00</span></div>'
+    +   '<div class="tw-legend"><span><b style="background:var(--moss)"></b>适宜</span><span><b style="background:var(--pop)"></b>注意</span><span><b style="background:var(--flare)"></b>不推荐</span></div>'
+    +   (best
+        ? '<div class="tw-best"><span>Best window</span>最佳出门时间：'+best+'</div>'
+        : '<div class="tw-best" style="background:var(--flare);color:#fff"><span style="color:rgba(255,255,255,.75)">No safe window</span>今天全天都没有适宜时段，建议改期</div>')
+    + '</div>';
+}
+
+/* ---- 模块五：路线与无障碍 ---- */
+function viewRoute(){
+  if (S.today.going === 'stay') return '';
+  var hits = S.obstacles.filter(function(o){
+    return (o.type==='积水' && S.weather.rain > 5) || (o.type!=='积水' && o.status==='待确认' && S.weather.rain > 0);
+  });
+  if (!hits.length) return '';
+  var cards = hits.map(function(o, i){
+    return '<div class="alert'+(o.status==='待确认'?' warn':'')+'" style="margin-bottom:12px">'
+      + '<h3>⚠ '+esc(o.place)+' — '+o.type+'</h3>'
+      + '<p>'+o.ago+'有人上报，当时'+o.wx+'。→ 建议'+esc(o.alt)+'</p>'
+      + '<div class="acts2"><button class="minibtn" data-ob="'+i+'" data-mark="fixed">标记已解决</button>'
+      + '<button class="minibtn" data-ob="'+i+'" data-mark="valid">确认仍有效</button></div></div>';
+  }).join('');
+  return '<section class="sec">'+secHead('⑤','路线与无障碍')
+    + '<p class="sec-note">只显示你常用路线上、被今天天气触发的告警。</p>'
+    + cards + '</section>';
+}
+
+/* ---- 模块六：健康关注 + 紧急预备 ---- */
+function viewFooterModules(risks){
+  var h = risks.length ? risks[0] : null;
+  var note = h && h.hist
+    ? '今天回家后记得记录一下有没有'+ (h.id==='heat'?'头晕、乏力':'不适') +'。'+h.hist+'。'
+    : '今天回家后花 10 秒记一句今天的身体感觉，engine 会用它调整明天的阈值。';
+  return '<section class="sec">'+secHead('⑥','健康关注 + 紧急预备')
+    + '<div class="duo">'
+    +   '<div class="box"><h3>📓 健康关注</h3><p>'+esc(note)+'</p>'
+    +     '<button class="minibtn" style="margin-top:10px" data-go="log">去记录</button></div>'
+    +   '<div class="box"><h3>🛟 紧急预备</h3><p>已设定下午 16:00 自动提醒，与'+esc(S.profile.contact.name)+'（'+esc(S.profile.contact.rel)+'）互报平安。</p>'
+    +     '<button class="minibtn" style="margin-top:10px" data-card="1">紧急信息卡</button></div>'
+    + '</div>'
+    + '<div style="margin-top:14px;display:grid;gap:11px;grid-template-columns:1fr 1fr">'
+    +   '<button class="btn" data-go="log">✏️ 记一笔身体反应</button>'
+    +   '<button class="btn" data-report="1">📍 上报路上的障碍</button>'
+    + '</div>'
+    + '</section>';
+}
+
+/* ---- 引擎读数面板（宽屏侧栏 + 建议页复用） ---- */
+function enginePanel(risks){
+  var w = S.weather, p = S.profile, t = S.today;
+  var ALL = [
+    { id:'heat', n:'体温调节障碍', c:'温度 > 32°C 或湿度 > 80%' },
+    { id:'slip', n:'滑倒 / 摔倒',  c:'降水 > 5mm 或路面结冰' },
+    { id:'wind', n:'坠落物 / 飞掷物', c:'风速 > 20km/h 或台风' },
+    { id:'air',  n:'呼吸刺激',     c:'AQI > 100' },
+    { id:'uv',   n:'紫外线暴露',   c:'UV 指数 > 6' },
+    { id:'alone',n:'独居无响应',   c:'任意高风险 + 独居' },
+    { id:'facility', n:'设施停运', c:'暴雨 / 台风 / 停电风险' }
+  ];
+  var map = {}; risks.forEach(function(r){ map[r.id]=r.score; });
+  var rows = ALL.map(function(m){
+    var sc = map[m.id];
+    return '<div class="eng-row'+(sc?'':' eng-off')+'"><div class="eng-name">'+m.n+'<small>'+m.c+'</small></div>'
+      + '<div class="eng-sc '+(sc?lvClass(sc):'')+'">'+(sc||'—')+'</div></div>';
+  }).join('');
+
+  return '<div class="eng-grp"><span class="kicker">输入端 ①–⑤</span><div class="eng-in">'
+    + '<span class="on">① '+w.type+' '+w.tmax+'°C</span>'
+    + '<span class="on">② '+MOBILITY[p.mobility]+'</span>'
+    + '<span class="on">② '+LIVING[p.living]+'</span>'
+    + '<span class="on">③ '+GOING[t.going]+' / '+BODY[t.body]+'</span>'
+    + '<span class="'+(S.history.length?'on':'')+'">④ 健康历史 '+S.history.length+' 条</span>'
+    + '<span class="'+(S.obstacles.length?'on':'')+'">⑤ 无障碍 '+S.obstacles.length+' 条</span>'
+    + '</div></div>'
+    + '<div class="eng-arrow">↓ 独立评分 · 不相加 ↓</div>'
+    + '<div class="eng-grp">'+rows+'</div>'
+    + '<p style="font-size:11.5px;line-height:1.6;color:var(--ink-3);border-top:1.5px solid var(--hair);padding-top:9px">'
+    + '每个机制 = 天气基础分 × 画像加权 × 历史偏移。灰掉的是没触发、或与你无关被过滤掉的机制。</p>';
+}
+
+/* ---- tab: 建议 ---- */
+function viewAdvice(risks, acts){
+  var groups = {};
+  acts.forEach(function(a){ (groups[a.from||'今日'] = groups[a.from||'今日'] || []).push(a); });
+  var html = '<section class="sec">'+secHead('🧭','这些建议是怎么来的')
+    + '<p class="sec-note">同一份清单，按触发它的风险机制重新分组。</p>'
+    + '<div class="box" style="padding:14px 15px">'+enginePanel(risks)+'</div>';
+  Object.keys(groups).forEach(function(k){
+    html += '<div class="box"><h3>'+esc(k)+'</h3><ul style="margin-top:8px;display:grid;gap:9px">'
+      + groups[k].map(function(a){
+          return '<li style="font-size:14.5px;display:flex;gap:8px"><span class="pill pill-'+a.pr+'" style="flex:none;height:19px">'+a.when+'</span><span>'+esc(a.text)+'</span></li>';
+        }).join('')
+      + '</ul></div>';
+  });
+  return html + '</section>';
+}
+
+/* ---- tab: 记录 ---- */
+function viewLog(){
+  var items = S.history.map(function(r){
+    return '<li class="log-item"><div class="d">'+r.date+' · '+r.tmax+'°C · '+r.type+' · '+r.sev+'</div>'
+      + '<div class="t">'+esc(r.reaction)+(r.trip?'（与出行相关）':'')+'</div></li>';
+  }).join('');
+  var obs = S.obstacles.map(function(o){
+    return '<li class="log-item"><div class="d">'+o.ago+' · '+o.wx+' · '+o.status+'</div>'
+      + '<div class="t">'+esc(o.place)+' — '+o.type+'</div></li>';
+  }).join('');
+  return '<section class="sec">'+secHead('✏️','记录')
+    + '<p class="sec-note">这里的每一条都会回流进引擎，用来调你自己的风险阈值。</p>'
+    + '<div style="display:grid;gap:11px;grid-template-columns:1fr 1fr;margin-bottom:16px">'
+    +   '<button class="btn btn-pop" data-go="logform">＋ 身体反应</button>'
+    +   '<button class="btn" data-report="1">＋ 无障碍障碍</button>'
+    + '</div>'
+    + '<div class="box"><h3>身体反应 · '+S.history.length+' 条</h3><ul>'+items+'</ul></div>'
+    + '<div class="box"><h3>无障碍上报 · '+S.obstacles.length+' 条</h3><ul>'+obs+'</ul></div>'
+    + '</section>';
+}
+
+/* ---- tab: 我的 ---- */
+function viewMe(){
+  function group(label, key, map, note){
+    var html = '<div class="qrow"><span class="qlab">'+label+'</span><div class="chips">';
+    Object.keys(map).forEach(function(k){
+      html += '<button class="chip" data-prof="'+key+'" data-val="'+k+'" aria-pressed="'+(S.profile[key]===k)+'">'+map[k]+'</button>';
+    });
+    return html + '</div>' + (note?'<p style="font-size:12.5px;color:var(--ink-3);margin-top:6px">'+note+'</p>':'') + '</div>';
+  }
+  return '<section class="sec">'+secHead('🙋','个人画像')
+    + '<p class="sec-note">一次配置，长期复用。它不出现在首页，但决定了哪些风险机制对你适用。改一项，回「今日」看看清单的变化。</p>'
+    + group('行动方式','mobility',MOBILITY,'决定滑倒、设施停运这类机制的权重')
+    + group('居住状态','living',LIVING,'决定是否启用「独居无响应」机制')
+    + group('健康基线','health',HEALTH,'决定呼吸刺激、紫外线的阈值偏移')
+    + '<div class="box" style="margin-top:16px"><h3>常用路线</h3><p>'+esc(S.profile.route)+'</p></div>'
+    + '<div class="box"><h3>紧急联系人</h3><p>'+esc(S.profile.contact.name)+' · '+esc(S.profile.contact.rel)+' · '+esc(S.profile.contact.phone)+'</p></div>'
+    + '<div style="margin-top:14px"><button class="btn" data-card="1">🛟 我的紧急信息卡</button></div>'
+    + '</section>';
+}
+
+/* ---- 页脚 ---- */
+function viewFoot(){
+  return '<footer class="foot"><span class="sticker">原型 · 内容待核对</span>'
+    + '<p style="margin-top:11px">这是 PRD v2.0 的可交互原型：静态天气数据库 + 本地引擎，无后端、无网络请求。'
+    + '所有天气阈值、评分权重和处置方法都是待核对的草稿，真实用户使用前必须逐条比对应急管理部门与当地气象台的公开指引。</p></footer>';
+}
+
+/* ============================================================
+   渲染 + 事件
+   ============================================================ */
+function render(){
+  renderMast();
+  var risks = engine();
+  var acts  = buildActions(risks);
+  var html;
+  if (S.tab === 'today'){
+    html = viewVerdict(risks) + viewStatus() + viewRisks(risks) + viewActions(acts)
+         + viewWindow() + viewRoute() + viewFooterModules(risks) + viewFoot();
+  } else if (S.tab === 'advice'){ html = viewAdvice(risks, acts) + viewFoot(); }
+  else if (S.tab === 'log')     { html = viewLog() + viewFoot(); }
+  else                          { html = viewMe() + viewFoot(); }
+  $('#view').innerHTML = html;
+  $('#rail-engine').innerHTML = enginePanel(risks);
+  document.querySelectorAll('.tab').forEach(function(b){
+    if (b.dataset.tab === S.tab) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current');
+  });
+}
+
+/* ---- sheet ---- */
+function openSheet(title, body){
+  $('#sheet-title').textContent = title;
+  $('#sheet-body').innerHTML = body;
+  $('#sheet').classList.add('on'); $('#scrim').classList.add('on');
+  $('#sheet-close').focus();
+}
+function closeSheet(){ $('#sheet').classList.remove('on'); $('#scrim').classList.remove('on'); }
+$('#sheet-close').onclick = closeSheet;
+$('#scrim').onclick = closeSheet;
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeSheet(); });
+
+/* ---- 天气编辑（输入端①） ---- */
+function sheetWeather(){
+  var w = S.weather;
+  var presets = PRESETS.map(function(p,i){
+    return '<button class="chip" data-preset="'+i+'" aria-pressed="'+(p.name===w.name)+'">'+p.face+' '+p.name+'</button>';
+  }).join('');
+  function sl(key,label,min,max,step,unit){
+    return '<div class="sl"><div class="sl-top"><span>'+label+'</span><b>'+w[key]+unit+'</b></div>'
+      + '<input type="range" data-wx="'+key+'" min="'+min+'" max="'+max+'" step="'+step+'" value="'+w[key]+'" aria-label="'+label+'"></div>';
+  }
+  openSheet('调整今天的天气',
+    '<p style="font-size:13.5px;color:var(--ink-2);margin-bottom:13px">内置静态天气数据库。选一个模板，或手动调每个参数——上面整套方案会实时重算。</p>'
+    + '<div class="chips" style="margin-bottom:18px">'+presets+'</div>'
+    + sl('tmax','当日高温',-20,45,1,'°C')
+    + sl('tmin','当日低温',-25,40,1,'°C')
+    + sl('hum','湿度',10,100,1,'%')
+    + sl('rain','24h 降水',0,200,1,'mm')
+    + sl('wind','风速',0,150,1,'km/h')
+    + sl('aqi','AQI',0,500,1,'')
+    + sl('uv','紫外线指数',0,12,1,'')
+    + '<div class="field" style="margin-top:6px"><label for="wxtype">天气类型</label><select id="wxtype" data-wx="type">'
+    + ['晴','多云','阴','小雨','中雨','大雨','暴雨','雷阵雨','雪','雾','霾','台风'].map(function(t){
+        return '<option'+(t===w.type?' selected':'')+'>'+t+'</option>'; }).join('')
+    + '</select></div>'
+    + '<p style="font-size:12.5px;color:var(--ink-3)">Phase 2 会把这一层换成实时天气 API，手动调整能力保留。</p>');
+}
+
+/* ---- 分享 ---- */
+function shareText(){
+  var risks = engine(), acts = buildActions(risks), w = S.weather;
+  var best = fmtRange(bestWindow(hourly()));
+  var lines = [];
+  lines.push('【今天我的出行计划】');
+  lines.push(w.type+' '+w.tmin+'–'+w.tmax+'°C，AQI '+w.aqi+'，UV '+w.uv);
+  lines.push('今天我'+GOING[S.today.going]+'，身体'+BODY[S.today.body]+'。');
+  if (risks.length) lines.push('主要风险：'+risks[0].name+' '+risks[0].score+'/100。');
+  if (S.today.going!=='stay' && best) lines.push('我打算在'+best+'之间出门。');
+  lines.push('');
+  lines.push('要做的事：');
+  acts.slice(0,4).forEach(function(a,i){ lines.push((i+1)+'. ['+a.when+'] '+a.text); });
+  lines.push('');
+  lines.push('如果下午 16:00 你没收到我的消息，麻烦帮我确认一下。');
+  return lines.join('\n');
+}
+function sheetShare(){
+  openSheet('分享给'+S.profile.contact.name,
+    '<p style="font-size:13.5px;color:var(--ink-2);margin-bottom:12px">一段可以直接发出去的文字摘要。对独居的人来说，让对方知道「我几点该回来」比什么都有用。</p>'
+    + '<div class="share-box" id="sharetext">'+esc(shareText())+'</div>'
+    + '<button class="btn btn-grape" id="copybtn">复制这段话</button>');
+  var b = document.getElementById('copybtn');
+  b.onclick = function(){
+    var t = shareText();
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(t).then(function(){ b.textContent='已复制 ✓'; }, function(){ b.textContent='请长按上方文字复制'; });
+    } else { b.textContent = '请长按上方文字复制'; }
+  };
+}
+
+/* ---- SOS ---- */
+function sheetSOS(){
+  var risks = engine();
+  var now = risks.length
+    ? '现在最需要注意的是'+risks[0].name+'。'+risks[0].line
+    : '今天没有触发高风险机制。如果只是身体不适，先坐下、通风、补水。';
+  openSheet('紧急支持',
+    '<div class="emerg">'
+    + '<button><span class="n num">110</span><span class="l">报警</span></button>'
+    + '<button><span class="n num">119</span><span class="l">火警/救援</span></button>'
+    + '<button><span class="n num">120</span><span class="l">急救</span></button>'
+    + '</div>'
+    + '<div class="alert" style="margin-bottom:14px"><h3>现在先做这件事</h3><p>'+esc(now)+'</p></div>'
+    + '<div class="box"><h3>📞 '+esc(S.profile.contact.name)+' · '+esc(S.profile.contact.rel)+'</h3>'
+    + '<p>'+esc(S.profile.contact.phone)+'</p>'
+    + '<button class="minibtn" style="margin-top:10px">一键拨打</button></div>'
+    + '<div style="margin-top:13px"><button class="btn btn-pop" data-card="1">🛟 出示我的紧急信息卡</button></div>');
+}
+function sheetCard(){
+  var p = S.profile;
+  openSheet('紧急信息卡',
+    '<p style="font-size:13.5px;color:var(--ink-2);margin-bottom:13px">可以直接出示给救护人员、邻居或物业。内容来自个人画像 + 被标记为「重要」的健康记录。</p>'
+    + '<div class="box">'
+    + '<div class="kv"><b>姓名</b><span>李 XX</span></div>'
+    + '<div class="kv"><b>行动方式</b><span>'+MOBILITY[p.mobility]+'</span></div>'
+    + '<div class="kv"><b>居住</b><span>'+LIVING[p.living]+' · 长风路 XX 弄 3 号楼 802</span></div>'
+    + '<div class="kv"><b>健康基线</b><span>'+HEALTH[p.health]+'</span></div>'
+    + '<div class="kv"><b>血型 / 过敏</b><span>A 型 · 青霉素过敏</span></div>'
+    + '<div class="kv"><b>常用药</b><span>降压药（早晚各一次）</span></div>'
+    + '<div class="kv"><b>紧急联系人</b><span>'+esc(p.contact.name)+' '+esc(p.contact.phone)+'</span></div>'
+    + '<div class="kv" style="border-bottom:none"><b>近期记录</b><span>7月19日 32°C 出行后头晕</span></div>'
+    + '</div>');
+}
+
+/* ---- 记录 / 上报表单 ---- */
+function sheetLogForm(){
+  openSheet('记一笔身体反应',
+    '<div class="field"><label>今天身体怎么样</label><div class="chips">'
+    + ['还可以','有点乏力','头晕','呼吸不畅','疼痛','其他'].map(function(x,i){
+        return '<button class="chip" aria-pressed="'+(i===2)+'" onclick="this.parentNode.querySelectorAll(\'.chip\').forEach(function(b){b.setAttribute(\'aria-pressed\',\'false\')});this.setAttribute(\'aria-pressed\',\'true\')">'+x+'</button>'; }).join('')
+    + '</div></div>'
+    + '<div class="field"><label>严重程度</label><div class="chips">'
+    + ['轻微','中等','严重'].map(function(x,i){
+        return '<button class="chip" aria-pressed="'+(i===1)+'" onclick="this.parentNode.querySelectorAll(\'.chip\').forEach(function(b){b.setAttribute(\'aria-pressed\',\'false\')});this.setAttribute(\'aria-pressed\',\'true\')">'+x+'</button>'; }).join('')
+    + '</div></div>'
+    + '<div class="field"><label for="lf">一句话描述</label><textarea id="lf" placeholder="例：从地铁口推到社区中心，中途停了两次"></textarea></div>'
+    + '<div class="box" style="background:var(--grape-soft);border-color:var(--grape);box-shadow:none;margin-bottom:14px">'
+    + '<p style="color:var(--ink)">将自动关联今天的天气：'+S.weather.type+' '+S.weather.tmax+'°C · 湿度 '+S.weather.hum+'% · AQI '+S.weather.aqi+'，你不需要手填。</p></div>'
+    + '<button class="btn btn-pop" onclick="this.textContent=\'已保存，引擎会用它调整你的阈值 ✓\'">保存</button>');
+}
+function sheetReport(){
+  openSheet('上报路上的障碍',
+    '<div class="field"><label for="rp">位置</label><input type="text" id="rp" value="长风路地铁站 2 号口"></div>'
+    + '<div class="field"><label>类型</label><div class="chips">'
+    + ['积水','通道被占','电梯停运','路面损坏','其他'].map(function(x,i){
+        return '<button class="chip" aria-pressed="'+(i===0)+'" onclick="this.parentNode.querySelectorAll(\'.chip\').forEach(function(b){b.setAttribute(\'aria-pressed\',\'false\')});this.setAttribute(\'aria-pressed\',\'true\')">'+x+'</button>'; }).join('')
+    + '</div></div>'
+    + '<div class="field"><label for="rd">一句话描述</label><textarea id="rd" placeholder="例：出口坡道积水约 5cm，轮椅过不去"></textarea></div>'
+    + '<div class="box" style="background:var(--grape-soft);border-color:var(--grape);box-shadow:none;margin-bottom:14px">'
+    + '<p style="color:var(--ink)">自动带上当前天气标签（'+S.weather.type+' 降水 '+S.weather.rain+'mm）。以后天气条件相似时，会自动提醒走这条路线的人。</p></div>'
+    + '<button class="btn btn-pop" onclick="this.textContent=\'已上报，谢谢你 ✓\'">上报</button>');
+}
+
+/* ---- 全局事件委托 ---- */
+document.addEventListener('click', function(e){
+  var el = e.target.closest('button'); if (!el) return;
+
+  if (el.dataset.tab){ S.tab = el.dataset.tab; render(); window.scrollTo(0,0); return; }
+  if (el.dataset.set){ S.today[el.dataset.set] = el.dataset.val; render(); return; }
+  if (el.dataset.prof){ S.profile[el.dataset.prof] = el.dataset.val; render(); return; }
+  if (el.dataset.errand){
+    var v = el.dataset.errand, arr = S.today.errands, i = arr.indexOf(v);
+    if (v === '没有') { S.today.errands = (i>=0 ? [] : ['没有']); }
+    else { if (i>=0) arr.splice(i,1); else { arr.push(v); var j = arr.indexOf('没有'); if (j>=0) arr.splice(j,1); } }
+    render(); return;
+  }
+  if (el.dataset.done){ S.done[el.dataset.done] = !S.done[el.dataset.done]; render(); return; }
+  if (el.dataset.why){ S.open[el.dataset.why] = !S.open[el.dataset.why]; render(); return; }
+  if (el.dataset.preset != null){ var p = PRESETS[+el.dataset.preset]; S.weather = Object.assign({}, p); render(); sheetWeather(); return; }
+  if (el.dataset.mark){ el.closest('.alert').innerHTML = '<h3>✓ 谢谢，已记录</h3><p>这条上报的状态更新为「'+(el.dataset.mark==='fixed'?'已解决':'仍有效')+'」，会影响其他人今天看到的提醒。</p>'; return; }
+  if (el.dataset.go === 'log'){ S.tab='log'; render(); window.scrollTo(0,0); return; }
+  if (el.dataset.go === 'logform'){ sheetLogForm(); return; }
+  if (el.dataset.report){ sheetReport(); return; }
+  if (el.dataset.card){ sheetCard(); return; }
+  if (el.id === 'btn-weather'){ sheetWeather(); return; }
+  if (el.id === 'btn-share'){ sheetShare(); return; }
+  if (el.id === 'btn-sos'){ sheetSOS(); return; }
+});
+document.addEventListener('input', function(e){
+  var k = e.target.dataset && e.target.dataset.wx; if (!k) return;
+  S.weather[k] = (k === 'type') ? e.target.value : +e.target.value;
+  if (k === 'type'){
+    var faces = {'晴':'☀️','多云':'🌤','阴':'☁️','小雨':'🌦','中雨':'🌧','大雨':'🌧','暴雨':'⛈','雷阵雨':'⛈','雪':'🌨','雾':'🌫','霾':'🌫','台风':'🌀'};
+    S.weather.face = faces[e.target.value] || '🌤';
+  }
+  if (S.weather.tmin > S.weather.tmax) S.weather.tmin = S.weather.tmax;
+  S.weather.name = '自定义';
+  var box = e.target.closest('.sl');
+  if (box){
+    var unit = {tmax:'°C',tmin:'°C',hum:'%',rain:'mm',wind:'km/h',aqi:'',uv:''}[k] || '';
+    box.querySelector('b').textContent = S.weather[k] + unit;
+  }
+  document.querySelectorAll('[data-preset]').forEach(function(b){ b.setAttribute('aria-pressed','false'); });
+  render();
+});
+
+$('#mast-date').textContent = new Date().getDate();
+render();
+</script>
