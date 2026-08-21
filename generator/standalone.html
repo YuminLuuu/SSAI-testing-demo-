@@ -1,0 +1,986 @@
+<!-- 「今天我该怎么办」原型 v0.3 —— 个人档案 + 实时天气 + 健康记录 → 大模型生成专属行动清单 -->
+<meta charset="utf-8">
+<title>我的专属行动清单</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@700&display=swap">
+<style>
+:root{
+  --ground:#EDF2F0; --surface:#FBFCFC; --surface-2:#E2EAE8; --surface-3:#D6E0DD;
+  --ink:#15201E; --ink-2:#4B5B58; --ink-3:#7E8D8A;
+  --line:#D0DAD7; --line-soft:#DFE7E5;
+  --accent:#186459; --accent-ink:#0E4A41; --accent-soft:#D9EAE6; --on-accent:#F4F8F7;
+  --blue:#2F6FC4; --blue-bg:#DEE9F7;
+  --amber:#9C7407; --amber-bg:#F5EBCF;
+  --orange:#BC5C24; --orange-bg:#F7E1D2;
+  --red:#AE3524; --red-bg:#F6DDD8;
+  --shadow:0 1px 2px rgba(21,32,30,.05), 0 10px 28px -20px rgba(21,32,30,.3);
+  --r:11px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#0D1514; --surface:#151F1D; --surface-2:#1D2A27; --surface-3:#26352F;
+  --ink:#E3ECEA; --ink-2:#A2B4B0; --ink-3:#71827E;
+  --line:#283835; --line-soft:#1F2C2A;
+  --accent:#5CC0B1; --accent-ink:#8AD6C9; --accent-soft:#173B36; --on-accent:#0D1514;
+  --blue:#7FB0EE; --blue-bg:#16283D;
+  --amber:#D9AF48; --amber-bg:#332A12;
+  --orange:#E8956A; --orange-bg:#382318;
+  --red:#E8796A; --red-bg:#3A1E1A;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -20px rgba(0,0,0,.8);
+}}
+:root[data-theme="dark"]{
+  --ground:#0D1514; --surface:#151F1D; --surface-2:#1D2A27; --surface-3:#26352F;
+  --ink:#E3ECEA; --ink-2:#A2B4B0; --ink-3:#71827E;
+  --line:#283835; --line-soft:#1F2C2A;
+  --accent:#5CC0B1; --accent-ink:#8AD6C9; --accent-soft:#173B36; --on-accent:#0D1514;
+  --blue:#7FB0EE; --blue-bg:#16283D;
+  --amber:#D9AF48; --amber-bg:#332A12;
+  --orange:#E8956A; --orange-bg:#382318;
+  --red:#E8796A; --red-bg:#3A1E1A;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -20px rgba(0,0,0,.8);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:"Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  font-size:15px;line-height:1.75;-webkit-font-smoothing:antialiased;padding-bottom:112px;
+}
+h1,h2,h3,h4{margin:0;text-wrap:balance}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:none;text-align:left}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:5px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.wrap{max-width:780px;margin:0 auto;padding:0 20px}
+
+/* ---------- 顶栏与步骤 ---------- */
+.mast{padding:30px 0 18px}
+.mast h1{font-family:"Noto Serif SC",Georgia,serif;font-size:25px;line-height:1.38;letter-spacing:-.01em}
+.mast p{margin-top:9px;color:var(--ink-2);font-size:13.5px;max-width:50ch}
+.notice{margin-top:14px;padding:11px 13px;border-radius:var(--r);background:var(--amber-bg);color:var(--amber);font-size:12.5px;line-height:1.65}
+.notice b{color:var(--amber)}
+
+.steps{position:sticky;top:0;z-index:30;background:var(--ground);padding:12px 0;border-bottom:1px solid var(--line)}
+.steps-in{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stepbtn{display:flex;flex-direction:column;gap:3px;padding:9px 11px;border-radius:9px;border:1px solid var(--line);background:var(--surface);transition:.14s}
+.stepbtn:hover{border-color:var(--accent)}
+.stepbtn[aria-current="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.stepbtn .n{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.1em;color:var(--ink-3)}
+.stepbtn .t{font-size:13px;font-weight:700;line-height:1.35}
+.stepbtn .s{font-size:11px;color:var(--ink-3);line-height:1.4}
+.stepbtn.ok .s{color:var(--accent)}
+.stepbtn.ok .n::after{content:" ✓";color:var(--accent)}
+
+/* ---------- 面板 ---------- */
+.panel{margin-top:16px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+.panel-h{display:flex;align-items:center;gap:12px;width:100%;padding:15px 17px;background:var(--surface)}
+.panel-h .idx{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);flex:none}
+.panel-h h2{font-family:inherit;font-size:15.5px;font-weight:700;flex:1;min-width:0}
+.panel-h .sum{font-size:12px;color:var(--ink-3);flex:none;text-align:right;max-width:46%;line-height:1.45}
+.panel-h .car{flex:none;color:var(--ink-3);font-size:11px;transition:transform .18s}
+.panel.open .panel-h .car{transform:rotate(90deg)}
+.panel-b{display:none;padding:2px 17px 20px;border-top:1px solid var(--line-soft)}
+.panel.open .panel-b{display:block}
+
+.field{margin-top:16px}
+.field > label,.flabel{display:block;font-size:13.5px;font-weight:500;margin-bottom:8px}
+.flabel span,.field > label span{color:var(--ink-3);font-weight:400;font-size:12.5px}
+.opts{display:flex;flex-wrap:wrap;gap:7px}
+.opt{padding:7px 13px;border:1px solid var(--line);border-radius:100px;font-size:13px;color:var(--ink-2);background:var(--ground);transition:.14s;min-height:36px}
+.opt:hover{border-color:var(--accent);color:var(--accent)}
+.opt[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:500}
+input[type=text],input[type=number],textarea,select{
+  width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);
+  background:var(--ground);color:var(--ink);font:inherit;font-size:14px;
+}
+textarea{min-height:64px;resize:vertical;line-height:1.65}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--accent);outline-offset:0;border-color:var(--accent)}
+.row{display:grid;gap:10px}
+@media(min-width:560px){.row.two{grid-template-columns:1fr 1fr}.row.three{grid-template-columns:1fr 1fr 1fr}}
+
+.btn{display:inline-block;padding:10px 16px;border-radius:9px;background:var(--ink);color:var(--ground);font-weight:700;font-size:13.5px;text-align:center;transition:.14s}
+.btn:hover{background:var(--accent);color:var(--on-accent)}
+.btn.ghost{background:var(--ground);color:var(--ink);border:1px solid var(--line)}
+.btn.ghost:hover{border-color:var(--accent);color:var(--accent);background:var(--ground)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn.wide{display:block;width:100%}
+
+/* ---------- 天气 ---------- */
+.wx{margin-top:14px;border-radius:var(--r);border:1px solid var(--line);background:var(--ground);overflow:hidden}
+.wx-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:14px 16px;border-bottom:1px solid var(--line-soft)}
+.wx-h .city{font-size:14.5px;font-weight:700}
+.wx-h .t{font-family:"IBM Plex Mono",monospace;font-size:30px;font-weight:500;line-height:1;margin-left:auto;font-variant-numeric:tabular-nums}
+.wx-h .d{font-size:13px;color:var(--ink-2)}
+.wx-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:1px;background:var(--line-soft)}
+.wx-g div{background:var(--ground);padding:11px 14px}
+.wx-g .k{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.wx-g .v{font-family:"IBM Plex Mono",monospace;font-size:15px;margin-top:2px;font-variant-numeric:tabular-nums}
+.wx-foot{padding:10px 16px;font-size:11.5px;color:var(--ink-3);border-top:1px solid var(--line-soft)}
+.geolist{margin-top:10px;display:flex;flex-direction:column;gap:1px;background:var(--line-soft);border-radius:8px;overflow:hidden}
+.geolist button{padding:10px 13px;background:var(--ground);font-size:13.5px;display:flex;gap:10px;align-items:baseline}
+.geolist button:hover{background:var(--accent-soft)}
+.geolist small{color:var(--ink-3);font-size:12px}
+
+.scen{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:9px}
+@media(min-width:560px){.scen{grid-template-columns:repeat(4,1fr)}}
+.scen button{padding:12px 11px;border-radius:9px;border:1px solid var(--line);background:var(--ground);transition:.14s}
+.scen button:hover{border-color:var(--accent)}
+.scen button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.scen .ic{font-size:19px;display:block;line-height:1;margin-bottom:6px}
+.scen .nm{font-size:13px;font-weight:700;display:block}
+.scen .sg{font-size:11px;color:var(--accent);display:block;margin-top:3px}
+
+/* ---------- 健康记录 ---------- */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
+.tab{padding:6px 12px;border-radius:100px;border:1px solid var(--line);background:var(--ground);font-size:12.5px;color:var(--ink-2);transition:.14s}
+.tab:hover{border-color:var(--accent);color:var(--accent)}
+.tab[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--ground);font-weight:500}
+.today{margin-top:14px;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--ground)}
+.today-r{display:flex;gap:12px;align-items:baseline;padding:10px 14px;border-bottom:1px solid var(--line-soft);font-size:13.5px}
+.today-r:last-child{border-bottom:none}
+.today-r .k{flex:none;width:96px;font-size:12.5px;color:var(--ink-3)}
+.today-r .v{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-size:14.5px;flex:none;min-width:74px}
+.today-r .n{font-size:12.5px;color:var(--ink-2);flex:1;line-height:1.6}
+.today-r.flag{background:var(--amber-bg)}
+.today-r.flag .k,.today-r.flag .v,.today-r.flag .n{color:var(--amber)}
+.logs{margin-top:12px;max-height:290px;overflow-y:auto;border:1px solid var(--line);border-radius:9px}
+.log{display:flex;gap:11px;align-items:baseline;padding:9px 13px;border-bottom:1px solid var(--line-soft);font-size:13px}
+.log:last-child{border-bottom:none}
+.log .tm{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-3);flex:none;width:74px}
+.log .kd{font-size:11px;padding:1px 8px;border-radius:100px;background:var(--surface-2);color:var(--ink-2);flex:none}
+.log .kd.cath{background:var(--blue-bg);color:var(--blue)}
+.log .kd.water{background:var(--accent-soft);color:var(--accent-ink)}
+.log .kd.period{background:var(--red-bg);color:var(--red)}
+.log .bd{flex:1;min-width:0;color:var(--ink-2)}
+.log .del{flex:none;color:var(--ink-3);font-size:11.5px}
+.log .del:hover{color:var(--red)}
+.empty{padding:22px;text-align:center;color:var(--ink-3);font-size:13px}
+
+/* ---------- 生成条与结果 ---------- */
+.genbar{position:fixed;left:0;right:0;bottom:0;z-index:40;background:linear-gradient(to top,var(--ground) 66%,transparent);padding:16px 20px 18px}
+.genbar-in{max-width:780px;margin:0 auto}
+.genbtn{width:100%;padding:15px;border-radius:var(--r);background:var(--accent);color:var(--on-accent);font-weight:700;font-size:15.5px;text-align:center;box-shadow:var(--shadow);transition:.14s}
+.genbtn:hover{filter:brightness(1.08)}
+.genbtn[disabled]{background:var(--surface-3);color:var(--ink-3);cursor:not-allowed;box-shadow:none}
+.genbtn small{display:block;font-weight:400;font-size:11.5px;opacity:.9;margin-top:2px}
+
+.result{margin-top:18px;border:1.5px solid var(--accent);border-radius:var(--r);background:var(--surface);overflow:hidden;box-shadow:var(--shadow)}
+.result-h{padding:16px 18px;background:var(--accent);color:var(--on-accent)}
+.result-h .eyebrow{color:var(--on-accent);opacity:.85;display:block;margin-bottom:7px}
+.result-h h3{font-family:"Noto Serif SC",Georgia,serif;font-size:18px;line-height:1.5}
+.risk{display:inline-block;margin-top:10px;padding:3px 11px;border-radius:100px;font-size:12px;font-weight:700;background:var(--on-accent);color:var(--accent-ink)}
+.result-s{padding:16px 18px;border-bottom:1px solid var(--line-soft)}
+.result-s:last-child{border-bottom:none}
+.result-s > .eyebrow{display:block;margin-bottom:10px;color:var(--accent)}
+.why li{font-size:13.5px;line-height:1.78;color:var(--ink-2);margin-bottom:9px}
+.why li:last-child{margin-bottom:0}
+.why b{color:var(--ink)}
+.act{padding:14px 0;border-bottom:1px solid var(--line-soft)}
+.act:first-of-type{padding-top:0}
+.act:last-child{border-bottom:none;padding-bottom:0}
+.act-h{display:flex;gap:9px;align-items:baseline;flex-wrap:wrap;margin-bottom:6px}
+.act-h .when{font-family:"IBM Plex Mono",monospace;font-size:11px;padding:1px 8px;border-radius:4px;background:var(--surface-2);color:var(--ink-2)}
+.act-h .who{font-size:11px;padding:1px 8px;border-radius:100px;background:var(--accent-soft);color:var(--accent-ink)}
+.act h4{font-size:14.5px;font-weight:700;line-height:1.55;width:100%}
+.act .why-t{font-size:13.5px;color:var(--ink-2);line-height:1.75;margin-top:5px}
+.act ol{margin:9px 0 0;padding-left:19px;font-size:13.5px;color:var(--ink-2);line-height:1.75}
+.act ol li{margin-bottom:3px}
+.act ol li::marker{color:var(--accent);font-family:"IBM Plex Mono",monospace;font-size:11.5px}
+.based{margin-top:9px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.based .lb{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.based span.b{font-size:11.5px;padding:2px 9px;border-radius:100px;background:var(--blue-bg);color:var(--blue)}
+.watch{padding:12px 14px;border-radius:9px;background:var(--red-bg);margin-bottom:9px}
+.watch:last-child{margin-bottom:0}
+.watch .s{font-size:13.5px;font-weight:700;color:var(--red);line-height:1.6}
+.watch .d{font-size:13px;color:var(--red);line-height:1.7;margin-top:4px;opacity:.92}
+.askdoc li{font-size:13.5px;color:var(--ink-2);line-height:1.75;margin-bottom:5px}
+.stream{padding:16px 18px;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3);line-height:1.7;white-space:pre-wrap;word-break:break-all;max-height:220px;overflow-y:auto}
+.spin{display:inline-block;width:11px;height:11px;border:2px solid var(--accent);border-right-color:transparent;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-1px;margin-right:7px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.errbox{margin-top:16px;padding:14px 16px;border-radius:var(--r);background:var(--red-bg);color:var(--red);font-size:13.5px;line-height:1.7}
+.errbox b{color:var(--red)}
+
+.foot{padding:30px 0 12px;margin-top:28px;border-top:1px solid var(--line);color:var(--ink-3);font-size:12px;line-height:1.8}
+.foot p{margin-bottom:9px}
+.foot b{color:var(--ink-2)}
+
+.wxnow{margin-top:14px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:14px 16px;border-radius:var(--r);border:1px solid var(--line);background:var(--ground)}
+.wxnow .city{font-size:14.5px;font-weight:700}
+.wxnow .d{font-size:13px;color:var(--ink-2)}
+.wxnow .t{font-family:"IBM Plex Mono",monospace;font-size:30px;font-weight:500;line-height:1;margin-left:auto;font-variant-numeric:tabular-nums}
+.wxnow .sub{flex-basis:100%;font-size:12px;color:var(--ink-3);font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.flabel .unit{font-size:11px;color:var(--ink-3);font-family:"IBM Plex Mono",monospace;font-weight:400}
+.row.wxgrid{grid-template-columns:1fr 1fr}
+@media(min-width:560px){.row.wxgrid{grid-template-columns:1fr 1fr 1fr}}
+.demo-note{margin-top:10px;font-size:12px;color:var(--ink-3);line-height:1.65}
+</style>
+<div class="wrap">
+  <header class="mast">
+    <span class="eyebrow">原型 v0.3 · 可点版本 · 个人档案 → 天气 → 健康记录 → 生成</span>
+    <h1>我的专属行动清单</h1>
+    <p>把「我是谁」「今天天气怎么样」「我最近身体怎么样」这三件事放在一个地方，然后交给模型生成一份只针对你的行动清单。</p>
+    <div class="notice"><b>这是原型，不是医疗建议。</b>内容未经医生或应急部门核对，不能用于诊断、用药或替代官方预警。出现紧急情况请立刻拨打 <span class="mono">120 / 119 / 110</span>。</div>
+    <div class="notice" style="background:var(--blue-bg);color:var(--blue)"><b>这个可点版本跑在浏览器沙箱里，不能访问外部服务。</b>所以天气改成手填或载入示例，「生成清单」由页面内置的规则引擎完成——它<b>真的会读你填的每一项</b>，换一套档案清单就跟着变。完整版本会调用 <span class="mono">claude-opus-5</span> 并自动拉取实时天气，见页脚。</div>
+  </header>
+
+  <nav class="steps" aria-label="步骤"><div class="steps-in" id="steps"></div></nav>
+
+  <section class="panel open" id="p-profile">
+    <button class="panel-h" data-toggle="p-profile" aria-expanded="true">
+      <span class="idx">01</span><h2>我的情况</h2><span class="sum" id="sum-profile"></span><span class="car">&#9654;</span>
+    </button>
+    <div class="panel-b"><div id="profileForm"></div></div>
+  </section>
+
+  <section class="panel" id="p-weather">
+    <button class="panel-h" data-toggle="p-weather" aria-expanded="false">
+      <span class="idx">02</span><h2>今天的天气</h2><span class="sum" id="sum-weather"></span><span class="car">&#9654;</span>
+    </button>
+    <div class="panel-b">
+      <div class="field">
+        <span class="flabel">今天的天气数值 <span>· 自己填，或选好情境后一键载入一组示例</span></span>
+        <button class="btn ghost" id="loadDemo">载入这个情境的示例数值</button>
+        <p class="demo-note">这个可点版本跑在浏览器沙箱里，取不到实时天气。仓库里的完整版本会自动定位并拉取实况——见页脚说明。</p>
+        <div id="wxBox"></div>
+      </div>
+      <div class="field">
+        <span class="flabel">今天属于哪一类 <span>· 必选，它决定清单的主线</span></span>
+        <div class="scen" id="scenGrid"></div>
+      </div>
+      <div id="wxExtra"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-health">
+    <button class="panel-h" data-toggle="p-health" aria-expanded="false">
+      <span class="idx">03</span><h2>健康记录</h2><span class="sum" id="sum-health"></span><span class="car">&#9654;</span>
+    </button>
+    <div class="panel-b">
+      <p class="notice" style="background:var(--blue-bg);color:var(--blue);margin-top:14px">
+        所有记录只存在这台设备的浏览器里，不上传。点「生成清单」时，其中的<b>汇总数字</b>会随请求发给模型；具体每一条备注不会发出去。
+      </p>
+      <div class="tabs" id="hTabs"></div>
+      <div id="hForm"></div>
+      <div class="field">
+        <span class="flabel">今天的汇总 <span>· 这几个数字会进入生成请求</span></span>
+        <div class="today" id="todayBox"></div>
+      </div>
+      <div class="field">
+        <span class="flabel">全部记录 <span id="logCount"></span></span>
+        <div class="logs" id="logs"></div>
+      </div>
+    </div>
+  </section>
+
+  <div id="resultBox"></div>
+
+  <footer class="foot">
+    <p><b>这一版在验证什么。</b>三件事：把个人档案、实时天气、健康记录放在一个入口，用户是否愿意填完；生成的清单里「这条是根据你哪些信息给的」这个标注，能不能让个性化被<b>看见</b>；以及这份清单的质量，是否值得为它接一次模型调用。</p>
+    <p><b>这个版本和完整版的差别。</b>只有两处：天气在这里是手填或载入示例（完整版自动定位并拉取实况），生成在这里由页面内置的规则引擎完成（完整版调用 <span class="mono">claude-opus-5</span>，带 adaptive thinking 与 JSON Schema 约束）。档案、健康记录、今日汇总、结果结构与「依据」标签，两边完全一致。</p>
+    <p><b>完整版怎么跑。</b>克隆仓库后 <span class="mono">ANTHROPIC_API_KEY=... node generator/server.js</span>，打开 <span class="mono">http://localhost:5173</span>。API key 只在服务端，不进浏览器——这是它需要一个本机服务端的原因。</p>
+    <p><b>数据去哪儿了。</b>全部存在这台设备的浏览器 <span class="mono">localStorage</span> 里，不上传、无账号、无后端。健康数据在中国属于敏感个人信息，这个原型的立场是本地优先。</p>
+    <p>内容需核对来源：应急管理部 · 中国气象局预警信号分级 · 中国红十字会应急救护指南 · 脊髓损伤相关内容需经康复科医师复核。</p>
+  </footer>
+</div>
+
+<div class="genbar"><div class="genbar-in">
+  <button class="genbtn" id="genBtn">生成我的专属行动清单<small id="genHint"></small></button>
+</div></div>
+
+
+<script>
+/* ============================================================
+   状态 —— 三个窗口的数据全部存在这一个对象里
+   ============================================================ */
+const KEY='wx-v03-web';
+const DEF={profile:{aids:[],conds:[],needs:[]}, place:null, wx:null, scen:null, outing:null,
+           logs:[], result:null, generatedAt:null, genCount:0};
+let S=Object.assign({},DEF,JSON.parse(localStorage.getItem(KEY)||'{}'));
+S.profile=Object.assign({},DEF.profile,S.profile||{});
+['aids','conds','needs'].forEach(k=>{ if(!Array.isArray(S.profile[k])) S.profile[k]=[]; });
+if(!Array.isArray(S.logs)) S.logs=[];
+const save=()=>localStorage.setItem(KEY,JSON.stringify(S));
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const has=(a,v)=>(a||[]).indexOf(v)>-1;
+const tog=(a,v)=>{const i=a.indexOf(v); i>-1?a.splice(i,1):a.push(v);};
+const hhmm=ts=>new Date(ts).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',hour12:false});
+const mdy=ts=>new Date(ts).toLocaleDateString('zh-CN',{month:'numeric',day:'numeric'});
+const isToday=ts=>new Date(ts).toDateString()===new Date().toDateString();
+
+/* ============================================================
+   01 · 个人档案
+   ============================================================ */
+const P=[
+ {k:'age',  t:'num',  q:'年龄',      note:'影响高温与骤冷的风险判断'},
+ {k:'sex',  t:'one',  q:'性别',      note:'决定要不要显示经期记录', o:['女','男','不便说']},
+ {k:'disType',t:'one',q:'肢体障碍类型', note:'不同类型今天要防的东西不一样',
+  o:['脊髓损伤','脑瘫','截肢','肌肉萎缩 / 神经肌肉病','其他','暂不填']},
+ {k:'disLevel',t:'one',q:'残疾等级', note:'按残疾证上的等级填；没有可以跳过',
+  o:['一级','二级','三级','四级','未评定']},
+ {k:'sciLevel',t:'one',q:'损伤平面', note:'T6 及以上与以下，风险差别很大',
+  o:['T6 及以上','T6 以下','不清楚'], when:p=>p.disType==='脊髓损伤'},
+ {k:'aids', t:'many', q:'日常用到的辅助设备', note:'可多选。停电会直接影响电动设备',
+  o:['手动轮椅','电动轮椅','助行器 / 拐杖','假肢','都不用']},
+ {k:'adl',  t:'one',  q:'日常自理程度', note:'决定「这件事该不该你自己做」',
+  o:['基本独立','部分需要协助','大部分需要协助']},
+ {k:'urine',t:'one',  q:'排尿方式',  note:'这一项对高温天的建议影响最大',
+  o:['间歇导尿','留置导尿','尿路造口','自主排尿','其他 / 不填']},
+ {k:'conds',t:'many', q:'基础疾病与既往情况', note:'可多选',
+  o:['高血压','糖尿病','心脏病','呼吸系统疾病','癫痫','压疮史','泌尿系感染史','体温调节障碍','骨质疏松','都没有']},
+ {k:'meds', t:'text', q:'长期在吃的药', note:'写药名就行，可不填', ph:'例：氨氯地平、盐酸坦索罗辛'},
+ {k:'allergy',t:'text',q:'过敏史',    note:'可不填', ph:'例：青霉素'},
+ {k:'floor',t:'num',  q:'住几楼',    note:'停电停梯时这一项决定你能不能出门'},
+ {k:'lift', t:'one',  q:'有没有电梯', o:['有','没有']},
+ {k:'alone',t:'one',  q:'居住情况',  note:'决定「没消息就是有事」这条线怎么设',
+  o:['独居','和家人同住','有照护者']}
+];
+const visibleP=()=>P.filter(f=>!f.when||f.when(S.profile));
+
+function renderProfile(){
+  document.getElementById('profileForm').innerHTML=visibleP().map(f=>{
+    const v=S.profile[f.k];
+    let body;
+    if(f.t==='text') body=`<input type="text" data-pt="${f.k}" value="${esc(v||'')}" placeholder="${esc(f.ph||'')}">`;
+    else if(f.t==='num') body=`<input type="number" data-pt="${f.k}" value="${esc(v??'')}" style="max-width:140px" inputmode="numeric">`;
+    else body=`<div class="opts">${f.o.map(x=>{
+      const on=f.t==='many'?has(v,x):v===x;
+      return `<button class="opt" data-pk="${f.k}" data-pv="${esc(x)}" data-pm="${f.t}" aria-pressed="${on}">${esc(x)}</button>`;
+    }).join('')}</div>`;
+    return `<div class="field"><label>${esc(f.q)}${f.note?` <span>· ${esc(f.note)}</span>`:''}</label>${body}</div>`;
+  }).join('');
+  document.querySelectorAll('[data-pk]').forEach(b=>b.onclick=()=>{
+    const k=b.dataset.pk, v=b.dataset.pv;
+    if(b.dataset.pm==='many'){
+      const none=['都不用','都没有'].includes(v);
+      if(none) S.profile[k]=has(S.profile[k],v)?[]:[v];
+      else { S.profile[k]=(S.profile[k]||[]).filter(x=>!['都不用','都没有'].includes(x)); tog(S.profile[k],v); }
+    } else S.profile[k]=S.profile[k]===v?null:v;
+    save(); renderProfile(); renderHTabs(); renderHForm(); renderToday(); renderChrome();
+  });
+  document.querySelectorAll('[data-pt]').forEach(i=>i.oninput=()=>{
+    S.profile[i.dataset.pt]=i.value; save(); renderChrome();
+  });
+}
+const profileFilled=()=>visibleP().filter(f=>{
+  const v=S.profile[f.k]; return Array.isArray(v)?v.length:(v!==null&&v!==undefined&&v!=='');
+}).length;
+
+
+/* ============================================================
+   02 · 天气 —— 网页版没有外部网络，改为手动填写 + 一键载入示例
+   ============================================================ */
+const SCEN={
+  heat:{ic:'🔥',nm:'高温 / 热浪', demo:{desc:'晴',temp:37,feels:41,humidity:62,precip:0,wind:8,max:38,min:29}},
+  rain:{ic:'🌧️',nm:'暴雨 / 内涝', demo:{desc:'暴雨',temp:24,feels:26,humidity:95,precip:18,wind:22,max:26,min:22}},
+  wind:{ic:'🌀',nm:'台风 / 强风', demo:{desc:'雷阵雨',temp:27,feels:31,humidity:88,precip:12,wind:74,max:29,min:25}},
+  cold:{ic:'❄️',nm:'寒潮 / 低温', demo:{desc:'小雪',temp:-4,feels:-9,humidity:70,precip:2,wind:26,max:0,min:-7}}
+};
+
+function renderWx(){
+  const w=S.wx, box=document.getElementById('wxBox');
+  const f=(k,label,unit,ph)=>`<div><span class="flabel">${label} <span class="unit">${unit}</span></span>
+    <input type="number" data-wx="${k}" value="${w&&w[k]!=null?esc(w[k]):''}" placeholder="${ph}" inputmode="decimal"></div>`;
+  box.innerHTML=`
+    <div class="field"><span class="flabel">在哪儿 <span>· 只用来显示，不发送到任何地方</span></span>
+      <input type="text" id="wxCity" value="${esc(S.place?.name||'')}" placeholder="例：广州"></div>
+    <div class="field"><div class="row three wxgrid">
+      ${f('temp','气温','℃','37')}${f('feels','体感','℃','41')}${f('humidity','湿度','%','62')}
+      ${f('wind','风速','km/h','8')}${f('precip','降水','mm','0')}${f('max','今日最高','℃','38')}
+    </div></div>
+    ${w&&w.temp!=null?`<div class="wxnow">
+      <span class="city">${esc(S.place?.name||'未填地点')}</span>
+      <span class="d">${esc(w.desc||'手动填写')}</span>
+      <span class="t">${Math.round(w.temp)}°</span>
+      <span class="sub">体感 ${w.feels??'—'}° · 湿度 ${w.humidity??'—'}% · 风 ${w.wind??'—'}km/h · 降水 ${w.precip??'—'}mm</span>
+    </div>`:''}`;
+  box.querySelectorAll('[data-wx]').forEach(i=>i.oninput=()=>{
+    S.wx=S.wx||{}; const v=i.value.trim();
+    S.wx[i.dataset.wx]=v===''?null:parseFloat(v);
+    save(); renderChrome();
+  });
+  document.getElementById('wxCity').oninput=e=>{ S.place={name:e.target.value}; save(); };
+}
+
+function renderScen(){
+  document.getElementById('scenGrid').innerHTML=Object.entries(SCEN).map(([k,v])=>`
+    <button data-sc="${k}" aria-pressed="${S.scen===k}">
+      <span class="ic" aria-hidden="true">${v.ic}</span><span class="nm">${esc(v.nm)}</span>
+    </button>`).join('');
+  document.querySelectorAll('[data-sc]').forEach(b=>b.onclick=()=>{
+    S.scen=b.dataset.sc; save(); renderScen(); renderChrome();
+  });
+  document.getElementById('wxExtra').innerHTML=`
+    <div class="field"><label>今天要出门吗？</label>
+      <div class="opts">${['不出门','要出门','还不确定'].map(x=>
+        `<button class="opt" data-ok2="${esc(x)}" aria-pressed="${S.outing===x}">${esc(x)}</button>`).join('')}</div></div>
+    <div class="field"><label>有什么非做不可的事？ <span>· 可多选</span></label>
+      <div class="opts">${['就医 / 取药','买菜 / 买饭','上班 / 上学','康复训练','都没有'].map(x=>
+        `<button class="opt" data-nd="${esc(x)}" aria-pressed="${has(S.profile.needs,x)}">${esc(x)}</button>`).join('')}</div></div>`;
+  document.querySelectorAll('[data-ok2]').forEach(b=>b.onclick=()=>{
+    S.outing=S.outing===b.dataset.ok2?null:b.dataset.ok2; save(); renderScen(); renderChrome();
+  });
+  document.querySelectorAll('[data-nd]').forEach(b=>b.onclick=()=>{
+    const v=b.dataset.nd;
+    if(v==='都没有') S.profile.needs=has(S.profile.needs,v)?[]:[v];
+    else { S.profile.needs=S.profile.needs.filter(x=>x!=='都没有'); tog(S.profile.needs,v); }
+    save(); renderScen(); renderChrome();
+  });
+}
+document.getElementById('loadDemo').onclick=()=>{
+  if(!S.scen){ alert('先在下面选一个天气情境，再载入示例数值。'); return; }
+  S.wx=Object.assign({},SCEN[S.scen].demo);
+  if(!S.place?.name) S.place={name:'示例城市'};
+  save(); renderWx(); renderChrome();
+};
+
+/* ============================================================
+   03 · 健康记录
+   ============================================================ */
+const KINDS={
+  cath:{nm:'导尿', f:[
+    {k:'vol',t:'num',q:'尿量（ml）',ph:'350'},
+    {k:'color',t:'one',q:'颜色',o:['清亮','淡黄','深黄','浑浊','带血']},
+    {k:'note',t:'one',q:'有没有不适',o:['没有','尿痛','腹胀','头痛','发热']}]},
+  water:{nm:'饮水', f:[{k:'vol',t:'num',q:'喝了多少（ml）',ph:'250'}]},
+  period:{nm:'经期', f:[
+    {k:'ev',t:'one',q:'今天是',o:['开始','经期中','结束']},
+    {k:'amt',t:'one',q:'量',o:['少','中','多']},
+    {k:'sym',t:'text',q:'症状',ph:'例：腹痛、乏力、痉挛加重'}]},
+  stool:{nm:'排便', f:[
+    {k:'st',t:'one',q:'情况',o:['正常','困难','稀','未排']},
+    {k:'note',t:'text',q:'备注',ph:'可不填'}]},
+  vital:{nm:'体温血压', f:[
+    {k:'temp',t:'num',q:'体温（℃）',ph:'36.8'},
+    {k:'sbp',t:'num',q:'收缩压',ph:'120'},
+    {k:'dbp',t:'num',q:'舒张压',ph:'80'}]},
+  skin:{nm:'皮肤 / 压疮检查', f:[
+    {k:'site',t:'text',q:'部位',ph:'例：骶尾部、坐骨结节'},
+    {k:'st',t:'one',q:'情况',o:['正常','发红','破损']}]}
+};
+let hKind='cath';
+const periodOn=()=>S.profile.sex==='女';
+const kindKeys=()=>Object.keys(KINDS).filter(k=>k!=='period'||periodOn());
+
+function renderHTabs(){
+  document.getElementById('hTabs').innerHTML=kindKeys().map(k=>
+    `<button class="tab" data-hk="${k}" aria-pressed="${hKind===k}">${esc(KINDS[k].nm)}</button>`).join('');
+  document.querySelectorAll('[data-hk]').forEach(b=>b.onclick=()=>{hKind=b.dataset.hk;renderHTabs();renderHForm();});
+}
+function renderHForm(){
+  if(!kindKeys().includes(hKind)) hKind=kindKeys()[0];
+  const kd=KINDS[hKind];
+  document.getElementById('hForm').innerHTML=`
+    <div class="field"><div class="row ${kd.f.length>=2?'three':'two'}">
+      <div><span class="flabel">时间 <span>· 默认现在</span></span>
+        <input type="time" id="hf-time" value="${new Date().toTimeString().slice(0,5)}"></div>
+      ${kd.f.map(f=>{
+        if(f.t==='one') return `<div><span class="flabel">${esc(f.q)}</span><div class="opts">${
+          f.o.map((x,i)=>`<button class="opt" data-hf="${f.k}" data-hv="${esc(x)}" aria-pressed="${i===0}">${esc(x)}</button>`).join('')}</div></div>`;
+        return `<div><span class="flabel">${esc(f.q)}</span>
+          <input type="${f.t==='num'?'number':'text'}" id="hf-${f.k}" placeholder="${esc(f.ph||'')}" ${f.t==='num'?'inputmode="decimal"':''}></div>`;
+      }).join('')}
+    </div>
+    <button class="btn" id="hAdd" style="margin-top:12px">＋ 记下这一条（${esc(kd.nm)}）</button></div>`;
+  document.querySelectorAll('[data-hf]').forEach(b=>b.onclick=()=>{
+    document.querySelectorAll(`[data-hf="${b.dataset.hf}"]`).forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+  });
+  document.getElementById('hAdd').onclick=()=>{
+    const rec={id:'l'+Date.now(), kind:hKind, ts:tsFromTimeInput()};
+    let any=false;
+    KINDS[hKind].f.forEach(f=>{
+      if(f.t==='one'){ rec[f.k]=document.querySelector(`[data-hf="${f.k}"][aria-pressed="true"]`)?.dataset.hv; any=true; }
+      else{ const v=document.getElementById('hf-'+f.k).value.trim(); if(v){rec[f.k]=v;any=true;} }
+    });
+    if(!any){ alert('至少填一项再保存。'); return; }
+    S.logs.unshift(rec); S.logs.sort((a,b)=>b.ts-a.ts); save(); renderHForm(); renderLogs(); renderToday(); renderChrome();
+  };
+}
+/* 把 <input type=time> 的值折算成今天的时间戳；已经过了的时间就算今天，未来时间算昨天 */
+function tsFromTimeInput(){
+  const v=document.getElementById('hf-time')?.value;
+  if(!v) return Date.now();
+  const [h,m]=v.split(':').map(Number);
+  const d=new Date(); d.setHours(h,m,0,0);
+  if(d.getTime()>Date.now()+60000) d.setDate(d.getDate()-1);
+  return d.getTime();
+}
+function logText(l){
+  if(l.kind==='cath') return [l.vol?l.vol+' ml':null,l.color,l.note&&l.note!=='没有'?'· '+l.note:null].filter(Boolean).join(' · ');
+  if(l.kind==='water') return (l.vol||'?')+' ml';
+  if(l.kind==='period') return [l.ev,l.amt&&('量'+l.amt),l.sym].filter(Boolean).join(' · ');
+  if(l.kind==='stool') return [l.st,l.note].filter(Boolean).join(' · ');
+  if(l.kind==='vital') return [l.temp&&l.temp+'℃',(l.sbp&&l.dbp)&&`${l.sbp}/${l.dbp}`].filter(Boolean).join(' · ');
+  if(l.kind==='skin') return [l.site,l.st].filter(Boolean).join(' · ');
+  return '';
+}
+function renderLogs(){
+  const el=document.getElementById('logs');
+  document.getElementById('logCount').textContent=S.logs.length?`· 共 ${S.logs.length} 条`:'';
+  if(!S.logs.length){ el.innerHTML='<div class="empty">还没有记录。上面选一类，填一条试试。</div>'; return; }
+  el.innerHTML=S.logs.slice(0,60).map(l=>`
+    <div class="log">
+      <span class="tm">${esc(isToday(l.ts)?hhmm(l.ts):mdy(l.ts)+' '+hhmm(l.ts))}</span>
+      <span class="kd ${l.kind}">${esc(KINDS[l.kind]?.nm||l.kind)}</span>
+      <span class="bd">${esc(logText(l))}</span>
+      <button class="del" data-dl="${l.id}" aria-label="删除这条">删除</button>
+    </div>`).join('');
+  el.querySelectorAll('[data-dl]').forEach(b=>b.onclick=()=>{
+    S.logs=S.logs.filter(x=>x.id!==b.dataset.dl); save(); renderLogs(); renderToday(); renderChrome();
+  });
+}
+/* 今日汇总 —— 这几个数字是要发给模型的，所以计算逻辑必须看得见 */
+function todayStats(){
+  const t=S.logs.filter(l=>isToday(l.ts));
+  const cath=t.filter(l=>l.kind==='cath').sort((a,b)=>a.ts-b.ts);
+  const water=t.filter(l=>l.kind==='water');
+  const sum=(a,f)=>a.reduce((n,x)=>n+(parseFloat(x[f])||0),0);
+  let gapH=null;
+  if(cath.length>=2){
+    let m=0; for(let i=1;i<cath.length;i++) m=Math.max(m,cath[i].ts-cath[i-1].ts);
+    gapH=+(m/3600000).toFixed(1);
+  } else if(cath.length===1) gapH=+((Date.now()-cath[0].ts)/3600000).toFixed(1);
+  const vitals=t.filter(l=>l.kind==='vital').sort((a,b)=>b.ts-a.ts)[0];
+  const per=S.logs.filter(l=>l.kind==='period').sort((a,b)=>b.ts-a.ts)[0];
+  const skin=t.filter(l=>l.kind==='skin').sort((a,b)=>b.ts-a.ts)[0];
+  return {
+    waterMl:sum(water,'vol'), cathN:cath.length, cathMl:sum(cath,'vol'),
+    maxCathVol:cath.reduce((n,x)=>Math.max(n,parseFloat(x.vol)||0),0),
+    gapH, abnormalColor:cath.some(l=>['浑浊','带血','深黄'].includes(l.color)),
+    discomfort:cath.filter(l=>l.note&&l.note!=='没有').map(l=>l.note),
+    temp:vitals?.temp||null, bp:(vitals?.sbp&&vitals?.dbp)?`${vitals.sbp}/${vitals.dbp}`:null,
+    period:(periodOn()&&per&&(Date.now()-per.ts<7*86400e3))?per.ev:null,
+    skin:skin?.st||null
+  };
+}
+function renderToday(){
+  const s=todayStats(), rows=[];
+  const R=(k,v,n,flag)=>rows.push(`<div class="today-r${flag?' flag':''}"><span class="k">${esc(k)}</span><span class="v">${esc(v)}</span><span class="n">${n||''}</span></div>`);
+  R('饮水', s.waterMl?s.waterMl+' ml':'未记录', s.waterMl?'':'高温或发热时，这一项没记录会让建议只能给通用值', !s.waterMl);
+  if(S.profile.urine==='间歇导尿'||S.profile.urine==='留置导尿'){
+    R('导尿', s.cathN?`${s.cathN} 次 · ${s.cathMl} ml`:'未记录','', !s.cathN);
+    if(s.gapH!=null) R('最长间隔', s.gapH+' 小时', s.gapH>6?'间隔偏长。膀胱过度充盈是自主神经反射异常的常见诱因，这一条会重点进入生成请求':'', s.gapH>6);
+    if(s.maxCathVol) R('单次最大', s.maxCathVol+' ml', s.maxCathVol>500?'单次超过 500 ml，建议缩短间隔并咨询医生':'', s.maxCathVol>500);
+    if(s.abnormalColor) R('尿液颜色','异常','出现深黄 / 浑浊 / 带血，可能提示脱水或感染',true);
+  }
+  if(s.temp) R('体温', s.temp+' ℃','', parseFloat(s.temp)>=37.5);
+  if(s.bp) R('血压', s.bp,'');
+  if(s.period) R('经期', s.period,'');
+  if(s.skin) R('皮肤', s.skin,'', s.skin!=='正常');
+  if(!rows.length) rows.push('<div class="empty">今天还没有记录。</div>');
+  document.getElementById('todayBox').innerHTML=rows.join('');
+}
+
+function riskColor(r){ return {'低':'var(--accent)','中':'var(--amber)','高':'var(--orange)','很高':'var(--red)'}[r]||'var(--ink)'; }
+
+function renderResult(d,meta){
+  const box=document.getElementById('resultBox');
+  if(!d){ box.innerHTML=''; return; }
+  box.innerHTML=`<div class="result">
+    <div class="result-h">
+      <span class="eyebrow">${esc(meta||'生成于 '+hhmm(S.generatedAt||Date.now()))}</span>
+      <h3>${esc(d.headline||'')}</h3>
+      ${d.risk_level?`<span class="risk">今日风险 · ${esc(d.risk_level)}</span>`:''}
+    </div>
+    ${d.why_you?.length?`<div class="result-s"><span class="eyebrow">这跟你有什么关系</span>
+      <ul class="why" style="margin:0;padding-left:19px">${d.why_you.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:''}
+    ${d.actions?.length?`<div class="result-s"><span class="eyebrow">今天要做的事 · ${d.actions.length} 条</span>
+      ${d.actions.map(a=>`<div class="act">
+        <div class="act-h"><span class="when">${esc(a.when||'')}</span><span class="who">${esc(a.who||'')}</span>
+          <h4>${esc(a.title||'')}</h4></div>
+        ${a.why?`<p class="why-t">${esc(a.why)}</p>`:''}
+        ${a.how?.length?`<ol>${a.how.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>`:''}
+        ${a.based_on?.length?`<div class="based"><span class="lb">依据</span>${
+          a.based_on.map(x=>`<span class="b">${esc(x)}</span>`).join('')}</div>`:''}
+      </div>`).join('')}</div>`:''}
+    ${d.watch_for?.length?`<div class="result-s"><span class="eyebrow" style="color:var(--red)">看到这些立刻处理</span>
+      ${d.watch_for.map(w=>`<div class="watch"><div class="s">${esc(w.sign)}</div><div class="d">${esc(w.do)}</div></div>`).join('')}</div>`:''}
+    ${d.ask_doctor?.length?`<div class="result-s"><span class="eyebrow">下次见医生时问这几个</span>
+      <ul class="askdoc" style="margin:0;padding-left:19px">${d.ask_doctor.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:''}
+    <div class="result-s" style="background:var(--amber-bg)">
+      <p style="font-size:12.5px;color:var(--amber);line-height:1.7">
+        <b>这份清单由大模型生成，未经医生或应急部门核对。</b>它不能用于诊断或用药决定，也不能替代当地气象与应急部门发布的预警。出现紧急情况请立刻拨打 120。</p>
+    </div>
+  </div>`;
+  box.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ============================================================
+   生成 —— 网页版在页面内按规则组装
+   ------------------------------------------------------------
+   真实版本这一步调用 claude-opus-5（见仓库 generator/server.js）。
+   这里的规则引擎读的是同一份数据、产出同一个结构，用来在没有
+   后端的情况下验证：个性化到底能不能被用户看见。
+   ============================================================ */
+function facts(){
+  const p=S.profile, s=todayStats(), w=S.wx||{};
+  const sci=p.disType==='脊髓损伤';
+  return {
+    p, s, w, sc:S.scen,
+    T:w.temp, feel:w.feels??w.temp, wind:w.wind??0, precip:w.precip??0, hum:w.humidity,
+    sci, highLesion: sci && p.sciLevel==='T6 及以上',
+    cath: ['间歇导尿','留置导尿'].includes(p.urine),
+    intermittent: p.urine==='间歇导尿',
+    epower: has(p.aids,'电动轮椅'), wheel: has(p.aids,'电动轮椅')||has(p.aids,'手动轮椅'),
+    alone: p.alone==='独居', helper: p.alone==='有照护者',
+    noLift: p.lift==='没有', floor: parseInt(p.floor)||0,
+    out: S.outing==='要出门', maybeOut: S.outing==='还不确定',
+    needs:(p.needs||[]).filter(x=>x!=='都没有'),
+    cond:(p.conds||[]).filter(x=>x!=='都没有'),
+    sores: has(p.conds,'压疮史'), uti: has(p.conds,'泌尿系感染史'),
+    thermo: has(p.conds,'体温调节障碍'), bp: has(p.conds,'高血压'),
+    heart: has(p.conds,'心脏病'), lung: has(p.conds,'呼吸系统疾病'),
+    dm: has(p.conds,'糖尿病'), epi: has(p.conds,'癫痫'),
+    assisted: p.adl==='部分需要协助'||p.adl==='大部分需要协助',
+    period: s.period && s.period!=='结束'
+  };
+}
+
+const nz=v=>v!=null&&v!=='';
+
+/* ---- 风险等级：先按天气数值，再按个人情况加码 ---- */
+function riskOf(f){
+  let sc=0;
+  if(f.sc==='heat'){ const t=Math.max(f.T??0,f.w.max??0);
+    sc = t>=40?3 : t>=37?2.5 : t>=33?2 : 1;
+    if(f.highLesion||f.thermo) sc+=1.2; if(f.cath) sc+=.4; if(f.heart||f.bp) sc+=.3; }
+  if(f.sc==='rain'){ sc = f.precip>=25?2.5 : f.precip>=8?2 : 1.2;
+    if(f.wheel) sc+=1; if(f.alone) sc+=.3; }
+  if(f.sc==='wind'){ sc = f.wind>=88?3 : f.wind>=62?2.5 : f.wind>=39?2 : 1.2;
+    if(f.epower) sc+=.8; if(f.floor>=6&&!f.noLift) sc+=.5; if(f.alone) sc+=.3; }
+  if(f.sc==='cold'){ const t=Math.min(f.T??99,f.w.min??99);
+    sc = t<=-10?2.8 : t<=0?2.2 : t<=5?1.6 : 1;
+    if(f.wheel) sc+=.8; if(f.heart||f.bp) sc+=.5; if(f.highLesion||f.thermo) sc+=.6; }
+  if(f.s.abnormalColor||f.s.gapH>6) sc+=.5;
+  if(nz(f.s.temp)&&parseFloat(f.s.temp)>=37.5) sc+=.6;
+  return sc>=3.5?'很高':sc>=2.6?'高':sc>=1.7?'中':'低';
+}
+
+/* ---- 这跟你有什么关系 ---- */
+function whyYou(f){
+  const o=[], t=f.T!=null?`${Math.round(f.T)}℃`:'今天的气温';
+  if(f.sc==='heat'){
+    if(f.highLesion) o.push(`你填的损伤平面在 T6 及以上，损伤平面以下的排汗功能通常是受影响的。这意味着别人靠出汗降温的那条路你只有一部分能用——${t}下体感不热，不等于核心体温没有升上去。`);
+    else if(f.thermo) o.push(`你标了体温调节障碍。高温对你的风险不在"热得难受"，而在体温升上去之后降不下来，而且这个过程你自己不一定感觉得到。`);
+    if(f.intermittent) o.push('你用间歇导尿。高温天最常见的连锁反应是：怕导尿麻烦所以少喝水 → 尿量少、尿液浓 → 感染风险上升，同时脱水又让体温更难压下去。');
+    if(f.highLesion&&f.cath) o.push('膀胱过度充盈是自主神经反射异常最常见的诱因之一。今天如果因为外出或停电打乱了导尿时间，这个风险会比平时高。');
+    if(f.sores) o.push('你有压疮史。出汗加上长时间坐姿，接触面会又湿又闷，这是压疮最容易起来的条件。');
+    if(f.epower) o.push('高温期常伴随限电。对用电动轮椅的人来说，停电不只是没空调，是在最需要挪到凉快地方的时候失去移动能力。');
+  }
+  if(f.sc==='rain'){
+    if(f.wheel) o.push('积水会让轮椅打滑、卡住前轮，而盲道、路缘坡这些你平时依赖的东西在水下完全看不见。今天常走的那条路线可能整条失效。');
+    if(f.epower) o.push('电动轮椅的电机和电池最怕进水。涉水通过一次，可能换来接下来几天完全无法出行。');
+    if(f.floor>=2&&f.noLift) o.push(`你住 ${f.floor} 楼且没有电梯。暴雨天出门一次的代价对你来说比别人高得多，值得先问一句"这趟非今天不可吗"。`);
+    if(f.alone) o.push('一个人住时，停电或被困都没有人会立刻发现。今天值得主动跟一个人约好互报平安的时间。');
+  }
+  if(f.sc==='wind'){
+    if(f.epower||f.floor>=4) o.push(`停电会让电梯停运。你住 ${f.floor||'高'} 楼${f.epower?'、用电动轮椅':''}，这意味着可能上不去也下不来——这件事必须在风起来之前就决定好。`);
+    o.push('台风阶段的伤害绝大多数来自高空坠物和玻璃，而不是风把人吹走。远离窗边比加固窗户更有用。');
+    if(f.cath) o.push('停水会直接影响导尿的清洁操作。这一条要在停水之前处理，不能等。');
+  }
+  if(f.sc==='cold'){
+    if(f.wheel) o.push('结冰路面是今天的头号风险，而且坡道结冰比台阶更危险——它看不出来。对坐轮椅的人，下坡失控比摔倒更常见。');
+    if(f.highLesion||f.thermo) o.push('损伤平面以下的血管收缩调节和感觉都可能受影响，你可能在已经冻伤或失温的情况下感觉不到冷。今天要靠时间和温度计判断，不能靠体感。');
+    if(f.heart||f.bp) o.push('骤降温会明显加重心脑血管负担，风险窗口通常在清晨。');
+    if(f.epower) o.push('低温会让电动轮椅的电池续航明显缩水，按平时的里程估算今天可能不够。');
+  }
+  if(f.s.gapH>6&&f.cath) o.push(`今天的最长导尿间隔已经到 ${f.s.gapH} 小时。${f.highLesion?'对你这个损伤平面，膀胱过度充盈是需要立刻处理的事，不是"再等等"。':'间隔拉长会增加感染和膀胱过度充盈的风险。'}`);
+  if(f.s.abnormalColor) o.push('今天的导尿记录里出现了深黄 / 浑浊 / 带血。这通常提示水不够或需要就医，今天的建议按更保守的标准给。');
+  if(f.s.waterMl===0) o.push('今天还没有饮水记录。如果确实没怎么喝，这一项会放大上面所有和脱水有关的风险。');
+  if(f.needs.length) o.push(`你今天有非做不可的事（${f.needs.join('、')}）。下面不劝你别出门，而是给"要出门的话怎么出"。`);
+  if(!o.length) o.push('按你填的信息，今天没有特别需要单独提醒的点。下面的建议按通用情况给——把档案填得更全，这一段会变得具体。');
+  return o;
+}
+
+/* ---- 行动库 ---- */
+function actionPool(f){
+  const A=[];
+  const push=(pri,o)=>A.push(Object.assign({pri},o));
+  const t=f.T!=null?`${Math.round(f.T)}℃`:'高温';
+
+  /* —— 跨情境：导尿与饮水 —— */
+  if(f.cath&&(f.sc==='heat'||f.s.gapH>6||f.s.abnormalColor))
+    push(1,{title:'先把今天剩下的导尿时间定死，写在看得见的地方',when:'现在',
+      who:'自己可以做',
+      why:`真正会打乱节奏的是"在外面不方便"和"懒得起身"。${f.highLesion?'对你这个损伤平面，膀胱过度充盈不只是憋得难受，它是自主神经反射异常最常见的触发点。':'间隔拉长会同时抬高感染和膀胱过度充盈的风险。'}把时间定死，比临场判断可靠。`,
+      how:['按你平时的间隔，把今天剩下的时间点全部写下来','每个时间点设一个手机闹钟，不要靠记',
+        f.out?'确认目的地有没有可用的无障碍卫生间；没有就把外出压缩到两次导尿之间':'今天在家，把导尿用品放在伸手可及的地方'],
+      based_on:[f.p.urine,f.highLesion?'损伤平面 T6 及以上':null,f.s.gapH>6?`最长间隔 ${f.s.gapH} 小时`:null,f.out?'今天要出门':null]});
+
+  if(f.cath&&f.sc==='heat')
+    push(2,{title:'把水按小杯定时喝，不要为了少导尿而少喝',when:'全天',who:'自己可以做',
+      why:'少喝水能减少导尿次数，代价是尿液浓缩、感染风险上升，加上高温下的脱水会让你更难散热。正确的做法不是少喝，是把总量摊平——够量，但不集中灌。',
+      how:['每小时一小杯，跟着导尿闹钟走，而不是渴了才喝','留意尿的颜色：清亮到淡黄是正常，深黄或浑浊说明水不够或需要就医',
+        '今天的目标量按你和医生商量过的数字来，不要自己临时上调或下调'],
+      based_on:[f.p.urine,`${t}高温`,f.uti?'泌尿系感染史':null,f.s.waterMl?`今日饮水 ${f.s.waterMl} ml`:'今日尚无饮水记录']});
+
+  /* —— 高温 —— */
+  if(f.sc==='heat'){
+    push(3,{title:'在家里做出一个"最凉的位置"，把补给挪过去',when:'今天上午',who:'自己可以做',
+      why:'你不需要给整套房子降温，只需要一个能长时间待住的位置。集中降温更省电，限电时也更容易维持。',
+      how:['选朝北或背阴、有空调或风扇的一间，白天拉遮光窗帘、关门',
+        '把水、'+(f.cath?'导尿用品、':'')+'药、手机充电器'+(f.epower?'、轮椅充电器':'')+'都挪进这一间',
+        f.sores?'坐垫如果闷热，准备一块透气垫或干毛巾，出汗后及时更换':'早晚温度低时开窗对流，中午关窗'],
+      based_on:[`${t}高温`,f.epower?'电动轮椅':null,f.sores?'压疮史':null].filter(Boolean)});
+    if(f.epower)
+      push(2.5,{title:'现在就把电动轮椅充满，并想好停电怎么办',when:'现在',who:'自己可以做',
+        why:'高温期常伴随限电。对你来说停电不只是没空调，是失去移动能力——而且正好是在最需要挪到凉快地方的时候。',
+        how:['现在插上充电，充满为止','确认手动轮椅或备用移动方式在伸手可及的位置','把物业和社区电话存进手机，并写一份在纸上贴冰箱'],
+        based_on:['电动轮椅',f.floor?`住 ${f.floor} 楼`:null]});
+    if(f.out||f.needs.length)
+      push(4,{title:'把这趟路拆成几段阴凉，别让自己有"没处可退"的时候',when:'出门前',who:'自己可以做',
+        why:'高温里最危险的是一整段没有中途可退的路线。按能进去吹空调的点切段，风险就从一整段变成几小段。',
+        how:['在地图上标出沿途的便利店、地铁站、商场、社区服务中心','按每段不超过 10–15 分钟来切'+(f.wheel?'；坐轮椅的话按平时两倍时间估':''),
+          '带够水'+(f.cath?'和导尿用品':'')+'，告诉一个人你几点出门、几点应该到',
+          f.needs.includes('就医 / 取药')?'先打电话确认对方今天照常开门，再决定去不去':'能挪到早上或傍晚就挪'],
+        based_on:['今天要出门',...f.needs,f.wheel?'使用轮椅':null]});
+    if(nz(f.p.meds))
+      push(5,{title:'把"这些药在高温天要注意什么"问清楚一次',when:'今天',who:'自己可以做',
+        why:'部分常用药会影响排汗、体温调节或体液平衡，这在平常没影响，在热浪里有。这件事问一次，之后每年都用得上。',
+        how:['把在吃的药拍张照','打给开药的医生或药师，问高温天要注意什么、要不要调整喝水量','把答案记进健康记录'],
+        based_on:['长期用药：'+String(f.p.meds).slice(0,20),`${t}高温`]});
+  }
+
+  /* —— 暴雨 —— */
+  if(f.sc==='rain'){
+    if(f.wheel)
+      push(1,{title:'重新算一遍今天的路线，按"常走的那条可能不能用"',when:'出门前',who:'自己可以做',
+        why:'积水会同时让坡道打滑、让盲道和路缘失效、让电梯停运。平时最优的那条路，今天可能是最差的。',
+        how:['列出常走路线上依赖的设施：坡道、电梯、地下通道、天桥','逐个判断：积水或停电时它还在不在','找一条备用路线，哪怕更远',
+          '找不到备用路线，今天就别出门，或者请人陪同'],
+        based_on:[f.epower?'电动轮椅':'使用轮椅',`降水 ${f.precip}mm`]});
+    if(f.epower)
+      push(1.5,{title:'不要让电动轮椅涉水，哪怕只有一小段',when:'全天',who:'自己可以做',
+        why:'电机和控制器进水的修复周期通常是几天到几周。为了省五分钟的绕路，可能换来接下来几天完全无法出行。',
+        how:['看不清底的积水一律不过，绕路或等','轮椅淋湿后先擦干控制器和接口再充电','出门前把充电器留在家里干燥处，不要随身带着淋雨'],
+        based_on:['电动轮椅',`降水 ${f.precip}mm`]});
+    push(2,{title:'按"可能停电 12 小时"准备，而不是按下雨准备',when:'今天上午',who:'自己可以做',
+      why:'暴雨真正打乱生活的往往是次生的停电停水，而不是雨本身。这一步做了，后面几个小时的难度差很多。',
+      how:['手机、充电宝'+(f.epower?'、轮椅电池':'')+'充满','手电放在伸手能拿到的地方，别用蜡烛','接一桶水备用'+(f.cath?'——导尿的清洁操作需要水':'')],
+      based_on:[`降水 ${f.precip}mm`,f.epower?'电动轮椅':null,f.cath?f.p.urine:null]});
+  }
+
+  /* —— 台风 —— */
+  if(f.sc==='wind'){
+    push(1,{title:'趁现在决定这两天待在哪儿，别等停电了再说',when:'现在',who:f.assisted?'需要有人搭把手':'自己可以做',
+      why:`停电时电梯停运。${f.floor?`你住 ${f.floor} 楼，`:''}${f.epower?'又用电动轮椅，':''}这等于被锁在楼上或楼下。停电之后你就没有选择权了。`,
+      how:['决定：留在家里，还是提前去有人的地方','留在家里就把药、水、食物'+(f.cath?'、导尿用品':'')+'备到两天份','需要下楼就现在下，不要等预警升级','把这个决定告诉一个人'],
+      based_on:[f.floor?`住 ${f.floor} 楼`:null,f.epower?'电动轮椅':null,f.p.adl]});
+    push(2,{title:'把阳台和窗边清空，选好风最大时待的房间',when:'今天',who:f.assisted?'需要有人搭把手':'自己可以做',
+      why:'台风阶段的伤害大部分来自飞掷物和玻璃。能被吹动的东西，就是待会儿的飞掷物。',
+      how:['阳台上的花盆、晾衣杆、纸箱、椅子全部收进室内','检查窗户关严、锁扣到位，拉上窗帘','确认家里哪一间没有外窗——那是风最大时的位置'+(f.wheel?'，并确认轮椅进得去':'')],
+      based_on:[`风速 ${Math.round(f.wind)}km/h`,f.wheel?'使用轮椅':null]});
+    push(3,{title:'把停水这件事按你的需要单独备一遍',when:'今天',who:'自己可以做',
+      why:(f.cath?'停水会直接影响导尿的清洁操作，这不是"少洗一次澡"的问题。':'停水影响的不只是喝水，还有清洁和如厕。'),
+      how:['按每人每天 3 升准备三天的饮用水','另接一桶水用于清洁和冲厕',f.cath?'确认导尿用品和免洗消毒用品够用三天':'准备免洗洗手液和湿巾'],
+      based_on:[f.cath?f.p.urine:null,'台风 / 强风'].filter(Boolean)});
+  }
+
+  /* —— 寒潮 —— */
+  if(f.sc==='cold'){
+    if(f.wheel||has(f.p.aids,'助行器 / 拐杖')||has(f.p.aids,'假肢')||(parseInt(f.p.age)||0)>=65)
+      push(1,{title:'把结冰当成今天的头号风险，坡道尤其',when:'全天',who:'自己可以做',
+        why:'寒潮里最常见的伤是摔伤而不是冻伤。坡道结冰比台阶更危险，因为它看不出来；对坐轮椅的人，下坡失控比摔倒更常见。',
+        how:['能不出门就不出门；必须出门避开清晨和夜间','下坡前先停，确认路面；宁可绕远走有摩擦的地面',
+          f.epower?'低温会让电池续航缩水，按平时的七成估算里程':
+          (f.wheel?'手推时戴防滑手套，避免推圈打滑':'鞋底选粗纹的，缩小步幅、重心压低；拐杖或助行器底端的防滑头先检查一遍')],
+        based_on:[f.epower?'电动轮椅':(f.wheel?'使用轮椅':(has(f.p.aids,'假肢')?'假肢':'助行器 / 拐杖')),
+          f.T!=null?`气温 ${Math.round(f.T)}℃`:null]});
+    push(2,{title:'检查取暖方式，别把门窗全封死',when:'今天',who:'自己可以做',
+      why:'寒潮期间室内的风险比室外高：一氧化碳中毒和取暖设备起火，都发生在人以为最安全的地方。',
+      how:['绝对不在密闭房间烧炭、烧煤气取暖','燃气设备所在空间保持通风','电热毯、取暖器不要整夜无人看管，远离窗帘和被褥',
+        (f.highLesion||f.thermo)?'损伤平面以下感觉可能减退，取暖设备不要直接贴着皮肤——低温烫伤往往等发现时已经很重':'有条件装一个一氧化碳报警器'],
+      based_on:[(f.highLesion||f.thermo)?'体温调节 / 感觉减退':null,'寒潮 / 低温'].filter(Boolean)});
+    if(f.heart||f.bp)
+      push(2.5,{title:'清晨先在室内活动开，再决定要不要出去',when:'明早',who:'自己可以做',
+        why:'气温骤降会明显加重心脑血管负担，风险窗口通常在清晨。',
+        how:['起床后先在室内待一会儿，不要立刻到户外','确认药备够了，寒潮期间不方便出门取药','按医生建议提高量血压的频率，并记进健康记录'],
+        based_on:[...f.cond.filter(c=>['高血压','心脏病'].includes(c)),'寒潮 / 低温']});
+  }
+
+  /* —— 通用兜底：不依赖轮椅或导尿也该有的几条 —— */
+  if(f.sc==='cold')
+    push(3.4,{title:'按分层穿，不要靠一件厚外套',when:'出门前',who:'自己可以做',
+      why:'分层的作用是可调节。室内外温差大时能脱掉一层，比一直捂着更不容易出汗——出汗后受凉是失温常见的起点。',
+      how:['贴身层选排汗的，不要让棉质贴身衣物长时间贴着','中间层保暖、外层防风','手脚和头颈散热最快，优先保护','衣服湿了尽快换下'],
+      based_on:[f.T!=null?`气温 ${Math.round(f.T)}℃`:'寒潮 / 低温']});
+  if(f.sc==='cold')
+    push(4.2,{title:'睡前给水管做十分钟保温',when:'睡前',who:'自己可以做',
+      why:'水管冻裂通常发生在夜里最低温时，而修复要等到寒潮过去。事前十几分钟，能省掉几天没水。',
+      how:['露天或未保温的水管、水表包上保温材料或旧衣物','夜间让龙头保持极细的水流','先接一桶水备用'],
+      based_on:[f.w.min!=null?`今夜最低 ${Math.round(f.w.min)}℃`:'寒潮 / 低温']});
+  if(f.sc==='heat'&&!f.cath)
+    push(2.2,{title:'把喝水变成定时的事，而不是渴了才喝',when:'全天',who:'自己可以做',
+      why:'口渴出现时，身体已经缺水一段时间了；对年长者和服用某些药物的人，这个信号还会更迟钝。',
+      how:['定闹钟，每小时一小杯','大量出汗时补充含电解质的饮品，不要只喝白水','把水杯放在今天待得最久的位置，视线之内'],
+      based_on:[f.T!=null?`${Math.round(f.T)}℃高温`:'高温 / 热浪',(parseInt(f.p.age)||0)>=65?`年龄 ${f.p.age}`:null]});
+  if(f.sc==='rain'&&!f.wheel)
+    push(2.2,{title:'把"多深的水不能过"换成一个记得住的画面',when:'出门前',who:'自己可以做',
+      why:'涉水的判断不能靠厘米数——深度在水下看不出来，而流动的水远比静止的水危险。',
+      how:['看不见底、看不清有没有井盖或塌陷的水，一律不过','水在流动且已经到小腿以上，不要尝试','拿不准就绕路或等，水退得比人想的快'],
+      based_on:[`降水 ${f.precip}mm`]});
+  if(f.cond.length)
+    push(4.8,{title:'确认药够用，并把两个电话写在纸上',when:'今天',who:'自己可以做',
+      why:'极端天气期间取药和就医都可能被打断，而手机没电时，纸上的号码才是还能用的那份。',
+      how:['数一下手上的药还够几天，不够就今天补','把主治医生 / 社区卫生站、和一个紧急联系人的号码写在纸上贴冰箱',
+        f.dm?'血糖仪试纸和低血糖时能立刻吃的东西一起放在固定位置':'需要冷藏的药，问清楚断电后能放多久'],
+      based_on:[...f.cond.slice(0,3)]});
+
+  /* —— 跨情境：连接与皮肤 —— */
+  if(f.alone)
+    push(3.5,{title:'今天跟一个人约好互报平安，并说清楚"没回消息该怎么办"',when:'今天上午',who:'需要有人搭把手',
+      why:`一个人住时最大的风险不是天气本身，是出事之后没有人知道。${f.highLesion?'自主神经反射异常发作时人可能没法自己打电话，这条线必须提前设好。':''}`,
+      how:['选一个人，约一个具体时间点互发消息','说清楚：没回请打电话，打不通请联系物业开门','把备用钥匙交给信得过的人或物业'],
+      based_on:['独居',f.highLesion?'损伤平面 T6 及以上':null]});
+  if(f.sores||f.s.skin&&f.s.skin!=='正常')
+    push(3.2,{title:'今天多做一次皮肤检查，并记下来',when:'睡前',who:f.assisted?'需要有人搭把手':'自己可以做',
+      why:'冷热和潮湿都会改变皮肤状态，而压疮最容易在"以为没事"的那几天起来。检查一次的成本，比处理一次压疮低得多。',
+      how:['用镜子或请人帮忙看骶尾部、坐骨结节、足跟','按压不褪色的发红就是信号，不要等破皮','把结果记进健康记录里的皮肤检查'],
+      based_on:[f.sores?'压疮史':null,f.s.skin&&f.s.skin!=='正常'?`今日皮肤检查：${f.s.skin}`:null]});
+  if(f.period)
+    push(4.5,{title:'把经期用品和清洁用水按停水停电多备一份',when:'今天',who:'自己可以做',
+      why:'极端天气期间的停水、出行受限，会让原本例行的事变得困难；提前备一份的成本几乎为零。',
+      how:['按比平时多一倍准备用品','另备一份清洁用水和免洗消毒用品',f.highLesion?'经期腹痛等不适也可能成为自主神经反射异常的诱因，今天对身体信号更留意一点':'不适加重时记进健康记录，下次复诊说得清楚'],
+      based_on:['经期记录',f.highLesion?'损伤平面 T6 及以上':null]});
+
+  return A.map(a=>Object.assign(a,{based_on:(a.based_on||[]).filter(nz)}))
+          .sort((x,y)=>x.pri-y.pri).slice(0,6)
+          .map(({pri,...rest})=>rest);
+}
+
+function watchFor(f){
+  const o=[];
+  if(f.highLesion) o.push({sign:'突然剧烈头痛、损伤平面以上出汗或潮红、心跳变慢、视线模糊',
+    do:'这是自主神经反射异常的典型表现，属于急症。立刻坐直、松开束缚的衣物和腿带，检查是否憋尿或导尿管堵塞，并马上拨打 120。不要平躺。'});
+  if(f.sc==='heat') o.push({sign:'意识模糊、说话不清、皮肤发烫但不出汗',
+    do:'按热射病处理：立刻拨打 120，同时移到阴凉处、用凉水擦颈侧和腋下降温。不要给意识不清的人喂水。'});
+  if(f.sc==='cold') o.push({sign:'不受控地发抖、说话含糊、动作变笨，或者反而不觉得冷了',
+    do:'可能是失温。移到温暖处、换掉湿衣服、包裹躯干，不要给酒，并拨打 120。'});
+  if(f.sc==='cold') o.push({sign:'头痛、恶心、乏力，尤其是离开房间就好转',
+    do:'怀疑一氧化碳中毒：立刻开窗、离开房间到室外呼吸，然后拨打 120。不要留在屋里观察。'});
+  if(f.cath||f.uti) o.push({sign:'尿液浑浊或带血、有异味，伴发热或寒战',
+    do:'可能是泌尿系感染。不要自行用药，尽快联系你的主治医生或就近就医。'});
+  if(f.sores) o.push({sign:'皮肤出现按压不褪色的发红、破损或异味',
+    do:'可能是压疮早期。立刻减压、保持干燥，并联系医护评估，不要自行涂抹药膏。'});
+  if(f.sc==='rain') o.push({sign:'所在的地下或半地下空间开始进水',
+    do:'立刻往高处走，不要回去取东西。需要救援时拨打 119。'});
+  if(!o.length) o.push({sign:'任何时候出现意识模糊、剧烈头痛、呼吸困难、无法止住的出血',
+    do:'不要靠这个工具判断，立刻拨打 120。'});
+  return o.slice(0,4);
+}
+
+function askDoctor(f){
+  const o=[];
+  if(f.sc==='heat'&&f.cath) o.push('高温天我的目标饮水量应该是多少？需要在平时基础上加吗？');
+  if(nz(f.p.meds)) o.push('我现在吃的药里，有哪些会影响排汗或体温调节？');
+  if(f.intermittent) o.push('如果外出不方便导尿，间隔最长可以拉到多久？');
+  if(f.s.maxCathVol>500) o.push(`今天单次导尿量到过 ${f.s.maxCathVol} ml，这个量需要调整间隔吗？`);
+  if(f.sores) o.push('天气潮湿或出汗多的时候，坐垫和检查频率要不要跟着调整？');
+  if(f.epi) o.push('温度骤变会不会影响我的发作阈值？需要注意什么？');
+  if(!o.length&&f.cond.length) o.push(`这种天气下，我的${f.cond.slice(0,2).join('和')}要盯哪个指标？出现什么情况需要提前联系你？`);
+  if(!o.length) o.push('这种天气下，我的身体有没有需要特别注意的地方？');
+  return o.slice(0,4);
+}
+
+function runEngine(){
+  const f=facts();
+  const acts=actionPool(f);
+  const t=f.T!=null?`${Math.round(f.T)}℃`:'今天的天气';
+  const heads={
+    heat:`今天的${t}对你不是"热一点"——${f.highLesion||f.thermo?'是体温可能升上去却降不下来':'是脱水和体温上升会互相加码'}${f.cath?'，而且喝水和导尿这两件事会互相拉扯':''}。`,
+    rain:`今天的雨真正麻烦的不是淋湿，是${f.wheel?'你平时依赖的坡道、电梯和盲道可能整套失效':'看不见的水下情况和随之而来的停电停水'}。`,
+    wind:`台风天对你来说，最该在风起来之前解决的是${f.epower||f.floor>=4?'停电停梯之后你还能不能移动':'门窗和飞掷物'}。`,
+    cold:`这次降温对你的风险在两头：${f.wheel?'外面的结冰路面':'外出时的低温暴露'}，和屋里取暖不当。`
+  };
+  return {
+    headline: heads[f.sc]||'今天的行动清单。',
+    risk_level: riskOf(f),
+    why_you: whyYou(f),
+    actions: acts,
+    watch_for: watchFor(f),
+    ask_doctor: askDoctor(f)
+  };
+}
+
+let busy=false;
+async function generate(){
+  if(busy) return;
+  busy=true;
+  const btn=document.getElementById('genBtn');
+  btn.innerHTML='<span class="spin"></span>正在生成…<small>读取档案、天气与今日记录</small>';
+  btn.disabled=true;
+  const box=document.getElementById('resultBox');
+  box.innerHTML='<div class="result"><div class="stream" id="stream"></div></div>';
+  const el=document.getElementById('stream');
+  /* 逐字吐出来，是为了让"它在读我的数据"这件事看得见——真实版本这里是模型的流式返回 */
+  const lines=['读取个人档案…','读取天气情境…','读取今日健康记录…','匹配与你相关的风险…','组织行动清单…'];
+  for(const l of lines){ el.textContent+=l+'\n'; await new Promise(r=>setTimeout(r,260)); }
+  const data=runEngine();
+  S.result=data; S.generatedAt=Date.now(); S.genCount=(S.genCount||0)+1; save();
+  busy=false;
+  renderResult(data,'生成于 '+hhmm(S.generatedAt)+' · 原型内置逻辑，未调用模型');
+  renderChrome();
+}
+document.getElementById('genBtn').onclick=generate;
+
+/* ============================================================
+   步骤条 / 面板 / 启动
+   ============================================================ */
+function renderChrome(){
+  const nP=profileFilled(), nAll=visibleP().length;
+  const s=todayStats(), todayN=S.logs.filter(l=>isToday(l.ts)).length;
+  const okP=nP>=5, okW=!!S.scen, okH=S.logs.length>0;
+
+  document.getElementById('sum-profile').textContent=nP?`已填 ${nP} / ${nAll} 项`:'还没填';
+  document.getElementById('sum-weather').textContent=
+    S.scen?(SCEN[S.scen].nm+(S.wx&&S.wx.temp!=null?` · ${Math.round(S.wx.temp)}°`:' · 未填数值')):'还没选';
+  document.getElementById('sum-health').textContent=
+    S.logs.length?`今天 ${todayN} 条 · 共 ${S.logs.length} 条`:'还没有记录';
+
+  const steps=[
+    {n:'01',t:'我的情况',s:okP?`已填 ${nP} 项`:'建议填 5 项以上',ok:okP,p:'p-profile'},
+    {n:'02',t:'今天的天气',s:okW?SCEN[S.scen].nm:'必填',ok:okW,p:'p-weather'},
+    {n:'03',t:'健康记录',s:okH?`共 ${S.logs.length} 条`:'可跳过',ok:okH,p:'p-health'},
+    {n:'04',t:'生成清单',s:S.generatedAt?`已生成 ${S.genCount} 次`:'最后一步',ok:!!S.result,p:null}
+  ];
+  document.getElementById('steps').innerHTML=steps.map(x=>`
+    <button class="stepbtn ${x.ok?'ok':''}" data-goto="${x.p||''}">
+      <span class="n">${x.n}</span><span class="t">${esc(x.t)}</span><span class="s">${esc(x.s)}</span>
+    </button>`).join('');
+  document.querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>{
+    const id=b.dataset.goto;
+    if(!id){ document.getElementById('genBtn').scrollIntoView({behavior:'smooth'}); return; }
+    openPanel(id,true);
+    document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});
+  });
+
+  const btn=document.getElementById('genBtn');
+  if(busy) return;
+  btn.disabled=!okW;
+  btn.innerHTML='生成我的专属行动清单<small id="genHint"></small>';
+  const hint=document.getElementById('genHint');
+  const miss=[];
+  if(!okW) miss.push('先选一个天气情境');
+  if(!okP) miss.push('档案填得越全，清单越具体');
+  if(!okH) miss.push('加一条健康记录，清单会跟着变');
+  hint.textContent=miss.length?miss.join(' · '):`将读取：档案 ${nP} 项 · ${SCEN[S.scen].nm} · 今日记录 ${todayN} 条`;
+}
+function openPanel(id,on){
+  const p=document.getElementById(id);
+  p.classList.toggle('open',on);
+  p.querySelector('.panel-h').setAttribute('aria-expanded',String(on));
+}
+document.querySelectorAll('[data-toggle]').forEach(b=>b.onclick=()=>{
+  const id=b.dataset.toggle;
+  openPanel(id,!document.getElementById(id).classList.contains('open'));
+});
+
+(function init(){
+  renderProfile(); renderWx(); renderScen(); renderHTabs(); renderHForm();
+  renderLogs(); renderToday(); renderChrome();
+  if(S.result) renderResult(S.result,'上次生成于 '+hhmm(S.generatedAt||Date.now()));
+})();
+</script>

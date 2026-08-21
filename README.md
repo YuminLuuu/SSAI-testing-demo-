@@ -10,7 +10,8 @@ v0.2 及更早的版本保留作对照：v0.2 是预写内容 + 规则筛选的�
 
 | 文件 | 是什么 |
 |---|---|
-| `generator/` | **可交互原型（v0.3，当前主版本）。** 个人档案 + 实时天气 + 健康记录 → 调用大模型生成专属行动清单。需要 `node generator/server.js`；详见 [`generator/README.md`](generator/README.md)。 |
+| `generator/standalone.html` | **可交互原型（v0.3，双击即可打开）。** 全流程可点，生成由页面内置的规则引擎完成，不需要任何环境。用来做用户访谈的道具。 |
+| `generator/index.html` + `server.js` | **完整版（v0.3）。** 同一套界面，接实时天气与 `claude-opus-5`。需要 `node generator/server.js`；详见 [`generator/README.md`](generator/README.md)。 |
 | `app.html` | 可交互原型（v0.2）。 按需求文档的三条路径 + 常驻紧急求助搭的完整信息架构：天气应对 / 日常无障碍资源 / 健康笔记本 / 紧急求助。纯静态，无依赖，可离线打开。 |
 | `index.html` | 可交互原型（v0.1）。台风单情境的全时间轴 + 三个个性化问题 + 求助话术模块。保留作为对照。 |
 | `docs/prd.html` | **产品需求文档（PRD v0.2）。** 问题与目标用户、三条路径的逐条功能需求与验收标准（A/B/C/D/E 共 27 条）、内容红线、数据与隐私、指标、里程碑、六个待决策问题与四条停止条件。 |
